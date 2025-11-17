@@ -1,0 +1,95 @@
+'use client'
+
+import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import AdminLayout from '@/components/admin-layout'
+
+export default function RoutesManagement() {
+  const [showModal, setShowModal] = useState(false)
+  const routes = []
+
+  return (
+    <AdminLayout>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">จัดการเส้นทาง</h1>
+            <p className="text-muted-foreground">จัดการเส้นทางและราคา</p>
+          </div>
+          <Button onClick={() => setShowModal(true)}>เพิ่มเส้นทาง</Button>
+        </div>
+
+        <Card className="p-6">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left py-3 px-4">ต้นทาง</th>
+                  <th className="text-left py-3 px-4">ปลายทาง</th>
+                  <th className="text-left py-3 px-4">ราคา</th>
+                  <th className="text-right py-3 px-4">จัดการ</th>
+                </tr>
+              </thead>
+              <tbody>
+                {routes.map((route) => (
+                  <tr key={route.id} className="border-b hover:bg-muted/50">
+                    <td className="py-4 px-4 font-medium">{route.origin}</td>
+                    <td className="py-4 px-4 font-medium">{route.destination}</td>
+                    <td className="py-4 px-4 text-primary font-bold">฿{route.price}</td>
+                    <td className="py-4 px-4 text-right">
+                      <Button variant="ghost" size="sm" className="mr-2">แก้ไข</Button>
+                      <Button variant="ghost" size="sm" className="text-destructive">ลบ</Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+
+        {showModal && (
+          <div className="fixed inset-0 bg-background/80 flex items-center justify-center p-4 z-50">
+            <Card className="w-full max-w-md p-6">
+              <h2 className="text-2xl font-bold mb-6">เพิ่มเส้นทาง</h2>
+              <form className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">ต้นทาง</label>
+                  <input
+                    type="text"
+                    className="w-full px-4 py-3 rounded-lg border bg-background"
+                    placeholder="กรุงเทพฯ"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">ปลายทาง</label>
+                  <input
+                    type="text"
+                    className="w-full px-4 py-3 rounded-lg border bg-background"
+                    placeholder="เชียงใหม่"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">ราคา (บาท)</label>
+                  <input
+                    type="number"
+                    className="w-full px-4 py-3 rounded-lg border bg-background"
+                    placeholder="850"
+                  />
+                </div>
+                <div className="flex gap-3 pt-4">
+                  <Button variant="outline" className="flex-1" onClick={() => setShowModal(false)}>
+                    ยกเลิก
+                  </Button>
+                  <Button className="flex-1" onClick={() => setShowModal(false)}>
+                    บันทึก
+                  </Button>
+                </div>
+              </form>
+            </Card>
+          </div>
+        )}
+      </div>
+    </AdminLayout>
+  )
+}
