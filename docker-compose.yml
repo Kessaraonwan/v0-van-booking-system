@@ -1,0 +1,192 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: vanbooking_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-vanbooking}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-vanbooking123}
+      POSTGRES_DB: ${DB_NAME:-vanbooking_db}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./database/seeds/init.sql:/docker-entrypoint-initdb.d/02-seeds.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-vanbooking}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - vanbooking_network
+
+  # MySQL Database (Alternative - comment out postgres if using this)
+  # mysql:
+  #   image: mysql:8.0
+  #   container_name: vanbooking_mysql
+  #   restart: unless-stopped
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root123}
+  #     MYSQL_DATABASE: ${DB_NAME:-vanbooking_db}
+  #     MYSQL_USER: ${DB_USER:-vanbooking}
+  #     MYSQL_PASSWORD: ${DB_PASSWORD:-vanbooking123}
+  #   ports:
+  #     - "${DB_PORT:-3306}:3306"
+  #   volumes:
+  #     - mysql_data:/var/lib/mysql
+  #     - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+  #     - ./database/seeds/init.sql:/docker-entrypoint-initdb.d/02-seeds.sql
+  #   healthcheck:
+  #     test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #   networks:
+  #     - vanbooking_network
+
+  # Backend API (Node.js)
+  backend:
+    build:
+      context: ./backend/nodejs
+      dockerfile: Dockerfile
+    container_name: vanbooking_backend
+    restart: unless-stopped
+    ports:
+      - "${API_PORT:-8000}:8000"
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: 8000
+      
+      # Database
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: ${DB_USER:-vanbooking}
+      DB_PASSWORD: ${DB_PASSWORD:-vanbooking123}
+      DB_NAME: ${DB_NAME:-vanbooking_db}
+      
+      # JWT
+      JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key-change-this-in-production}
+      JWT_EXPIRY: ${JWT_EXPIRY:-24h}
+      JWT_REFRESH_EXPIRY: ${JWT_REFRESH_EXPIRY:-7d}
+      
+      # CORS
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
+      
+      # Upload
+      MAX_FILE_SIZE: ${MAX_FILE_SIZE:-5mb}
+      
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend/nodejs:/app
+      - /app/node_modules
+      - backend_uploads:/app/uploads
+    networks:
+      - vanbooking_network
+    command: npm run dev
+
+  # Backend API (Go) - Alternative
+  # Uncomment if using Go instead of Node.js
+  # backend_go:
+  #   build:
+  #     context: ./backend/go
+  #     dockerfile: Dockerfile
+  #   container_name: vanbooking_backend_go
+  #   restart: unless-stopped
+  #   ports:
+  #     - "${API_PORT:-8000}:8000"
+  #   environment:
+  #     ENV: ${ENV:-development}
+  #     PORT: 8000
+  #     
+  #     # Database
+  #     DB_HOST: postgres
+  #     DB_PORT: 5432
+  #     DB_USER: ${DB_USER:-vanbooking}
+  #     DB_PASSWORD: ${DB_PASSWORD:-vanbooking123}
+  #     DB_NAME: ${DB_NAME:-vanbooking_db}
+  #     
+  #     # JWT
+  #     JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key}
+  #     JWT_EXPIRY: ${JWT_EXPIRY:-24}
+  #     
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #   volumes:
+  #     - ./backend/go:/app
+  #   networks:
+  #     - vanbooking_network
+
+  # Frontend (Next.js)
+  # Note: Frontend files are in root directory, not in /frontend folder
+  # Uncomment when ready to run frontend with Docker
+  # frontend:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.frontend
+  #   container_name: vanbooking_frontend
+  #   restart: unless-stopped
+  #   ports:
+  #     - "${FRONTEND_PORT:-3000}:3000"
+  #   environment:
+  #     NODE_ENV: ${NODE_ENV:-development}
+  #     NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000/api}
+  #     NEXT_PUBLIC_APP_NAME: Van Booking System
+  #   depends_on:
+  #     - backend
+  #   volumes:
+  #     - .:/app
+  #     - /app/node_modules
+  #     - /app/.next
+  #     - /app/backend
+  #   networks:
+  #     - vanbooking_network
+  #   command: pnpm run dev
+
+  # Redis (for caching & sessions) - Optional
+  redis:
+    image: redis:7-alpine
+    container_name: vanbooking_redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - vanbooking_network
+    command: redis-server --appendonly yes
+
+  # Adminer (Database Management UI) - Optional
+  adminer:
+    image: adminer:latest
+    container_name: vanbooking_adminer
+    restart: unless-stopped
+    ports:
+      - "${ADMINER_PORT:-8080}:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    depends_on:
+      - postgres
+    networks:
+      - vanbooking_network
+
+volumes:
+  postgres_data:
+    driver: local
+  # mysql_data:
+  #   driver: local
+  redis_data:
+    driver: local
+  backend_uploads:
+    driver: local
+
+networks:
+  vanbooking_network:
+    driver: bridge

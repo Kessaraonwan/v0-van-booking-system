@@ -1,0 +1,27 @@
+# Frontend Dockerfile (Next.js)
+# Build at root level (where package.json is)
+
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Install pnpm
+RUN npm install -g pnpm
+
+# Copy package files
+COPY package.json pnpm-lock.yaml ./
+
+# Install dependencies
+RUN pnpm install --frozen-lockfile
+
+# Copy source code (excluding backend)
+COPY . .
+
+# Remove backend folder from container (not needed in frontend)
+RUN rm -rf backend
+
+# Expose port
+EXPOSE 3000
+
+# Start development server
+CMD ["pnpm", "run", "dev"]
