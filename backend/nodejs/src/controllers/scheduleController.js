@@ -2,38 +2,44 @@ const { Schedule, Route, Van, Seat, Booking } = require('../models');
 const { Op } = require('sequelize');
 
 /**
- * Search schedules
- * GET /api/schedules/search?from=Bangkok&to=Pattaya&date=2024-02-01
+ * Search schedules or get all schedules
+ * GET /api/schedules?from=Bangkok&to=Pattaya&date=2024-02-01
+ * GET /api/schedules (get all)
  */
 exports.searchSchedules = async (req, res) => {
   try {
     const { from, to, date } = req.query;
 
-    if (!from || !to || !date) {
-      return res.status(400).json({
-        success: false,
-        message: 'Origin, destination, and date are required'
-      });
+    // Build where clause for schedules
+    const whereClause = {
+      status: 'scheduled',
+      available_seats: {
+        [Op.gt]: 0
+      }
+    };
+
+    // Add date filter if provided
+    if (date) {
+      whereClause.departure_date = date;
+    }
+
+    // Build route where clause
+    const routeWhere = { is_active: true };
+    if (from) {
+      routeWhere.origin = { [Op.iLike]: `%${from}%` };
+    }
+    if (to) {
+      routeWhere.destination = { [Op.iLike]: `%${to}%` };
     }
 
     // Find schedules
     const schedules = await Schedule.findAll({
-      where: {
-        departure_date: date,
-        status: 'scheduled',
-        available_seats: {
-          [Op.gt]: 0
-        }
-      },
+      where: whereClause,
       include: [
         {
           model: Route,
           as: 'route',
-          where: {
-            origin: { [Op.iLike]: `%${from}%` },
-            destination: { [Op.iLike]: `%${to}%` },
-            is_active: true
-          }
+          where: routeWhere
         },
         {
           model: Van,

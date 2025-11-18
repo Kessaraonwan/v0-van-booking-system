@@ -2,50 +2,99 @@ import Link from 'next/link'
 
 export default function Footer() {
   return (
-    <footer className="border-t bg-secondary/30 mt-auto">
+    <footer className="bg-gray-900 text-gray-300 mt-auto">
       <div className="container mx-auto px-4 lg:px-8 py-12">
-        <div className="grid md:grid-cols-4 gap-8 mb-8">
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <svg className="w-5 h-5 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                </svg>
+        <div className="grid md:grid-cols-5 gap-8 mb-8">
+          {/* Logo & Description */}
+          <div className="md:col-span-2">
+            <Link href="/">
+              <div className="mb-4 cursor-pointer hover:opacity-80 transition-opacity">
+                <img 
+                  src="/logo.png" 
+                  alt="VanGo Logo" 
+                  className="h-30 w-auto brightness-110"
+                />
               </div>
-              <span className="font-bold text-lg">VanGo</span>
-            </div>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              แพลตฟอร์มจองรถตู้ออนไลน์ที่ง่าย รวดเร็ว และปลอดภัย
+            </Link>
+            <p className="text-sm leading-relaxed mb-4">
+              แพลตฟอร์มจองรถตู้ออนไลน์ที่ง่าย รวดเร็ว และปลอดภัย พร้อมบริการครบครัน ตลอด 24 ชั่วโมง
             </p>
+            <div className="flex gap-3">
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-gray-800 hover:bg-red-500 rounded-lg flex items-center justify-center transition-colors" aria-label="Facebook">
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                </svg>
+              </a>
+              <a href="https://line.me" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-gray-800 hover:bg-red-500 rounded-lg flex items-center justify-center transition-colors" aria-label="LINE">
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.771.039 1.086l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/>
+                </svg>
+              </a>
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-gray-800 hover:bg-red-500 rounded-lg flex items-center justify-center transition-colors" aria-label="Instagram">
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                </svg>
+              </a>
+            </div>
           </div>
           
+          {/* บริการ */}
           <div>
-            <h3 className="font-semibold mb-4">บริการ</h3>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><Link href="/search" className="hover:text-foreground transition-colors">ค้นหาเที่ยวรถ</Link></li>
-              <li><Link href="/bookings" className="hover:text-foreground transition-colors">การจองของฉัน</Link></li>
+            <h3 className="font-semibold text-white mb-4">บริการของเรา</h3>
+            <ul className="space-y-3 text-sm">
+              <li><Link href="/search" className="hover:text-red-400 transition-colors">ค้นหาเที่ยวรถ</Link></li>
+              <li><Link href="/bookings" className="hover:text-red-400 transition-colors">ตรวจสอบการจอง</Link></li>
+              <li><span className="text-gray-400 cursor-not-allowed">โปรโมชั่น (เร็วๆ นี้)</span></li>
             </ul>
           </div>
           
+          {/* เส้นทางยอดนิยม */}
           <div>
-            <h3 className="font-semibold mb-4">เกี่ยวกับเรา</h3>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><Link href="#" className="hover:text-foreground transition-colors">เกี่ยวกับ VanGo</Link></li>
-              <li><Link href="#" className="hover:text-foreground transition-colors">ติดต่อเรา</Link></li>
+            <h3 className="font-semibold text-white mb-4">เส้นทางยอดนิยม</h3>
+            <ul className="space-y-3 text-sm">
+              <li>กรุงเทพฯ - พัทยา</li>
+              <li>กรุงเทพฯ - หัวหิน</li>
+              <li>กรุงเทพฯ - เชียงใหม่</li>
+              <li>กรุงเทพฯ - ภูเก็ต</li>
             </ul>
           </div>
           
+          {/* ช่องทางติดต่อ */}
           <div>
-            <h3 className="font-semibold mb-4">ช่วยเหลือ</h3>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><Link href="#" className="hover:text-foreground transition-colors">คำถามที่พบบ่อย</Link></li>
-              <li><Link href="#" className="hover:text-foreground transition-colors">นโยบายการยกเลิก</Link></li>
+            <h3 className="font-semibold text-white mb-4">ติดต่อเรา</h3>
+            <ul className="space-y-3 text-sm">
+              <li className="flex items-center gap-2">
+                <svg className="w-4 h-4 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                </svg>
+                <a href="tel:021234567" className="hover:text-red-400 transition-colors">02-123-4567</a>
+              </li>
+              <li className="flex items-center gap-2">
+                <svg className="w-4 h-4 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                <a href="mailto:info@vango.co.th" className="hover:text-red-400 transition-colors">info@vango.co.th</a>
+              </li>
+              <li className="flex items-start gap-2">
+                <svg className="w-4 h-4 text-red-400 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span className="text-gray-400">123 ถนนพระราม 4<br/>กรุงเทพฯ 10500</span>
+              </li>
             </ul>
           </div>
         </div>
         
-        <div className="pt-8 border-t text-center text-sm text-muted-foreground">
-          <p>&copy; 2025 VanGo. สงวนลิขสิทธิ์</p>
+        <div className="pt-8 border-t border-gray-800">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm">
+            <p>© 2025 VanGo - ระบบจองรถตู้ออนไลน์. สงวนลิขสิทธิ์.</p>
+            <div className="flex gap-6 text-gray-500">
+              <span>นโยบายความเป็นส่วนตัว</span>
+              <span>เงื่อนไขการใช้งาน</span>
+              <span>นโยบายการคืนเงิน</span>
+            </div>
+          </div>
         </div>
       </div>
     </footer>

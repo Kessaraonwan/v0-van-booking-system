@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 40, "column": 0}, "map": {"version":3,"sources":["file:///workspaces/v0-van-booking-system/pages/_document.jsx"],"sourcesContent":["import { Html, Head, Main, NextScript } from 'next/document'\n\nexport default function Document() {\n  return (\n    <Html lang=\"th\">\n      <Head />\n      <body>\n        <Main />\n        <NextScript />\n      </body>\n    </Html>\n  )\n}\n"],"names":[],"mappings":";;;;;AAAA;;;AAEe,SAAS;IACtB,qBACE,qKAAC,gQAAI;QAAC,MAAK;;0BACT,qKAAC,gQAAI;;;;;0BACL,qKAAC;;kCACC,qKAAC,gQAAI;;;;;kCACL,qKAAC,sQAAU;;;;;;;;;;;;;;;;;AAInB"}}]
+}

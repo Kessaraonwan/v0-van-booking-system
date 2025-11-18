@@ -12,6 +12,7 @@ const bookingRoutes = require('./routes/bookings');
 const adminRoutes = require('./routes/admin');
 const routeRoutes = require('./routes/routes');
 const vanRoutes = require('./routes/vans');
+const reviewRoutes = require('./routes/reviews');
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -19,7 +20,7 @@ const PORT = process.env.PORT || 8000;
 // Middleware
 app.use(helmet());
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+  origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
   credentials: true
 }));
 app.use(express.json({ limit: process.env.MAX_FILE_SIZE || '5mb' }));
@@ -45,6 +46,7 @@ app.use('/api/bookings', bookingRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/routes', routeRoutes);
 app.use('/api/vans', vanRoutes);
+app.use('/api/reviews', reviewRoutes);
 
 // 404 Handler
 app.use((req, res) => {

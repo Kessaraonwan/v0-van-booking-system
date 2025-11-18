@@ -27,6 +27,10 @@ const Route = sequelize.define('Route', {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: false
   },
+  image_url: {
+    type: DataTypes.STRING(500),
+    allowNull: true
+  },
   is_active: {
     type: DataTypes.BOOLEAN,
     defaultValue: true

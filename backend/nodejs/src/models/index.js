@@ -5,6 +5,7 @@ const Schedule = require('./Schedule');
 const Seat = require('./Seat');
 const Booking = require('./Booking');
 const Payment = require('./Payment');
+const Review = require('./Review');
 
 // Define relationships
 
@@ -78,6 +79,36 @@ Payment.belongsTo(Booking, {
   as: 'booking'
 });
 
+// Booking -> Review (One-to-One)
+Booking.hasOne(Review, {
+  foreignKey: 'booking_id',
+  as: 'review'
+});
+Review.belongsTo(Booking, {
+  foreignKey: 'booking_id',
+  as: 'booking'
+});
+
+// User -> Reviews (One-to-Many)
+User.hasMany(Review, {
+  foreignKey: 'user_id',
+  as: 'reviews'
+});
+Review.belongsTo(User, {
+  foreignKey: 'user_id',
+  as: 'user'
+});
+
+// Route -> Reviews (One-to-Many)
+Route.hasMany(Review, {
+  foreignKey: 'route_id',
+  as: 'reviews'
+});
+Review.belongsTo(Route, {
+  foreignKey: 'route_id',
+  as: 'route'
+});
+
 module.exports = {
   User,
   Route,
@@ -85,5 +116,6 @@ module.exports = {
   Schedule,
   Seat,
   Booking,
-  Payment
+  Payment,
+  Review
 };
