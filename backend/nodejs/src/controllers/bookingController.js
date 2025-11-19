@@ -445,3 +445,106 @@ exports.cancelBooking = async (req, res) => {
     });
   }
 };
+
+/**
+ * Pay for booking (Mock Payment)
+ * POST /api/bookings/:id/pay
+ */
+exports.payBooking = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user_id = req.user.id;
+    const { payment_method, payment_slip_url } = req.body;
+
+    // Find booking
+    const booking = await Booking.findOne({
+      where: { id, user_id }
+    });
+
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        message: 'Booking not found'
+      });
+    }
+
+    // Check if already paid
+    if (booking.payment_status === 'PAID') {
+      return res.status(400).json({
+        success: false,
+        message: 'Booking already paid'
+      });
+    }
+
+    // Check if cancelled
+    if (booking.status === 'cancelled') {
+      return res.status(400).json({
+        success: false,
+        message: 'Cannot pay for cancelled booking'
+      });
+    }
+
+    // Determine payment status based on payment method
+    let newPaymentStatus;
+    let newBookingStatus = 'pending';
+    let message;
+
+    if (payment_method === 'Offline') {
+      // Offline payment: waiting for customer to pay at service center
+      newPaymentStatus = 'PENDING_OFFLINE';
+      message = 'Booking confirmed. Please pay at service center within 2 hours.';
+    } else {
+      // PromptPay or Bank Transfer: waiting for admin verification
+      if (!payment_slip_url) {
+        return res.status(400).json({
+          success: false,
+          message: 'Payment slip is required for online payment methods'
+        });
+      }
+      newPaymentStatus = 'PENDING_VERIFICATION';
+      message = 'Payment slip received. Waiting for admin verification.';
+    }
+
+    // Update booking
+    await booking.update({
+      payment_status: newPaymentStatus,
+      payment_method: payment_method || 'PromptPay',
+      payment_slip_url: payment_slip_url || null,
+      status: newBookingStatus
+    });
+
+    // Fetch complete booking data
+    const completeBooking = await Booking.findOne({
+      where: { id },
+      include: [
+        {
+          model: Schedule,
+          as: 'schedule',
+          include: [
+            {
+              model: Route,
+              as: 'route'
+            },
+            {
+              model: Van,
+              as: 'van'
+            }
+          ]
+        }
+      ]
+    });
+
+    res.json({
+      success: true,
+      message: message,
+      data: completeBooking
+    });
+  } catch (error) {
+    console.error('Pay booking error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to process payment',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};

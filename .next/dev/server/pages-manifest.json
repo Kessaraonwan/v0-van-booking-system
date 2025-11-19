@@ -11,6 +11,7 @@
   "/bookings": "pages/bookings.js",
   "/confirm": "pages/confirm.js",
   "/login": "pages/login.js",
+  "/payments/[bookingId]": "pages/payments/[bookingId].js",
   "/register": "pages/register.js",
   "/search": "pages/search.js",
   "/seats/[id]": "pages/seats/[id].js",

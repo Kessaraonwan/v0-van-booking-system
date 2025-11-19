@@ -1,0 +1,5 @@
+{
+  "/payments/[bookingId]": [
+    "static/chunks/pages/payments/[bookingId].js"
+  ]
+}

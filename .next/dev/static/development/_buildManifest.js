@@ -29,6 +29,9 @@ self.__BUILD_MANIFEST = {
   "/login": [
     "static/chunks/pages/login.js"
   ],
+  "/payments/[bookingId]": [
+    "static/chunks/pages/payments/[bookingId].js"
+  ],
   "/register": [
     "static/chunks/pages/register.js"
   ],
@@ -61,6 +64,7 @@ self.__BUILD_MANIFEST = {
     "/bookings",
     "/confirm",
     "/login",
+    "/payments/[bookingId]",
     "/register",
     "/search",
     "/seats/[id]",

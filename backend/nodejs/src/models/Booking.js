@@ -57,6 +57,23 @@ const Booking = sequelize.define('Booking', {
     defaultValue: 'pending',
     allowNull: false
   },
+  payment_status: {
+    type: DataTypes.ENUM('UNPAID', 'PENDING_VERIFICATION', 'PENDING_OFFLINE', 'PAID', 'REJECTED'),
+    defaultValue: 'UNPAID',
+    allowNull: false
+  },
+  payment_method: {
+    type: DataTypes.ENUM('PromptPay', 'Bank Transfer', 'Offline'),
+    allowNull: true
+  },
+  payment_slip_url: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
+  paid_at: {
+    type: DataTypes.DATE,
+    allowNull: true
+  },
   cancelled_at: {
     type: DataTypes.DATE,
     allowNull: true
