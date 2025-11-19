@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import Head from 'next/head'
 import { Button } from '@/components/ui/button'
 import AdminLayout from '@/components/admin-layout'
+import { adminAPI } from '@/lib/api-client'
 
 export default function RoutesManagement() {
   const [showModal, setShowModal] = useState(false)
@@ -14,37 +15,25 @@ export default function RoutesManagement() {
 
   const fetchRoutes = async () => {
     try {
-      // TODO: เชื่อม API จริง
-      // const response = await fetch('http://localhost:8000/api/admin/routes', {
-      //   headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
-      // })
-      // const data = await response.json()
-      // if (data.success) {
-      //   setRoutes(data.data)
-      // }
-      setLoading(false)
+      setLoading(true)
+      const response = await adminAPI.getAllRoutes()
+      if (response.success) {
+        setRoutes(response.data || [])
+      }
     } catch (error) {
       console.error('Error fetching routes:', error)
+    } finally {
       setLoading(false)
     }
   }
 
   const handleAddRoute = async (formData) => {
     try {
-      // TODO: เชื่อม API จริง
-      // const response = await fetch('http://localhost:8000/api/admin/routes', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
-      //   },
-      //   body: JSON.stringify(formData)
-      // })
-      // const data = await response.json()
-      // if (data.success) {
-      //   fetchRoutes()
-      //   setShowModal(false)
-      // }
+      const response = await adminAPI.createRoute(formData)
+      if (response.success) {
+        await fetchRoutes()
+        setShowModal(false)
+      }
     } catch (error) {
       console.error('Error adding route:', error)
     }
@@ -59,22 +48,22 @@ export default function RoutesManagement() {
         <div className="space-y-8">
           {/* Hero Header */}
           <div 
-            className="relative overflow-hidden rounded-3xl shadow-2xl"
+            className="relative overflow-hidden rounded-2xl shadow-xl"
             style={{
               backgroundImage: 'url(https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?w=1200&h=400&fit=crop)',
               backgroundSize: 'cover',
               backgroundPosition: 'center',
             }}
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-600/95 via-pink-600/90 to-red-600/85"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-gray-900/80 via-gray-900/70 to-gray-900/60"></div>
             <div className="relative z-10 p-8 md:p-12">
               <div className="flex items-center justify-between">
                 <div>
                   <h1 className="text-4xl md:text-5xl font-bold text-white mb-3">
-                    🗺️ จัดการเส้นทาง
+                    จัดการเส้นทาง
                   </h1>
                   <p className="text-xl text-white/90 mb-6">
-                    กำหนดจุดเริ่มต้น ปลายทาง และราคาค่าโดยสาร
+                    ดูเส้นทางทั้งหมดและราคา
                   </p>
                   <div className="flex items-center gap-2 text-white/90">
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -85,7 +74,7 @@ export default function RoutesManagement() {
                 </div>
                 <Button 
                   onClick={() => setShowModal(true)}
-                  className="bg-white text-purple-600 hover:bg-purple-50 font-semibold shadow-2xl hover:shadow-3xl transition-all hover:scale-105"
+                  className="bg-white text-red-600 hover:bg-red-50 font-semibold transition-all"
                   size="lg"
                 >
                   <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -114,7 +103,7 @@ export default function RoutesManagement() {
           ) : routes.length > 0 ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {routes.map((route) => (
-                <div key={route.id} className="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 bg-white border-2 border-gray-100 hover:border-purple-200">
+                <div key={route.id} className="group relative overflow-hidden rounded-xl shadow-md hover:shadow-lg transition-all duration-300 bg-white border border-gray-200 hover:border-red-300">
                   {/* Destination Image */}
                   <div className="relative h-48 overflow-hidden">
                     <img 
@@ -144,7 +133,7 @@ export default function RoutesManagement() {
                             <div className="w-2 h-2 rounded-full bg-green-500"></div>
                             <span className="font-bold text-gray-900">{route.origin}</span>
                           </div>
-                          <svg className="w-5 h-5 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                           </svg>
                           <div className="flex items-center gap-2">
@@ -160,23 +149,23 @@ export default function RoutesManagement() {
                   <div className="p-5">
                     {/* Stats */}
                     <div className="grid grid-cols-2 gap-3 mb-4">
-                      <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-3 border border-purple-200">
+                      <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
                         <div className="flex items-center gap-2 mb-1">
-                          <svg className="w-4 h-4 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg className="w-4 h-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
-                          <span className="text-xs text-purple-700 font-medium">ราคา</span>
+                          <span className="text-xs text-gray-600 font-medium">ราคา</span>
                         </div>
-                        <div className="text-2xl font-bold text-purple-900">฿{route.base_price}</div>
+                        <div className="text-2xl font-bold text-gray-900">฿{route.base_price}</div>
                       </div>
-                      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-3 border border-blue-200">
+                      <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
                         <div className="flex items-center gap-2 mb-1">
-                          <svg className="w-4 h-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg className="w-4 h-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
-                          <span className="text-xs text-blue-700 font-medium">ระยะเวลา</span>
+                          <span className="text-xs text-gray-600 font-medium">ใช้เวลา</span>
                         </div>
-                        <div className="text-2xl font-bold text-blue-900">{Math.round(route.duration_minutes / 60)} ชม.</div>
+                        <div className="text-2xl font-bold text-gray-900">{Math.round(route.duration_minutes / 60)} ชม.</div>
                       </div>
                     </div>
 
@@ -198,7 +187,7 @@ export default function RoutesManagement() {
                     <div className="flex gap-2">
                       <Button 
                         variant="outline" 
-                        className="flex-1 border-2 border-purple-300 text-purple-600 hover:bg-purple-50 hover:border-purple-400 transition-all"
+                        className="flex-1 border border-gray-300 text-gray-600 hover:bg-gray-50 transition-all"
                       >
                         <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -207,7 +196,7 @@ export default function RoutesManagement() {
                       </Button>
                       <Button 
                         variant="outline" 
-                        className="flex-1 border-2 border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 transition-all"
+                        className="flex-1 border border-red-300 text-red-600 hover:bg-red-50 transition-all"
                       >
                         <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -220,13 +209,15 @@ export default function RoutesManagement() {
               ))}
             </div>
           ) : (
-            <div className="bg-white rounded-3xl shadow-lg p-16 text-center border-2 border-dashed border-gray-300">
-              <div className="text-8xl mb-4">🗺️</div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">ยังไม่มีเส้นทางในระบบ</h3>
-              <p className="text-gray-600 mb-6">เริ่มต้นเพิ่มเส้นทางแรกของคุณ</p>
+            <div className="bg-white rounded-xl shadow-lg p-16 text-center border border-dashed border-gray-300">
+              <svg className="w-24 h-24 mx-auto mb-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+              </svg>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">ยังไม่มีเส้นทาง</h3>
+              <p className="text-gray-600 mb-6">คลิกปุ่มด้านล่างเพื่อเพิ่มเส้นทางใหม่</p>
               <Button 
                 onClick={() => setShowModal(true)}
-                className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white"
+                className="bg-red-500 hover:bg-red-600 text-white"
                 size="lg"
               >
                 <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -240,10 +231,10 @@ export default function RoutesManagement() {
           {/* Add Route Modal */}
           {showModal && (
             <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-              <div className="w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in duration-300">
-                <div className="bg-gradient-to-r from-purple-500 to-pink-600 px-6 py-5 text-white">
+              <div className="w-full max-w-lg bg-white rounded-xl shadow-2xl overflow-hidden animate-in zoom-in duration-300">
+                <div className="bg-red-500 px-6 py-5 text-white">
                   <div className="flex items-center justify-between">
-                    <h2 className="text-2xl font-bold">เพิ่มเส้นทางใหม่</h2>
+                    <h2 className="text-2xl font-bold">สร้างเส้นทางใหม่</h2>
                     <button 
                       onClick={() => setShowModal(false)}
                       className="w-8 h-8 rounded-lg bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors"

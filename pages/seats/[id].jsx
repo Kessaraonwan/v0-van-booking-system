@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { Button } from '@/components/ui/button'
 import Navbar from '@/components/navbar'
@@ -13,6 +14,14 @@ export default function SeatSelectionPage() {
   const [scheduleData, setScheduleData] = useState(null)
   const [seats, setSeats] = useState([])
   const [loading, setLoading] = useState(true)
+
+  // Check authentication
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken')
+    if (!token) {
+      router.push('/login')
+    }
+  }, [])
 
   // TODO: เชื่อมฐานข้อมูลจริงที่นี่
   useEffect(() => {
@@ -68,7 +77,7 @@ export default function SeatSelectionPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col bg-gradient-to-br from-orange-50 via-white to-red-50">
-        <Navbar showAuth={false} showBookings={true} />
+        <Navbar />
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center space-y-4">
             <div className="relative w-20 h-20 mx-auto">
@@ -93,7 +102,7 @@ export default function SeatSelectionPage() {
         <title>เลือกที่นั่ง - VanGo</title>
       </Head>
       
-      <Navbar showAuth={false} showBookings={true} />
+      <Navbar />
 
       {/* Hero Section with Gradient */}
       <div className="bg-gradient-to-br from-orange-500 via-red-500 to-pink-600 text-white">

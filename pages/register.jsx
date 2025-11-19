@@ -1,19 +1,19 @@
-'use client'
-
 import { useState } from 'react'
 import Link from 'next/link'
 import Head from 'next/head'
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'next/router'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { useToast } from '@/hooks/use-toast'
-import api from '@/lib/api-client'
+import { authAPI } from '@/lib/api-client'
 
 export default function RegisterPage() {
   const router = useRouter()
   const { toast } = useToast()
   const [formData, setFormData] = useState({
-    name: '',
+    firstName: '',
+    lastName: '',
+    phone: '',
     email: '',
     password: '',
     confirmPassword: ''
@@ -29,10 +29,18 @@ export default function RegisterPage() {
   const validateForm = () => {
     const newErrors = {}
 
-    if (!formData.name.trim()) {
-      newErrors.name = 'กรุณากรอกชื่อ-นามสกุล'
-    } else if (formData.name.trim().length < 2) {
-      newErrors.name = 'ชื่อต้องมีอย่างน้อย 2 ตัวอักษร'
+    if (!formData.firstName.trim()) {
+      newErrors.firstName = 'กรุณากรอกชื่อ'
+    }
+
+    if (!formData.lastName.trim()) {
+      newErrors.lastName = 'กรุณากรอกนามสกุล'
+    }
+
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'กรุณากรอกเบอร์โทร'
+    } else if (!/^[0-9]{10}$/.test(formData.phone.replace(/-/g, ''))) {
+      newErrors.phone = 'เบอร์โทรไม่ถูกต้อง'
     }
 
     if (!formData.email.trim()) {
@@ -68,11 +76,12 @@ export default function RegisterPage() {
     setErrors({})
 
     try {
-      const response = await api.register(
-        formData.email,
-        formData.password,
-        formData.name
-      )
+      const response = await authAPI.register({
+        email: formData.email,
+        password: formData.password,
+        full_name: `${formData.firstName} ${formData.lastName}`,
+        phone: formData.phone
+      })
 
       if (response.success) {
         toast({
@@ -130,35 +139,77 @@ export default function RegisterPage() {
 
             {/* Register Form */}
             <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Name Input */}
+              {/* First Name & Last Name */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    ชื่อ <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="firstName"
+                    value={formData.firstName}
+                    onChange={handleChange}
+                    className={`w-full px-4 py-3.5 rounded-xl border-2 transition-all focus:outline-none focus:ring-2 focus:ring-orange-500/20 ${
+                      errors.firstName ? 'border-red-500 bg-red-50' : 'border-gray-200 focus:border-orange-500'
+                    }`}
+                    placeholder="สมชาย"
+                    disabled={isLoading}
+                  />
+                  {errors.firstName && (
+                    <p className="text-sm text-red-600 mt-1">{errors.firstName}</p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    นามสกุล <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="lastName"
+                    value={formData.lastName}
+                    onChange={handleChange}
+                    className={`w-full px-4 py-3.5 rounded-xl border-2 transition-all focus:outline-none focus:ring-2 focus:ring-orange-500/20 ${
+                      errors.lastName ? 'border-red-500 bg-red-50' : 'border-gray-200 focus:border-orange-500'
+                    }`}
+                    placeholder="ใจดี"
+                    disabled={isLoading}
+                  />
+                  {errors.lastName && (
+                    <p className="text-sm text-red-600 mt-1">{errors.lastName}</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Phone Input */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  ชื่อ-นามสกุล <span className="text-red-500">*</span>
+                  เบอร์โทร <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                     </svg>
                   </div>
                   <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
                     onChange={handleChange}
                     className={`w-full pl-12 pr-4 py-3.5 rounded-xl border-2 transition-all focus:outline-none focus:ring-2 focus:ring-orange-500/20 ${
-                      errors.name ? 'border-red-500 bg-red-50' : 'border-gray-200 focus:border-orange-500'
+                      errors.phone ? 'border-red-500 bg-red-50' : 'border-gray-200 focus:border-orange-500'
                     }`}
-                    placeholder="สมชาย ใจดี"
+                    placeholder="0812345678"
                     disabled={isLoading}
                   />
                 </div>
-                {errors.name && (
+                {errors.phone && (
                   <p className="text-sm text-red-600 mt-2 flex items-center gap-1">
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                     </svg>
-                    {errors.name}
+                    {errors.phone}
                   </p>
                 )}
               </div>

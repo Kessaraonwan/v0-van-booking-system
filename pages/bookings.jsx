@@ -14,8 +14,10 @@ export default function MyBookingsPage() {
 
   // ตรวจสอบ authentication
   useEffect(() => {
-    const token = localStorage.getItem('token')
-    if (!token) {
+    const token = localStorage.getItem('accessToken')
+    const user = localStorage.getItem('user')
+    
+    if (!token || !user) {
       // ถ้าไม่มี token ให้ redirect ไปหน้า login
       router.push('/login?redirect=/bookings')
       return
@@ -81,8 +83,8 @@ export default function MyBookingsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold mb-3">การจองของฉัน</h1>
-              <p className="text-white/90 text-lg">จัดการและติดตามการจองของคุณ</p>
+              <h1 className="text-3xl md:text-4xl font-bold mb-3">รายการจองของคุณ</h1>
+              <p className="text-white/90 text-lg">ตรวจสอบและจัดการการจองของคุณได้ที่นี่</p>
             </div>
             <div className="hidden md:block">
               <svg className="w-24 h-24 text-white/20" fill="currentColor" viewBox="0 0 24 24">
@@ -124,7 +126,7 @@ export default function MyBookingsPage() {
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                กำลังจะมาถึง
+                กำลังมาถึง
               </span>
             </button>
             <button
@@ -139,7 +141,7 @@ export default function MyBookingsPage() {
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                เสร็จสิ้น
+                เดินทางแล้ว
               </span>
             </button>
             <button

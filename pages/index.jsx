@@ -109,15 +109,15 @@ export default function HomePage() {
           
           <div className="container mx-auto px-4 lg:px-8 relative z-10">
             <div className="max-w-4xl">
-              <p className="text-red-400 font-semibold mb-4 text-lg">ระบบจองรถตู้ออนไลน์</p>
+              <p className="text-red-400 font-semibold mb-4 text-lg">จองรถตู้ออนไลน์</p>
               <h1 className="text-4xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-                จองรถตู้
+                เดินทางทั่วไทย
                 <br />
-                <span className="text-white">ได้ง่ายๆ ในไม่กี่คลิก</span>
+                <span className="text-white">จองง่าย ได้ที่นั่ง</span>
               </h1>
               
               <p className="text-lg lg:text-xl text-gray-200 mb-12 max-w-2xl">
-                เลือกเส้นทาง เลือกเวลา เลือกที่นั่ง ชำระเงินปลอดภัย ทุกอย่างในที่เดียว
+                จองล่วงหน้า เลือกที่นั่งเอง ชำระเงินออนไลน์
               </p>
 
               {/* กล่องค้นหา - Card ขาวโปร่งแสง */}
@@ -198,8 +198,8 @@ export default function HomePage() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <h3 className="text-lg font-bold text-gray-900 mb-2">เลือกที่นั่งเอง</h3>
-                <p className="text-gray-600 text-sm">เลือกที่นั่งที่คุณชอบได้ด้วยตัวเอง</p>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">เลือกที่นั่งได้</h3>
+                <p className="text-gray-600 text-sm">เลือกที่นั่งที่ต้องการได้เลย</p>
               </div>
 
               <div className="text-center group">
@@ -208,8 +208,8 @@ export default function HomePage() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <h3 className="text-lg font-bold text-gray-900 mb-2">ราคาคุ้มค่า</h3>
-                <p className="text-gray-600 text-sm">ราคาเป็นธรรม โปรโมชั่นดีๆ มากมาย</p>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">ราคาชัดเจน</h3>
+                <p className="text-gray-600 text-sm">ราคาโปร่งใส เห็นราคาก่อนจอง</p>
               </div>
 
               <div className="text-center group">
@@ -218,8 +218,8 @@ export default function HomePage() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
                   </svg>
                 </div>
-                <h3 className="text-lg font-bold text-gray-900 mb-2">บริการตลอด 24 ชม.</h3>
-                <p className="text-gray-600 text-sm">ติดต่อสอบถามได้ทุกเวลา พร้อมช่วยเหลือ</p>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">บริการดี ตลอด 24 ชม.</h3>
+                <p className="text-gray-600 text-sm">สอบถามได้ทุกเวลา ทีมงานพร้อมช่วยเหลือ</p>
               </div>
             </div>
           </div>
@@ -229,12 +229,12 @@ export default function HomePage() {
         <section className="py-16 lg:py-20 bg-gray-50">
           <div className="container mx-auto px-4 lg:px-8">
             <div className="text-center mb-12">
-              <p className="text-red-500 font-semibold mb-2">เส้นทางแนะนำ</p>
+              <p className="text-red-500 font-semibold mb-2">เส้นทางยอดนิยม</p>
               <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-                เส้นทางยอดนิยม
+                เส้นทางที่มีคนจองบ่อย
               </h2>
               <p className="text-gray-600 text-lg">
-                เส้นทางที่ได้รับความนิยมสูงสุดและมีผู้ใช้บริการมากที่สุด
+                เส้นทางหลักที่เปิดให้บริการ
               </p>
             </div>
             
@@ -296,7 +296,7 @@ export default function HomePage() {
                     </h3>
                     
                     <p className="text-gray-600 text-sm mb-4">
-                      เดินทางสะดวกสบาย ปลอดภัย พร้อมบริการครบครัน ระยะเวลา {route.duration}
+                      ใช้เวลาเดินทางประมาณ {route.duration}
                     </p>
 
                     <div className="flex items-center justify-between pt-4 border-t border-gray-100 mb-4">

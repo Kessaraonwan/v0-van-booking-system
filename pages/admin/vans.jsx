@@ -1,73 +1,44 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Head from 'next/head'
 import { Button } from '@/components/ui/button'
 import AdminLayout from '@/components/admin-layout'
+import { adminAPI } from '@/lib/api-client'
 
 export default function VansManagement() {
   const [showModal, setShowModal] = useState(false)
-  const [vans, setVans] = useState([
-    {
-      id: 1,
-      license_plate: 'กข-1234',
-      seats: 13,
-      driver_name: 'สมชาย ใจดี',
-      status: 'active',
-      image: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=600',
-      trips_today: 5,
-      next_trip: '14:00'
-    },
-    {
-      id: 2,
-      license_plate: 'ขค-5678',
-      seats: 13,
-      driver_name: 'สมศรี รักษ์ดี',
-      status: 'active',
-      image: 'https://images.unsplash.com/photo-1570125909232-eb263c188f7e?w=600',
-      trips_today: 3,
-      next_trip: '15:30'
-    },
-    {
-      id: 3,
-      license_plate: 'คง-9012',
-      seats: 13,
-      driver_name: 'สมบูรณ์ มั่นคง',
-      status: 'maintenance',
-      image: 'https://images.unsplash.com/photo-1464219789935-c2d9d9aba644?w=600',
-      trips_today: 0,
-      next_trip: null
-    },
-    {
-      id: 4,
-      license_plate: 'งจ-3456',
-      seats: 13,
-      driver_name: 'สมหมาย เที่ยงตรง',
-      status: 'active',
-      image: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?w=600',
-      trips_today: 4,
-      next_trip: '16:00'
-    },
-    {
-      id: 5,
-      license_plate: 'จฉ-7890',
-      seats: 13,
-      driver_name: 'สมปอง รุ่งเรือง',
-      status: 'inactive',
-      image: 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=600',
-      trips_today: 0,
-      next_trip: null
-    },
-    {
-      id: 6,
-      license_plate: 'ฉช-2468',
-      seats: 13,
-      driver_name: 'สมหญิง สุขใจ',
-      status: 'active',
-      image: 'https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?w=600',
-      trips_today: 6,
-      next_trip: '13:30'
-    },
-  ])
+  const [vans, setVans] = useState([])
+  const [loading, setLoading] = useState(true)
   const [filterStatus, setFilterStatus] = useState('all')
+
+  useEffect(() => {
+    fetchVans()
+  }, [])
+
+  const fetchVans = async () => {
+    try {
+      setLoading(true)
+      const response = await adminAPI.getAllVans()
+      if (response.success) {
+        setVans(response.data || [])
+      }
+    } catch (error) {
+      console.error('Error fetching vans:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleAddVan = async (formData) => {
+    try {
+      const response = await adminAPI.createVan(formData)
+      if (response.success) {
+        await fetchVans()
+        setShowModal(false)
+      }
+    } catch (error) {
+      console.error('Error adding van:', error)
+    }
+  }
 
   const getStatusBadge = (status) => {
     switch(status) {
@@ -120,37 +91,37 @@ export default function VansManagement() {
         <div className="space-y-8">
           {/* Hero Header with Image Background */}
           <div 
-            className="relative overflow-hidden rounded-3xl shadow-2xl"
+            className="relative overflow-hidden rounded-2xl shadow-xl"
             style={{
               backgroundImage: 'url(https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=1200&h=400&fit=crop)',
               backgroundSize: 'cover',
               backgroundPosition: 'center',
             }}
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-600/95 via-indigo-600/90 to-purple-600/85"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-gray-900/80 via-gray-900/70 to-gray-900/60"></div>
             <div className="relative z-10 p-8 md:p-12">
               <div className="flex items-center justify-between">
                 <div>
                   <h1 className="text-4xl md:text-5xl font-bold text-white mb-3">
-                    🚐 จัดการรถตู้
+                    จัดการรถตู้
                   </h1>
                   <p className="text-xl text-white/90 mb-6">
-                    จัดการรถตู้ คนขับ และสถานะการใช้งาน
+                    ดูรถทั้งหมด พร้อมข้อมูลคนขับ
                   </p>
                   <div className="flex items-center gap-6 text-white/90">
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 rounded-full bg-green-400 animate-pulse"></div>
-                      <span className="font-medium">{statsCount.active} คันพร้อมใช้งาน</span>
+                      <span className="font-medium">{statsCount.active} คันพร้อมวิ่ง</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
-                      <span className="font-medium">{statsCount.maintenance} คันซ่อมบำรุง</span>
+                      <span className="font-medium">{statsCount.maintenance} คันซ่อม</span>
                     </div>
                   </div>
                 </div>
                 <Button 
                   onClick={() => setShowModal(true)}
-                  className="bg-white text-blue-600 hover:bg-blue-50 font-semibold shadow-2xl hover:shadow-3xl transition-all hover:scale-105"
+                  className="bg-white text-red-600 hover:bg-red-50 font-semibold transition-all"
                   size="lg"
                 >
                   <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -168,8 +139,8 @@ export default function VansManagement() {
               onClick={() => setFilterStatus('all')}
               className={`px-6 py-3 rounded-xl font-bold transition-all ${
                 filterStatus === 'all'
-                  ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg'
-                  : 'bg-white text-gray-700 border-2 border-gray-200 hover:border-blue-300'
+                  ? 'bg-red-600 text-white'
+                  : 'bg-white text-gray-700 border border-gray-200 hover:border-red-300'
               }`}
             >
               ทั้งหมด ({statsCount.all})
@@ -178,19 +149,19 @@ export default function VansManagement() {
               onClick={() => setFilterStatus('active')}
               className={`px-6 py-3 rounded-xl font-bold transition-all ${
                 filterStatus === 'active'
-                  ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg'
-                  : 'bg-white text-gray-700 border-2 border-gray-200 hover:border-green-300'
+                  ? 'bg-gray-700 text-white'
+                  : 'bg-white text-gray-700 border border-gray-200 hover:border-gray-300'
               }`}
             >
               <span className="inline-block w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse"></span>
-              พร้อมใช้งาน ({statsCount.active})
+              พร้อมวิ่ง ({statsCount.active})
             </button>
             <button
               onClick={() => setFilterStatus('maintenance')}
               className={`px-6 py-3 rounded-xl font-bold transition-all ${
                 filterStatus === 'maintenance'
-                  ? 'bg-gradient-to-r from-yellow-500 to-orange-600 text-white shadow-lg'
-                  : 'bg-white text-gray-700 border-2 border-gray-200 hover:border-yellow-300'
+                  ? 'bg-gray-600 text-white'
+                  : 'bg-white text-gray-700 border border-gray-200 hover:border-gray-300'
               }`}
             >
               ซ่อมบำรุง ({statsCount.maintenance})
@@ -199,8 +170,8 @@ export default function VansManagement() {
               onClick={() => setFilterStatus('inactive')}
               className={`px-6 py-3 rounded-xl font-bold transition-all ${
                 filterStatus === 'inactive'
-                  ? 'bg-gradient-to-r from-gray-500 to-gray-600 text-white shadow-lg'
-                  : 'bg-white text-gray-700 border-2 border-gray-200 hover:border-gray-300'
+                  ? 'bg-gray-500 text-white'
+                  : 'bg-white text-gray-700 border border-gray-200 hover:border-gray-300'
               }`}
             >
               ไม่ใช้งาน ({statsCount.inactive})
@@ -208,9 +179,26 @@ export default function VansManagement() {
           </div>
 
           {/* Vans Grid - Travel Card Style */}
+          {loading ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(6)].map((_, idx) => (
+                <div key={idx} className="bg-white rounded-xl shadow-lg overflow-hidden animate-pulse">
+                  <div className="h-48 bg-gray-300"></div>
+                  <div className="p-5 space-y-4">
+                    <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+                    <div className="h-6 bg-gray-300 rounded w-1/2"></div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="h-16 bg-gray-300 rounded-xl"></div>
+                      <div className="h-16 bg-gray-300 rounded-xl"></div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredVans.map((van) => (
-              <div key={van.id} className="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 bg-white border-2 border-gray-100 hover:border-blue-200">
+              <div key={van.id} className="group relative overflow-hidden rounded-xl shadow-md hover:shadow-lg transition-all duration-300 bg-white border border-gray-200 hover:border-red-300">
                 {/* Van Image */}
                 <div className="relative h-48 overflow-hidden">
                   <img 
@@ -239,7 +227,7 @@ export default function VansManagement() {
                 <div className="p-5">
                   {/* Driver Info */}
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+                    <div className="w-12 h-12 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
                       {van.driver_name.split(' ')[0][0]}{van.driver_name.split(' ')[1][0]}
                     </div>
                     <div className="flex-1">
@@ -264,7 +252,7 @@ export default function VansManagement() {
                         <svg className="w-4 h-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                         </svg>
-                        <span className="text-xs text-blue-600 font-medium">เที่ยววันนี้</span>
+                        <span className="text-xs text-blue-600 font-medium">วิ่งวันนี้</span>
                       </div>
                       <div className="text-2xl font-bold text-blue-600">{van.trips_today}</div>
                     </div>
@@ -272,13 +260,13 @@ export default function VansManagement() {
 
                   {/* Next Trip */}
                   {van.next_trip && (
-                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-3 mb-4 border border-green-200">
+                    <div className="bg-gray-50 rounded-lg p-3 mb-4 border border-gray-200">
                       <div className="flex items-center gap-2">
                         <svg className="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <div className="flex-1">
-                          <div className="text-xs text-green-700 font-medium">เที่ยวถัดไป</div>
+                          <div className="text-xs text-green-700 font-medium">รอบถัดไป</div>
                           <div className="text-lg font-bold text-green-900">{van.next_trip} น.</div>
                         </div>
                       </div>
@@ -289,7 +277,7 @@ export default function VansManagement() {
                   <div className="flex gap-2">
                     <Button 
                       variant="outline" 
-                      className="flex-1 border-2 border-blue-300 text-blue-600 hover:bg-blue-50 hover:border-blue-400 transition-all"
+                      className="flex-1 border border-gray-300 text-gray-600 hover:bg-gray-50 transition-all"
                     >
                       <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -298,7 +286,7 @@ export default function VansManagement() {
                     </Button>
                     <Button 
                       variant="outline" 
-                      className="flex-1 border-2 border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 transition-all"
+                      className="flex-1 border border-red-300 text-red-600 hover:bg-red-50 transition-all"
                     >
                       <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -310,12 +298,13 @@ export default function VansManagement() {
               </div>
             ))}
           </div>
+          )}
 
-          {filteredVans.length === 0 && (
+          {!loading && filteredVans.length === 0 && (
             <div className="bg-white rounded-3xl shadow-lg p-16 text-center border-2 border-dashed border-gray-300">
               <div className="text-8xl mb-4">🚐</div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">ไม่พบรถตู้ในหมวดหมู่นี้</h3>
-              <p className="text-gray-600 mb-6">ลองเปลี่ยนหมวดหมู่หรือเพิ่มรถตู้ใหม่</p>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">ไม่มีรถในหมวดนี้</h3>
+              <p className="text-gray-600 mb-6">ลองเลือกหมวดอื่นหรือเพิ่มรถใหม่</p>
               <Button 
                 onClick={() => setShowModal(true)}
                 className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white"
@@ -336,7 +325,7 @@ export default function VansManagement() {
                 {/* Modal Header */}
                 <div className="bg-gradient-to-r from-blue-500 to-indigo-600 px-6 py-5 text-white">
                   <div className="flex items-center justify-between">
-                    <h2 className="text-2xl font-bold">เพิ่มรถตู้ใหม่</h2>
+                    <h2 className="text-2xl font-bold">ลงทะเบียนรถใหม่</h2>
                     <button 
                       onClick={() => setShowModal(false)}
                       className="w-8 h-8 rounded-lg bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors"

@@ -1,13 +1,11 @@
-'use client'
-
 import { useState } from 'react'
 import Link from 'next/link'
 import Head from 'next/head'
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'next/router'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { useToast } from '@/hooks/use-toast'
-import api from '@/lib/api-client'
+import { authAPI } from '@/lib/api-client'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -52,32 +50,23 @@ export default function LoginPage() {
     setErrors({})
 
     try {
-      const response = await api.login(email, password)
+      const response = await authAPI.login({ email, password })
       
       if (response.success) {
-        // Store token and user info
-        localStorage.setItem('token', response.token)
-        localStorage.setItem('user', JSON.stringify(response.user))
-
         toast({
           title: 'เข้าสู่ระบบสำเร็จ',
           description: 'ยินดีต้อนรับกลับมา',
         })
 
         router.push('/')
-        router.refresh()
-      } else {
-        toast({
-          variant: 'destructive',
-          title: 'เข้าสู่ระบบไม่สำเร็จ',
-          description: response.message || 'อีเมลหรือรหัสผ่านไม่ถูกต้อง',
-        })
       }
     } catch (error) {
+      console.error('Login error:', error)
+      
       toast({
         variant: 'destructive',
-        title: 'เกิดข้อผิดพลาด',
-        description: error.message || 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้',
+        title: 'เข้าสู่ระบบไม่สำเร็จ',
+        description: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง กรุณาตรวจสอบและลองใหม่อีกครั้ง',
       })
     } finally {
       setIsLoading(false)

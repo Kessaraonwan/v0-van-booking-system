@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import Head from 'next/head'
 import { Button } from '@/components/ui/button'
 import AdminLayout from '@/components/admin-layout'
+import { adminAPI } from '@/lib/api-client'
 
 export default function BookingsManagement() {
   const [bookings, setBookings] = useState([])
@@ -16,36 +17,24 @@ export default function BookingsManagement() {
 
   const fetchBookings = async () => {
     try {
-      // TODO: เชื่อม API จริง
-      // const response = await fetch('http://localhost:8000/api/admin/bookings', {
-      //   headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
-      // })
-      // const data = await response.json()
-      // if (data.success) {
-      //   setBookings(data.data)
-      // }
-      setLoading(false)
+      setLoading(true)
+      const response = await adminAPI.getAllBookings()
+      if (response.success) {
+        setBookings(response.data || [])
+      }
     } catch (error) {
       console.error('Error fetching bookings:', error)
+    } finally {
       setLoading(false)
     }
   }
 
   const handleUpdateStatus = async (bookingId, newStatus) => {
     try {
-      // TODO: เชื่อม API จริง
-      // const response = await fetch(`http://localhost:8000/api/admin/bookings/${bookingId}/status`, {
-      //   method: 'PATCH',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
-      //   },
-      //   body: JSON.stringify({ status: newStatus })
-      // })
-      // const data = await response.json()
-      // if (data.success) {
-      //   fetchBookings()
-      // }
+      const response = await adminAPI.updateBookingStatus(bookingId, newStatus)
+      if (response.success) {
+        await fetchBookings()
+      }
     } catch (error) {
       console.error('Error updating booking:', error)
     }
@@ -55,7 +44,7 @@ export default function BookingsManagement() {
     switch(status) {
       case 'CONFIRMED':
         return (
-          <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold bg-green-100 text-green-700 border-2 border-green-300">
+          <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold bg-green-100 text-green-700 border border-green-300">
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
             </svg>
@@ -64,7 +53,7 @@ export default function BookingsManagement() {
         )
       case 'PENDING':
         return (
-          <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold bg-yellow-100 text-yellow-700 border-2 border-yellow-300">
+          <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold bg-yellow-100 text-yellow-700 border border-yellow-300">
             <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
@@ -73,7 +62,7 @@ export default function BookingsManagement() {
         )
       case 'CANCELLED':
         return (
-          <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold bg-red-100 text-red-700 border-2 border-red-300">
+          <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold bg-red-100 text-red-700 border border-red-300">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -82,7 +71,7 @@ export default function BookingsManagement() {
         )
       case 'COMPLETED':
         return (
-          <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold bg-blue-100 text-blue-700 border-2 border-blue-300">
+          <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold bg-blue-100 text-blue-700 border border-blue-300">
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
             </svg>
@@ -122,27 +111,27 @@ export default function BookingsManagement() {
         <div className="space-y-8">
           {/* Hero Header */}
           <div 
-            className="relative overflow-hidden rounded-3xl shadow-2xl"
+            className="relative overflow-hidden rounded-2xl shadow-xl"
             style={{
               backgroundImage: 'url(https://images.unsplash.com/photo-1506521781263-d8422e82f27a?w=1200&h=400&fit=crop)',
               backgroundSize: 'cover',
               backgroundPosition: 'center',
             }}
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-orange-600/95 via-red-600/90 to-pink-600/85"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-gray-900/80 via-gray-900/70 to-gray-900/60"></div>
             <div className="relative z-10 p-8 md:p-12">
               <div className="flex items-center justify-between">
                 <div>
                   <h1 className="text-4xl md:text-5xl font-bold text-white mb-3">
-                    🎫 จัดการการจอง
+                    การจองทั้งหมด
                   </h1>
                   <p className="text-xl text-white/90 mb-6">
-                    ตรวจสอบและจัดการการจองทั้งหมด
+                    ดูและจัดการออเดอร์ลูกค้า
                   </p>
                   <div className="flex items-center gap-6 text-white/90">
                     <div className="flex items-center gap-2">
                       <span className="w-3 h-3 rounded-full bg-yellow-400 animate-pulse"></span>
-                      <span className="font-medium">{statsCount.PENDING} รอดำเนินการ</span>
+                      <span className="font-medium">{statsCount.PENDING} รอยืนยัน</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="w-3 h-3 rounded-full bg-green-400"></span>
@@ -159,7 +148,7 @@ export default function BookingsManagement() {
                     type="text"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="ค้นหาชื่อหรือรหัสการจอง..."
+                    placeholder="ค้นหาชื่อลูกค้า หรือเลขที่จอง..."
                     className="bg-transparent text-white placeholder-white/70 border-none outline-none flex-1 font-medium"
                   />
                 </div>
@@ -188,7 +177,7 @@ export default function BookingsManagement() {
               }`}
             >
               <span className="inline-block w-2 h-2 rounded-full bg-yellow-500 mr-2 animate-pulse"></span>
-              รอดำเนินการ ({statsCount.PENDING})
+              รอยืนยัน ({statsCount.PENDING})
             </button>
             <button
               onClick={() => setFilterStatus('CONFIRMED')}
@@ -319,7 +308,7 @@ export default function BookingsManagement() {
                             </div>
                           </div>
                           <div className="text-right">
-                            <div className="text-sm text-gray-600 mb-1">ยอดชำระ</div>
+                            <div className="text-sm text-gray-600 mb-1">ยอดเงิน</div>
                             <div className="text-3xl font-bold text-orange-600">฿{booking.total_price}</div>
                           </div>
                         </div>
@@ -371,8 +360,8 @@ export default function BookingsManagement() {
           ) : (
             <div className="bg-white rounded-3xl shadow-lg p-16 text-center border-2 border-dashed border-gray-300">
               <div className="text-8xl mb-4">🎫</div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">ไม่พบการจองในหมวดหมู่นี้</h3>
-              <p className="text-gray-600">ลองเปลี่ยนหมวดหมู่หรือค้นหาด้วยคำอื่น</p>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">ไม่มีออเดอร์ในหมวดนี้</h3>
+              <p className="text-gray-600">ลองเลือกหมวดอื่นหรือค้นหาใหม่</p>
             </div>
           )}
         </div>

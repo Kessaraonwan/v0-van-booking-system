@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import Navbar from '@/components/navbar'
 import Footer from '@/components/footer'
+import { getPickupLocation, getDropoffLocation, formatThaiDate, formatTime } from '@/lib/locations'
 
 export default function SearchResultsPage() {
   const router = useRouter()
@@ -23,7 +24,7 @@ export default function SearchResultsPage() {
 
   // Check authentication
   useEffect(() => {
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem('accessToken')
     setIsAuthenticated(!!token)
   }, [])
 
@@ -97,7 +98,7 @@ export default function SearchResultsPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 to-white">
-      <Navbar showAuth={false} showBookings={true} />
+      <Navbar />
 
       <div className="flex-1 container mx-auto px-4 lg:px-8 py-8">
         {/* Search Form */}
@@ -106,18 +107,18 @@ export default function SearchResultsPage() {
             <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')]"></div>
           </div>
           <div className="relative z-10">
-            <h1 className="text-3xl md:text-4xl font-bold mb-6">ค้นหาเที่ยวรถ</h1>
+            <h1 className="text-3xl md:text-4xl font-bold mb-6">ค้นหาเที่ยวรถตู้</h1>
             <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-4 gap-4">
               {/* From */}
               <div>
-                <label className="block text-sm font-medium mb-2">ต้นทาง</label>
+                <label className="block text-sm font-medium mb-2">จาก</label>
                 <select
                   value={searchFrom}
                   onChange={(e) => setSearchFrom(e.target.value)}
                   className="w-full px-4 py-3 rounded-lg text-gray-900 bg-white border-2 border-transparent focus:border-white focus:ring-2 focus:ring-white focus:ring-opacity-50 transition-all"
                   required
                 >
-                  <option value="">เลือกต้นทาง</option>
+                  <option value="">เลือกจุดขึ้นรถ</option>
                   {origins.map(origin => (
                     <option key={origin} value={origin}>{origin}</option>
                   ))}
@@ -126,14 +127,14 @@ export default function SearchResultsPage() {
 
               {/* To */}
               <div>
-                <label className="block text-sm font-medium mb-2">ปลายทาง</label>
+                <label className="block text-sm font-medium mb-2">ไป</label>
                 <select
                   value={searchTo}
                   onChange={(e) => setSearchTo(e.target.value)}
                   className="w-full px-4 py-3 rounded-lg text-gray-900 bg-white border-2 border-transparent focus:border-white focus:ring-2 focus:ring-white focus:ring-opacity-50 transition-all"
                   required
                 >
-                  <option value="">เลือกปลายทาง</option>
+                  <option value="">เลือกจุดลงรถ</option>
                   {destinations.map(dest => (
                     <option key={dest} value={dest}>{dest}</option>
                   ))}
@@ -287,9 +288,28 @@ export default function SearchResultsPage() {
                           <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-5">
                             {/* Left: Route & Time */}
                             <div className="flex-1">
-                              <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                              <h3 className="text-2xl font-bold text-gray-900 mb-2">
                                 {route.origin} → {route.destination}
                               </h3>
+                              
+                              {/* จุดขึ้น-ลงรถ */}
+                              <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
+                                <div className="flex items-center gap-2 text-sm">
+                                  <svg className="w-4 h-4 text-green-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                                  </svg>
+                                  <span className="text-gray-600">ขึ้นรถ:</span>
+                                  <span className="font-semibold text-gray-900">{getPickupLocation(route.origin).name}</span>
+                                </div>
+                                <div className="flex items-center gap-2 text-sm mt-1.5">
+                                  <svg className="w-4 h-4 text-red-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                                  </svg>
+                                  <span className="text-gray-600">ลงรถ:</span>
+                                  <span className="font-semibold text-gray-900">{getDropoffLocation(route.destination).name}</span>
+                                </div>
+                              </div>
+                              
                               <p className="text-sm text-gray-500 mb-5 flex items-center gap-2">
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
@@ -301,17 +321,10 @@ export default function SearchResultsPage() {
                                 <div>
                                   <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">เวลาออกเดินทาง</p>
                                   <p className="text-xl font-bold text-gray-900">
-                                    {new Date(schedule.departure_time).toLocaleTimeString('th-TH', {
-                                      hour: '2-digit',
-                                      minute: '2-digit'
-                                    })}
+                                    {formatTime(schedule.departure_time)}
                                   </p>
                                   <p className="text-xs text-gray-500 mt-1">
-                                    {new Date(schedule.departure_time).toLocaleDateString('th-TH', {
-                                      day: '2-digit',
-                                      month: 'short',
-                                      year: 'numeric'
-                                    })}
+                                    {formatThaiDate(schedule.departure_date)}
                                   </p>
                                 </div>
                                 <div>
