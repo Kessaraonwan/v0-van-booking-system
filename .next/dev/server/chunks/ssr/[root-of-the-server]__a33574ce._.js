@@ -290,7 +290,7 @@ function AdminLoginPage() {
                 className: "min-h-screen flex items-center justify-center px-4 relative overflow-hidden",
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
-                        className: "absolute inset-0 bg-gradient-to-br from-red-600 via-orange-600 to-red-700",
+                        className: "absolute inset-0 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900",
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
                                 className: "absolute inset-0 opacity-20",
@@ -332,7 +332,7 @@ function AdminLoginPage() {
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
                         className: "relative z-10 w-full max-w-md",
                         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
-                            className: "bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden border border-white/20",
+                            className: "bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden border border-white/20",
                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
                                 className: "p-8 md:p-10",
                                 children: [
@@ -340,7 +340,7 @@ function AdminLoginPage() {
                                         className: "text-center mb-8",
                                         children: [
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
-                                                className: "inline-flex w-20 h-20 bg-gradient-to-br from-red-500 to-orange-600 rounded-2xl items-center justify-center text-white font-bold text-3xl mb-4 shadow-lg transform hover:scale-110 transition-transform duration-300",
+                                                className: "inline-flex w-20 h-20 bg-red-600 rounded-xl items-center justify-center text-white font-bold text-3xl mb-4 shadow-md transform hover:scale-105 transition-transform duration-300",
                                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("svg", {
                                                     className: "w-10 h-10",
                                                     fill: "none",
@@ -367,7 +367,7 @@ function AdminLoginPage() {
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("h1", {
-                                                className: "text-3xl md:text-4xl font-bold mb-2 bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent",
+                                                className: "text-3xl md:text-4xl font-bold mb-2 text-gray-900",
                                                 children: "Admin Panel"
                                             }, void 0, false, {
                                                 fileName: "[project]/pages/admin/login.jsx",
@@ -400,7 +400,7 @@ function AdminLoginPage() {
                                                             className: "flex items-center gap-2",
                                                             children: [
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("svg", {
-                                                                    className: "w-4 h-4 text-blue-500",
+                                                                    className: "w-4 h-4 text-gray-500",
                                                                     fill: "none",
                                                                     viewBox: "0 0 24 24",
                                                                     stroke: "currentColor",
@@ -435,7 +435,7 @@ function AdminLoginPage() {
                                                         type: "email",
                                                         value: email,
                                                         onChange: (e)=>setEmail(e.target.value),
-                                                        className: "w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-red-500 focus:ring-2 focus:ring-red-200 transition-all text-gray-900 font-medium",
+                                                        className: "w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-red-500 focus:ring-2 focus:ring-red-200 transition-all text-gray-900 font-medium",
                                                         placeholder: "admin@example.com",
                                                         required: true
                                                     }, void 0, false, {
@@ -457,7 +457,7 @@ function AdminLoginPage() {
                                                             className: "flex items-center gap-2",
                                                             children: [
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("svg", {
-                                                                    className: "w-4 h-4 text-blue-500",
+                                                                    className: "w-4 h-4 text-gray-500",
                                                                     fill: "none",
                                                                     viewBox: "0 0 24 24",
                                                                     stroke: "currentColor",
@@ -492,7 +492,7 @@ function AdminLoginPage() {
                                                         type: "password",
                                                         value: password,
                                                         onChange: (e)=>setPassword(e.target.value),
-                                                        className: "w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-red-500 focus:ring-2 focus:ring-red-200 transition-all text-gray-900 font-medium",
+                                                        className: "w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-red-500 focus:ring-2 focus:ring-red-200 transition-all text-gray-900 font-medium",
                                                         placeholder: "••••••••",
                                                         required: true
                                                     }, void 0, false, {
@@ -508,7 +508,7 @@ function AdminLoginPage() {
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$ssr$5d$__$28$ecmascript$29$__["Button"], {
                                                 type: "submit",
-                                                className: "w-full bg-gradient-to-r from-red-500 via-red-600 to-orange-600 hover:from-red-600 hover:via-red-700 hover:to-orange-700 text-white font-bold shadow-lg hover:shadow-xl transition-all transform hover:scale-105",
+                                                className: "w-full bg-red-600 hover:bg-red-700 text-white font-bold shadow-md hover:shadow-lg transition-all transform hover:scale-105",
                                                 size: "lg",
                                                 children: [
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("svg", {

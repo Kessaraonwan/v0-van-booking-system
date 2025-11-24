@@ -1,16 +1,44 @@
 # 🚐 ระบบจองตั๋วรถตู้ออนไลน์ (Van Booking System)
 
 [![Built with Next.js](https://img.shields.io/badge/Built%20with-Next.js%2016-black?style=for-the-badge&logo=next.js)](https://nextjs.org)
-[![Backend: Node.js + Express](https://img.shields.io/badge/Backend-Node.js%20+%20Express-339933?style=for-the-badge&logo=node.js)](https://expressjs.com)
+[![Backend: Go + Gin](https://img.shields.io/badge/Backend-Go%20+%20Gin-00ADD8?style=for-the-badge&logo=go)](https://gin-gonic.com)
 [![Database: PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL-336791?style=for-the-badge&logo=postgresql)](https://www.postgresql.org)
 [![Docker Ready](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker)](https://www.docker.com)
 
 > **⚡ Quick Start**: รัน `docker-compose up -d` แล้วเข้า http://localhost:3000  
-> **📚 เอกสารทั้งหมด**: มีแค่ 5 ไฟล์ - README.md (อันนี้), QUICKSTART.md, BACKEND_README.md, DATABASE_SUMMARY.md, TODO_FRONTEND.md
+> **📚 เอกสารทั้งหมด**: มีแค่ 6 ไฟล์ - README.md (อันนี้), PROJECT_EVOLUTION.md, QUICKSTART.md, BACKEND_README.md, DATABASE_SUMMARY.md, TODO_FRONTEND.md  
+> **🎓 สำหรับอาจารย์**: โปรเจคนี้สร้างจากบทเรียน **Web Programming with Go (Weeks 7-12)** → อ่าน [PROJECT_EVOLUTION.md](./PROJECT_EVOLUTION.md)
 
 ---
 
-## 🎯 **เว็บนี้คืออะไร?**
+## � **โปรเจคนี้เกี่ยวกับบทเรียนอย่างไร?**
+
+โปรเจคนี้สร้างจากความรู้ **Web Programming with Go (Weeks 7-12)** โดยนำเอาหลักการจากโปรเจค **Bookstore API** ที่เรียนในห้อง มาประยุกต์ใช้กับระบบจองตั๋วรถตู้
+
+### 📚 เทคนิคที่ใช้จาก Course (Weeks 7-12):
+- **Week 7**: REST API ด้วย Gin Framework → ใช้สร้าง 31 endpoints
+- **Week 8**: PostgreSQL + `lib/pq` → ใช้จัดการ 10 tables
+- **Week 9**: Repository Pattern → แยก database logic ออกจาก handlers
+- **Week 10**: Request Validation → validate ทุก request body
+- **Week 11**: Query Parameters & Filtering → ค้นหาเที่ยวรถ
+- **Week 12**: JWT Authentication (Lab 3-4) → Login/Register + Admin middleware
+
+### 🔄 Bookstore → Van Booking Mapping:
+```
+Bookstore (Course)          →   Van Booking (Final Project)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Books CRUD                  →   Schedules CRUD
+Categories                  →   Routes (เส้นทาง)
+Search by title/author      →   Search by origin/destination/date
+User/Admin roles            →   User/Admin roles (ใช้เทคนิคเดียวกัน 100%)
+JWT Authentication          →   JWT + Refresh Token
+```
+
+**ดูรายละเอียดเต็ม**: [PROJECT_EVOLUTION.md](./PROJECT_EVOLUTION.md) - อธิบายว่าฟีเจอร์แต่ละอันใช้บทเรียนสัปดาห์ไหน
+
+---
+
+## �🎯 **เว็บนี้คืออะไร?**
 
 **ระบบจองตั๋วรถตู้ออนไลน์** สร้างขึ้นเพื่อให้ผู้โดยสารสามารถ:
 - 🔍 **ค้นหาเที่ยวรถตู้** (เลือกต้นทาง-ปลายทาง + วันที่)
@@ -71,6 +99,20 @@
 - 🪑 ที่นั่ง
 - 💰 ราคา
 - 🔵 สถานะ (จองแล้ว / เสร็จสิ้น / ยกเลิก)
+
+#### 7. ชำระเงิน (Payment Modal)
+- 💳 **QR Code Payment**: จำลองการชำระเงินด้วย QR (Mock)
+  - ✅ ชำระทันที
+  - ✅ อัปเดตสถานะเป็น "ชำระแล้ว" ทันที
+- 🏢 **Offline Payment**: ชำระที่ศูนย์
+  - 📝 บันทึกข้อมูล
+  - ⏳ อัปเดตสถานะเป็น "รอชำระ"
+- 🎨 **UI แบบ Modal**: ไม่ต้องเปลี่ยนหน้า, popup ขึ้นมาเลย
+- 🔔 **Toast Notification**: แจ้งเตือนเมื่อชำระเงินสำเร็จ
+- 🔄 **Auto Refresh**: รายการจองอัปเดตอัตโนมัติ
+
+> **หมายเหตุ**: ระบบชำระเงินเป็น Mock (จำลอง) ไม่ได้เชื่อมต่อ Payment Gateway จริง  
+> เหมาะสำหรับโปรเจค Course และการ Demo
 - 🔴 ปุ่มยกเลิก (ถ้าสถานะ = BOOKED)
 
 ---
@@ -180,9 +222,9 @@ pnpm run dev
 ## 🎨 **Technology Stack**
 
 - **Frontend:** Next.js 16 (Pages Router), React 19, Tailwind CSS v4
-- **Backend:** Node.js + Express + Sequelize ORM
+- **Backend:** Go + Gin Framework
 - **Database:** PostgreSQL (via Docker)
-- **Authentication:** JWT (JSON Web Token)
+- **Authentication:** JWT (JSON Web Token) + Refresh Token
 - **Deployment:** Docker Compose (3 containers: postgres, backend, frontend)
 
 ---
@@ -202,15 +244,17 @@ pages/                  # Frontend pages (Next.js Pages Router)
     ├── schedules.jsx
     └── bookings.jsx
 
-backend/nodejs/        # Backend API (Node.js + Express)
-├── src/
-│   ├── server.js          # Express server
-│   ├── controllers/       # Business logic
-│   ├── models/            # Sequelize models (7 tables)
-│   ├── routes/            # API routes (6 files)
-│   └── middleware/        # JWT auth middleware
+backend/golang/        # Backend API (Go + Gin)
+├── cmd/
+│   └── main.go            # Entry point
+├── internal/
+│   ├── handler/           # API handlers
+│   ├── repository/        # Database layer
+│   ├── model/             # Data models
+│   ├── middleware/        # Auth middleware
+│   └── utils/             # Helper functions
 ├── Dockerfile
-└── package.json
+└── README.md
 
 components/            # UI Components (shadcn/ui)
 lib/                   # Utilities
@@ -267,45 +311,50 @@ lib/                   # Utilities
 
 ```bash
 # 1. Clone และสร้าง .env
+cd backend/golang
 cp .env.example .env
 
 # 2. รัน Backend + Database
+cd /workspaces/v0-van-booking-system
 docker-compose up -d postgres backend
 
-# 3. ทดสอบ
-curl http://localhost:8000/health
+# 3. ทดสอบ (หรือรันแบบ development)
+cd backend/golang
+go run cmd/main.go
 
 # 4. รัน Frontend (development)
+cd /workspaces/v0-van-booking-system
 pnpm install
 pnpm run dev
 ```
 
 Frontend: http://localhost:3000  
-Backend API: http://localhost:8000/api
+Backend API: http://localhost:8080/api
 
-**อ่านเพิ่ม**: [QUICKSTART.md](./QUICKSTART.md)
+**อ่านเพิ่ม**: [backend/golang/README.md](./backend/golang/README.md)
 
 ---
 
-## 📚 **เอกสารทั้งหมด (เหลือแค่ 5 ไฟล์!)**
+## 📚 **เอกสารทั้งหมด (6 ไฟล์)**
 
 ### 🎯 อ่านตามลำดับนี้:
 
 1. **[README.md](./README.md)** ← **เริ่มที่นี่!** (ภาพรวมโปรเจค + ฟีเจอร์)
-2. **[QUICKSTART.md](./QUICKSTART.md)** ← **วิธีรัน Backend+Frontend** (Docker + Development)
-3. **[TODO_FRONTEND.md](./TODO_FRONTEND.md)** ← **สิ่งที่ต้องทำต่อ** (แก้ Frontend 13 ไฟล์)
+2. **[PROJECT_EVOLUTION.md](./PROJECT_EVOLUTION.md)** ← **🎓 สำหรับอาจารย์** (อธิบายว่าใช้บทเรียน Weeks 7-12 อย่างไร)
+3. **[QUICKSTART.md](./QUICKSTART.md)** ← **วิธีรัน Backend+Frontend** (Docker + Development)
+4. **[TODO_FRONTEND.md](./TODO_FRONTEND.md)** ← **สิ่งที่ต้องทำต่อ** (แก้ Frontend 13 ไฟล์)
 
 ### 📖 เอกสารเพิ่มเติม (ถ้าต้องการ):
 
-4. **[BACKEND_README.md](./BACKEND_README.md)** - สถาปัตยกรรม Backend แบบเต็ม
-5. **[DATABASE_SUMMARY.md](./DATABASE_SUMMARY.md)** - โครงสร้าง Database 7 ตาราง
-6. **[backend/nodejs/README.md](./backend/nodejs/README.md)** - Backend API 40+ endpoints
+5. **[BACKEND_README.md](./BACKEND_README.md)** - สถาปัตยกรรม Backend แบบเต็ม
+6. **[DATABASE_SUMMARY.md](./DATABASE_SUMMARY.md)** - โครงสร้าง Database 10 ตาราง
 
 ### 🤔 ไม่รู้จะอ่านอะไร?
 
+- **ถ้าเป็นอาจารย์/TA** → อ่าน [PROJECT_EVOLUTION.md](./PROJECT_EVOLUTION.md) ← **อันนี้สำคัญ!**
 - **ถ้าอยากรันโปรเจค** → อ่าน [QUICKSTART.md](./QUICKSTART.md)
 - **ถ้าอยากทำ Frontend ต่อ** → อ่าน [TODO_FRONTEND.md](./TODO_FRONTEND.md)
-- **ถ้าอยากเข้าใจ Backend** → อ่าน [backend/nodejs/README.md](./backend/nodejs/README.md)
+- **ถ้าอยากเข้าใจ Backend** → อ่าน [BACKEND_README.md](./BACKEND_README.md)
 - **ถ้าอยากเข้าใจ Database** → อ่าน [DATABASE_SUMMARY.md](./DATABASE_SUMMARY.md)
 
 ---
@@ -314,16 +363,18 @@ Backend API: http://localhost:8000/api
 
 | Component | Status | หมายเหตุ |
 |-----------|--------|----------|
-| Backend API | ✅ 100% | 40+ endpoints พร้อมใช้ |
-| Database Models | ✅ 100% | 7 tables พร้อม relationships |
+| Backend Setup | ✅ 100% | Go + Gin โครงสร้างเสร็จสมบูรณ์ |
+| Backend Implementation | ⏳ 40% | Models, Utils, Middleware เสร็จ |
+| Database Models | ✅ 100% | 8 tables พร้อม relationships |
 | Docker Setup | ✅ 100% | docker-compose พร้อม |
 | API Client | ✅ 100% | lib/api-client.js พร้อม |
 | Frontend UI | ✅ 100% | Pages สวยหมดแล้ว |
-| **Frontend Integration** | ⏳ 0% | **ต้องทำต่อ** - อ่าน TODO_FRONTEND.md |
-| Seed Data | ⏳ 0% | ข้อมูลตัวอย่าง |
+| **Backend Repositories** | ⏳ 0% | **ต้องทำต่อ** - SQL queries |
+| **Backend Handlers** | ⏳ 0% | **ต้องทำต่อ** - API endpoints logic |
+| **Frontend Integration** | ⏳ 0% | **ต้องทำต่อ** - เชื่อม API |
 | Testing | ⏳ 0% | Unit + Integration tests |
 
-**Overall Progress: 70%** ← Backend เสร็จแล้ว, เหลือเชื่อม Frontend
+**Overall Progress: 40%** ← โครงสร้างเสร็จ, เริ่มเขียน implementation ได้
 
 ---
 
@@ -334,11 +385,11 @@ Frontend (Next.js Pages Router)
       ↓
 lib/api-client.js (JWT Token Management)
       ↓
-Backend API (Express.js)
+Backend API (Go + Gin Framework)
       ↓
-Sequelize ORM
+Raw SQL Queries (lib/pq driver)
       ↓
-PostgreSQL Database (7 tables)
+PostgreSQL Database (8 tables)
 ```
 
 ---

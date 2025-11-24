@@ -1,487 +1,67 @@
-[00:00:01.652] Server  WARN     ⚠ Minimum recommended TypeScript version is v5.1.0, older versions can potentially be incompatible with Next.js. Detected: 5.0.2
-[00:00:01.859] Server  LOG      ✓ Ready in 1260ms
-[00:00:10.131] Server  LOG      ○ Compiling /admin/dashboard ...
-[00:00:12.052] Server  WARN     ⚠ Cross origin request detected from 127.0.0.1 to /_next/* resource. In a future major version of Next.js, you will need to explicitly configure "allowedDevOrigins" in next.config to allow this.
+[00:00:01.115] Server  WARN     ⚠ Minimum recommended TypeScript version is v5.1.0, older versions can potentially be incompatible with Next.js. Detected: 5.0.2
+[00:00:01.320] Server  LOG      ✓ Ready in 806ms
+[00:00:19.516] Server  LOG      ○ Compiling /search ...
+[00:00:21.040] Server  WARN     ⚠ Cross origin request detected from 127.0.0.1 to /_next/* resource. In a future major version of Next.js, you will need to explicitly configure "allowedDevOrigins" in next.config to allow this.
 Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
-[00:00:12.375] Browser ERROR   uncaughtError: Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
-
-- A server/client branch `if (typeof window !== 'undefined')`.
-- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
-- Date formatting in a user's locale which doesn't match the server.
-- External changing data without sending a snapshot of it along with the HTML.
-- Invalid HTML tag nesting.
-
-It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
-
-https://react.dev/link/hydration-mismatch
-
-  ...
-    <App pageProps={{}} Component={function AdminDashboard} err={undefined} router={{sdc:{},sbc:{}, ...}}>
-      <div className="geist_372c...">
-        <AdminDashboard>
-          <Head>
-          <AdminLayout>
-            <div className="min-h-scre...">
-              <header>
-              <div className="flex">
-                <aside>
-                <main className="flex-1 p-6...">
-                  <div className="max-w-7xl ...">
-                    <div className="space-y-8">
-                      <div className="relative o..." style={{...}}>
-                        <div>
-                        <div className="relative z...">
-                          <div className="flex items...">
-                            <div>
-                              <h1>
-                              <p>
-                              <div className="flex items...">
-                                <svg>
-                                <span className="font-medium">
-+                                 วันพุธที่ 19 พฤศจิกายน 2568
--                                 วันอังคารที่ 18 พฤศจิกายน 2568
-                            ...
-                      ...
-        ...
-    ...
-
-[00:00:12.375] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:00:12.375] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/admin/dashboard","route":"/admin/dashboard"}
-[00:00:12.375] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/admin/dashboard","o":"http://127.0.0.1:3000/admin/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763508447070}
-[00:00:30.106] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/vans color: rgb(120, 120, 120) color: inherit {"dp":"/admin/vans","o":"http://127.0.0.1:3000/admin/vans","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763508464815}
-[00:00:31.966] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/routes color: rgb(120, 120, 120) color: inherit {"dp":"/admin/routes","o":"http://127.0.0.1:3000/admin/routes","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763508466660}
-[00:00:34.324] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/schedules color: rgb(120, 120, 120) color: inherit {"dp":"/admin/schedules","o":"http://127.0.0.1:3000/admin/schedules","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763508469028}
-[00:00:35.903] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/vans color: rgb(120, 120, 120) color: inherit {"dp":"/admin/vans","o":"http://127.0.0.1:3000/admin/vans","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763508470606}
-[00:00:40.768] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/bookings color: rgb(120, 120, 120) color: inherit {"dp":"/admin/bookings","o":"http://127.0.0.1:3000/admin/bookings","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763508475466}
-[00:00:43.213] Server  LOG      ✓ Compiled in 331ms
-[00:01:09.176] Server  LOG      ✓ Compiled in 705ms
-[00:01:35.303] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/schedules color: rgb(120, 120, 120) color: inherit {"dp":"/admin/schedules","o":"http://127.0.0.1:3000/admin/schedules","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763508530003}
-[00:01:36.252] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/bookings color: rgb(120, 120, 120) color: inherit {"dp":"/admin/bookings","o":"http://127.0.0.1:3000/admin/bookings","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763508530954}
-[00:01:43.238] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/admin/dashboard","o":"http://127.0.0.1:3000/admin/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763508537914}
-[00:01:44.107] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/vans color: rgb(120, 120, 120) color: inherit {"dp":"/admin/vans","o":"http://127.0.0.1:3000/admin/vans","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763508538812}
-[00:01:44.893] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/routes color: rgb(120, 120, 120) color: inherit {"dp":"/admin/routes","o":"http://127.0.0.1:3000/admin/routes","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763508539601}
-[00:01:45.883] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/vans color: rgb(120, 120, 120) color: inherit {"dp":"/admin/vans","o":"http://127.0.0.1:3000/admin/vans","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763508540591}
-[00:01:48.125] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/routes color: rgb(120, 120, 120) color: inherit {"dp":"/admin/routes","o":"http://127.0.0.1:3000/admin/routes","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763508542767}
-[00:01:49.248] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/vans color: rgb(120, 120, 120) color: inherit {"dp":"/admin/vans","o":"http://127.0.0.1:3000/admin/vans","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763508543948}
-[00:01:50.087] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/admin/dashboard","o":"http://127.0.0.1:3000/admin/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763508544789}
-[00:01:50.784] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/routes color: rgb(120, 120, 120) color: inherit {"dp":"/admin/routes","o":"http://127.0.0.1:3000/admin/routes","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763508545481}
-[00:01:51.768] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/schedules color: rgb(120, 120, 120) color: inherit {"dp":"/admin/schedules","o":"http://127.0.0.1:3000/admin/schedules","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763508546469}
-[00:01:53.169] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/routes color: rgb(120, 120, 120) color: inherit {"dp":"/admin/routes","o":"http://127.0.0.1:3000/admin/routes","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763508547866}
-[00:01:54.602] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/schedules color: rgb(120, 120, 120) color: inherit {"dp":"/admin/schedules","o":"http://127.0.0.1:3000/admin/schedules","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763508549299}
-[00:01:55.852] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/bookings color: rgb(120, 120, 120) color: inherit {"dp":"/admin/bookings","o":"http://127.0.0.1:3000/admin/bookings","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763508550548}
-[00:01:59.102] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/admin/dashboard","o":"http://127.0.0.1:3000/admin/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763508553805}
-[00:07:06.104] Server  LOG      ✓ Compiled in 670ms
-[00:07:07.291] Browser ERROR   API Request Error: {}
-[00:07:07.291] Browser ERROR   Failed to fetch dashboard data: {}
-[00:07:07.291] Browser ERROR   API Request Error: {}
-[00:07:07.291] Browser ERROR   API Request Error: {}
-[00:07:07.291] Browser ERROR   API Request Error: {}
-[00:07:19.106] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/vans color: rgb(120, 120, 120) color: inherit {"dp":"/admin/vans","o":"http://127.0.0.1:3000/admin/vans","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763508873818}
-[00:07:45.228] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/admin/dashboard","o":"http://127.0.0.1:3000/admin/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763508899932}
-[00:07:45.657] Browser ERROR   API Request Error: {}
-[00:07:45.657] Browser ERROR   Failed to fetch dashboard data: {}
-[00:07:45.657] Browser ERROR   API Request Error: {}
-[00:07:45.657] Browser ERROR   API Request Error: {}
-[00:07:45.657] Browser ERROR   API Request Error: {}
-[00:08:58.211] Server  LOG      ✓ Compiled in 204ms
-[00:08:59.010] Browser ERROR   API Request Error: {}
-[00:08:59.010] Browser ERROR   Failed to fetch dashboard data: {}
-[00:08:59.010] Browser ERROR   API Request Error: {}
-[00:08:59.010] Browser ERROR   API Request Error: {}
-[00:08:59.010] Browser ERROR   API Request Error: {}
-[00:11:33.626] Server  LOG      ✓ Compiled in 326ms
-[00:11:36.126] Server  LOG      ✓ Compiled in 371ms
-[00:11:38.313] Server  LOG      ✓ Compiled in 316ms
-[00:11:40.363] Server  LOG      ✓ Compiled in 240ms
-[00:13:24.708] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/vans color: rgb(120, 120, 120) color: inherit {"dp":"/admin/vans","o":"http://127.0.0.1:3000/admin/vans","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763509239417}
-[00:13:25.222] Browser ERROR   API Request Error: {}
-[00:13:25.222] Browser ERROR   Error fetching vans: {}
-[00:13:25.855] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/routes color: rgb(120, 120, 120) color: inherit {"dp":"/admin/routes","o":"http://127.0.0.1:3000/admin/routes","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763509240551}
-[00:13:26.028] Browser ERROR   API Request Error: {}
-[00:13:26.028] Browser ERROR   Error fetching routes: {}
-[00:13:26.809] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/schedules color: rgb(120, 120, 120) color: inherit {"dp":"/admin/schedules","o":"http://127.0.0.1:3000/admin/schedules","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763509241496}
-[00:13:26.928] Browser ERROR   API Request Error: {}
-[00:13:26.928] Browser ERROR   Error fetching schedules: {}
-[00:13:26.928] Browser ERROR   API Request Error: {}
-[00:13:26.928] Browser ERROR   Error fetching vans: {}
-[00:13:28.059] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/bookings color: rgb(120, 120, 120) color: inherit {"dp":"/admin/bookings","o":"http://127.0.0.1:3000/admin/bookings","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763509242768}
-[00:13:28.200] Browser ERROR   API Request Error: {}
-[00:13:28.200] Browser ERROR   Error fetching bookings: {}
-[00:13:44.930] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/admin/dashboard","o":"http://127.0.0.1:3000/admin/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763509259561}
-[00:13:45.168] Browser ERROR   API Request Error: {}
-[00:13:45.168] Browser ERROR   Failed to fetch dashboard data: {}
-[00:13:45.168] Browser ERROR   API Request Error: {}
-[00:13:45.168] Browser ERROR   API Request Error: {}
-[00:13:45.168] Browser ERROR   API Request Error: {}
-[00:13:45.875] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/vans color: rgb(120, 120, 120) color: inherit {"dp":"/admin/vans","o":"http://127.0.0.1:3000/admin/vans","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763509260513}
-[00:13:45.875] Browser ERROR   API Request Error: {}
-[00:13:45.875] Browser ERROR   Error fetching vans: {}
-[00:13:46.560] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/routes color: rgb(120, 120, 120) color: inherit {"dp":"/admin/routes","o":"http://127.0.0.1:3000/admin/routes","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763509261272}
-[00:13:46.685] Browser ERROR   API Request Error: {}
-[00:13:46.686] Browser ERROR   Error fetching routes: {}
-[00:13:47.385] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/schedules color: rgb(120, 120, 120) color: inherit {"dp":"/admin/schedules","o":"http://127.0.0.1:3000/admin/schedules","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763509261937}
-[00:13:47.385] Browser ERROR   API Request Error: {}
-[00:13:47.385] Browser ERROR   Error fetching vans: {}
-[00:13:47.385] Browser ERROR   API Request Error: {}
-[00:13:47.385] Browser ERROR   Error fetching schedules: {}
-[00:13:47.999] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/bookings color: rgb(120, 120, 120) color: inherit {"dp":"/admin/bookings","o":"http://127.0.0.1:3000/admin/bookings","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763509262677}
-[00:13:48.239] Browser ERROR   API Request Error: {}
-[00:13:48.240] Browser ERROR   Error fetching bookings: {}
-[00:13:50.095] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/admin/dashboard","o":"http://127.0.0.1:3000/admin/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763509264755}
-[00:13:50.232] Browser ERROR   API Request Error: {}
-[00:13:50.232] Browser ERROR   Failed to fetch dashboard data: {}
-[00:13:50.232] Browser ERROR   API Request Error: {}
-[00:13:50.232] Browser ERROR   API Request Error: {}
-[00:13:50.232] Browser ERROR   API Request Error: {}
-[00:16:28.233] Server  LOG      ✓ Compiled in 237ms
-[00:16:28.868] Browser ERROR   API Request Error: {}
-[00:16:28.868] Browser ERROR   Failed to fetch dashboard data: {}
-[00:16:28.868] Browser ERROR   API Request Error: {}
-[00:16:28.868] Browser ERROR   API Request Error: {}
-[00:16:28.868] Browser ERROR   API Request Error: {}
-[00:16:30.204] Server  LOG      ✓ Compiled in 154ms
-[00:16:32.461] Server  LOG      ✓ Compiled in 199ms
-[00:16:34.705] Server  LOG      ✓ Compiled in 202ms
-[00:16:36.894] Server  LOG      ✓ Compiled in 161ms
-[00:17:47.546] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/vans color: rgb(120, 120, 120) color: inherit {"dp":"/admin/vans","o":"http://127.0.0.1:3000/admin/vans","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763509502250}
-[00:17:48.126] Browser ERROR   API Request Error: {}
-[00:17:48.126] Browser ERROR   Error fetching vans: {}
-[00:20:36.033] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/routes color: rgb(120, 120, 120) color: inherit {"dp":"/admin/routes","o":"http://127.0.0.1:3000/admin/routes","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763509670712}
-[00:20:36.521] Browser ERROR   API Request Error: {}
-[00:20:36.521] Browser ERROR   Error fetching routes: {}
-[00:20:37.228] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/bookings color: rgb(120, 120, 120) color: inherit {"dp":"/admin/bookings","o":"http://127.0.0.1:3000/admin/bookings","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763509671929}
-[00:20:37.358] Browser ERROR   API Request Error: {}
-[00:20:37.358] Browser ERROR   Error fetching bookings: {}
-[00:20:47.134] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/schedules color: rgb(120, 120, 120) color: inherit {"dp":"/admin/schedules","o":"http://127.0.0.1:3000/admin/schedules","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763509681848}
-[00:20:47.433] Browser ERROR   API Request Error: {}
-[00:20:47.433] Browser ERROR   Error fetching schedules: {}
-[00:20:47.676] Browser ERROR   API Request Error: {}
-[00:20:47.676] Browser ERROR   Error fetching vans: {}
-[00:20:48.123] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/admin/dashboard","o":"http://127.0.0.1:3000/admin/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763509682712}
-[00:20:48.123] Browser ERROR   API Request Error: {}
-[00:20:48.123] Browser ERROR   Failed to fetch dashboard data: {}
-[00:20:48.123] Browser ERROR   API Request Error: {}
-[00:20:48.123] Browser ERROR   API Request Error: {}
-[00:20:48.123] Browser ERROR   API Request Error: {}
-[00:20:53.589] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/vans color: rgb(120, 120, 120) color: inherit {"dp":"/admin/vans","o":"http://127.0.0.1:3000/admin/vans","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763509688294}
-[00:20:53.742] Browser ERROR   API Request Error: {}
-[00:20:53.743] Browser ERROR   Error fetching vans: {}
-[00:20:54.130] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/admin/dashboard","o":"http://127.0.0.1:3000/admin/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763509688844}
-[00:20:54.356] Browser ERROR   API Request Error: {}
-[00:20:54.356] Browser ERROR   Failed to fetch dashboard data: {}
-[00:20:54.356] Browser ERROR   API Request Error: {}
-[00:20:54.356] Browser ERROR   API Request Error: {}
-[00:20:54.356] Browser ERROR   API Request Error: {}
-[00:21:31.113] Server  LOG      ✓ Compiled in 306ms
-[00:21:31.736] Browser ERROR   API Request Error: {}
-[00:21:31.736] Browser ERROR   Failed to fetch dashboard data: {}
-[00:21:31.736] Browser ERROR   API Request Error: {}
-[00:21:31.736] Browser ERROR   API Request Error: {}
-[00:21:31.736] Browser ERROR   API Request Error: {}
-[00:21:50.516] Server  LOG      ✓ Compiled in 217ms
-[00:21:51.207] Browser ERROR   API Request Error: {}
-[00:21:51.207] Browser ERROR   Failed to fetch dashboard data: {}
-[00:21:51.207] Browser ERROR   API Request Error: {}
-[00:21:51.207] Browser ERROR   API Request Error: {}
-[00:21:51.207] Browser ERROR   API Request Error: {}
-[00:21:57.836] Server  LOG      ✓ Compiled in 164ms
-[00:21:58.494] Browser ERROR   API Request Error: {}
-[00:21:58.494] Browser ERROR   Failed to fetch dashboard data: {}
-[00:21:58.494] Browser ERROR   API Request Error: {}
-[00:21:58.494] Browser ERROR   API Request Error: {}
-[00:21:58.494] Browser ERROR   API Request Error: {}
-[00:22:09.113] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/schedules color: rgb(120, 120, 120) color: inherit {"dp":"/admin/schedules","o":"http://127.0.0.1:3000/admin/schedules","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763509763667}
-[00:22:09.113] Browser ERROR   API Request Error: {}
-[00:22:09.113] Browser ERROR   Error fetching schedules: {}
-[00:22:09.113] Browser ERROR   API Request Error: {}
-[00:22:09.113] Browser ERROR   Error fetching vans: {}
-[00:22:10.644] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/bookings color: rgb(120, 120, 120) color: inherit {"dp":"/admin/bookings","o":"http://127.0.0.1:3000/admin/bookings","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763509765357}
-[00:22:10.755] Browser ERROR   API Request Error: {}
-[00:22:10.755] Browser ERROR   Error fetching bookings: {}
-[00:22:11.808] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/routes color: rgb(120, 120, 120) color: inherit {"dp":"/admin/routes","o":"http://127.0.0.1:3000/admin/routes","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763509766523}
-[00:22:11.961] Browser ERROR   API Request Error: {}
-[00:22:11.961] Browser ERROR   Error fetching routes: {}
-[00:22:26.249] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/schedules color: rgb(120, 120, 120) color: inherit {"dp":"/admin/schedules","o":"http://127.0.0.1:3000/admin/schedules","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763509780939}
-[00:22:26.357] Browser ERROR   API Request Error: {}
-[00:22:26.357] Browser ERROR   Error fetching schedules: {}
-[00:22:26.357] Browser ERROR   API Request Error: {}
-[00:22:26.357] Browser ERROR   Error fetching vans: {}
-[00:22:27.819] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/routes color: rgb(120, 120, 120) color: inherit {"dp":"/admin/routes","o":"http://127.0.0.1:3000/admin/routes","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763509782534}
-[00:22:27.977] Browser ERROR   API Request Error: {}
-[00:22:27.977] Browser ERROR   Error fetching routes: {}
-[00:22:29.062] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/vans color: rgb(120, 120, 120) color: inherit {"dp":"/admin/vans","o":"http://127.0.0.1:3000/admin/vans","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763509783680}
-[00:22:29.062] Browser ERROR   API Request Error: {}
-[00:22:29.062] Browser ERROR   Error fetching vans: {}
-[00:22:36.546] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/bookings color: rgb(120, 120, 120) color: inherit {"dp":"/admin/bookings","o":"http://127.0.0.1:3000/admin/bookings","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763509791226}
-[00:22:36.702] Browser ERROR   API Request Error: {}
-[00:22:36.702] Browser ERROR   Error fetching bookings: {}
-[00:22:38.303] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/schedules color: rgb(120, 120, 120) color: inherit {"dp":"/admin/schedules","o":"http://127.0.0.1:3000/admin/schedules","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763509793014}
-[00:22:38.558] Browser ERROR   API Request Error: {}
-[00:22:38.558] Browser ERROR   Error fetching schedules: {}
-[00:22:38.725] Browser ERROR   API Request Error: {}
-[00:22:38.725] Browser ERROR   Error fetching vans: {}
-[00:22:47.909] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/routes color: rgb(120, 120, 120) color: inherit {"dp":"/admin/routes","o":"http://127.0.0.1:3000/admin/routes","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763509802610}
-[00:22:48.016] Browser ERROR   API Request Error: {}
-[00:22:48.016] Browser ERROR   Error fetching routes: {}
-[00:25:41.324] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:25:41.324] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/?id=ada1e652-2f1c-4bb9-b6c2-c8099968e5e1&vscodeBrowserReqId=1763509974142 color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/?id=ada1e652-2f1c-4bb9-b6c2-c8099968e5e1&vscodeBrowserReqId=1763509974142","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763509976110}
-[00:26:09.843] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:26:09.843] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/login?id=ada1e652-2f1c-4bb9-b6c2-c8099968e5e1&vscodeBrowserReqId=1763510002800 color: rgb(120, 120, 120) color: inherit {"dp":"/login","o":"http://localhost:3000/login?id=ada1e652-2f1c-4bb9-b6c2-c8099968e5e1&vscodeBrowserReqId=1763510002800","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763510004537}
-[00:26:18.571] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/register color: rgb(120, 120, 120) color: inherit {"dp":"/register","o":"http://localhost:3000/register","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763510013271}
-[00:27:42.698] Server  LOG      ✓ Compiled in 221ms
-[00:27:54.628] Server  LOG      ✓ Compiled in 145ms
-[00:28:32.106] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:28:32.224] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/login?id=ada1e652-2f1c-4bb9-b6c2-c8099968e5e1&vscodeBrowserReqId=1763510145031 color: rgb(120, 120, 120) color: inherit {"dp":"/login","o":"http://localhost:3000/login?id=ada1e652-2f1c-4bb9-b6c2-c8099968e5e1&vscodeBrowserReqId=1763510145031","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763510146932}
-[00:28:33.970] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/register color: rgb(120, 120, 120) color: inherit {"dp":"/register","o":"http://localhost:3000/register","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763510148689}
-[00:29:29.118] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:29:29.118] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/register?id=ada1e652-2f1c-4bb9-b6c2-c8099968e5e1&vscodeBrowserReqId=1763510202336 color: rgb(120, 120, 120) color: inherit {"dp":"/register","o":"http://localhost:3000/register?id=ada1e652-2f1c-4bb9-b6c2-c8099968e5e1&vscodeBrowserReqId=1763510202336","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763510203743}
-[00:30:38.058] Browser LOG     Refreshing page data due to server-side change
-[00:30:38.232] Server  LOG      ✓ Compiled in 459ms
-[00:31:04.539] Browser LOG     Refreshing page data due to server-side change
-[00:31:04.555] Server  LOG      ✓ Compiled in 249ms
-[00:31:17.443] Browser ERROR   API Request Error: {}
-[00:31:20.816] Browser WARN    {}
-[00:32:04.702] Server  LOG      ✓ Compiled in 138ms
-[00:32:25.063] Server  LOG      ✓ Compiled in 145ms
-[00:32:57.484] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/login color: rgb(120, 120, 120) color: inherit {"dp":"/login","o":"http://localhost:3000/login","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763510412199}
-[00:32:58.629] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/register color: rgb(120, 120, 120) color: inherit {"dp":"/register","o":"http://localhost:3000/register","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763510413328}
-[00:32:59.801] Server  LOG      ✓ Compiled in 147ms
-[00:33:00.061] Browser ERROR   A component is changing an uncontrolled input to be controlled. This is likely caused by the value changing from undefined to a defined value, which should not happen. Decide between using a controlled or uncontrolled input element for the lifetime of the component. More info: https://react.dev/link/controlled-components
-[00:33:32.239] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/login color: rgb(120, 120, 120) color: inherit {"dp":"/login","o":"http://localhost:3000/login","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763510446918}
-[00:34:19.370] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:34:19.443] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/register?id=ada1e652-2f1c-4bb9-b6c2-c8099968e5e1&vscodeBrowserReqId=1763510491808 color: rgb(120, 120, 120) color: inherit {"dp":"/register","o":"http://localhost:3000/register?id=ada1e652-2f1c-4bb9-b6c2-c8099968e5e1&vscodeBrowserReqId=1763510491808","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763510494160}
-[00:34:21.650] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/login color: rgb(120, 120, 120) color: inherit {"dp":"/login","o":"http://localhost:3000/login","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763510496294}
-[00:35:57.022] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:35:57.022] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
-[00:35:57.022] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://127.0.0.1:3000/","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763510591741}
-[00:36:25.534] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/login color: rgb(120, 120, 120) color: inherit {"dp":"/login","o":"http://127.0.0.1:3000/login","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763510620231}
-[00:37:40.555] Browser ERROR   API Request Error: {}
-[00:39:48.620] Browser ERROR   API Request Error: {}
-[00:39:56.627] Browser ERROR   API Request Error: {}
-[00:40:05.740] Browser ERROR   API Request Error: {}
-[00:40:06.721] Server  LOG      ✓ Compiled in 195ms
-[00:40:13.152] Browser ERROR   API Request Error: {}
-[00:40:29.641] Browser ERROR   API Request Error: {}
-[00:40:35.666] Browser ERROR   API Request Error: {}
-[00:40:43.642] Browser ERROR   API Request Error: {}
-[00:40:57.292] Browser ERROR   API Request Error: {}
-[00:41:24.862] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://127.0.0.1:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763510919572}
-[00:41:33.896] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/login color: rgb(120, 120, 120) color: inherit {"dp":"/login","o":"http://127.0.0.1:3000/login","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763510928621}
-[00:41:43.741] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://127.0.0.1:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763510938452}
-[00:42:44.179] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/login color: rgb(120, 120, 120) color: inherit {"dp":"/login","o":"http://127.0.0.1:3000/login","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763510998904}
-[00:43:08.087] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:43:08.087] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/login","route":"/login"}
-[00:43:08.087] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/login color: rgb(120, 120, 120) color: inherit {"dp":"/login","o":"http://127.0.0.1:3000/login","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763511022810}
-[00:43:17.851] Browser ERROR   API Request Error: {}
-[00:44:03.662] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://127.0.0.1:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763511078373}
-[00:44:22.584] Server  LOG      ✓ Compiled in 136ms
-[00:44:23.066] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/login color: rgb(120, 120, 120) color: inherit {"dp":"/login","o":"http://127.0.0.1:3000/login","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763511097769}
-[00:45:38.826] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://127.0.0.1:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763511173539}
-[00:45:56.566] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/login color: rgb(120, 120, 120) color: inherit {"dp":"/login","o":"http://127.0.0.1:3000/login","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763511191290}
-[00:46:07.250] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://127.0.0.1:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763511201960}
-[00:48:33.889] Server  LOG      ✓ Compiled in 275ms
-[00:48:59.569] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/search color: rgb(120, 120, 120) color: inherit {"dp":"/search","o":"http://127.0.0.1:3000/search","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763511374290}
-[00:49:01.896] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/bookings color: rgb(120, 120, 120) color: inherit {"dp":"/bookings","o":"http://127.0.0.1:3000/bookings","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763511376590}
-[00:49:01.896] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/login?redirect=/bookings color: rgb(120, 120, 120) color: inherit {"dp":"/login","o":"http://127.0.0.1:3000/login?redirect=/bookings","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763511376609}
-[00:49:04.683] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/bookings color: rgb(120, 120, 120) color: inherit {"dp":"/bookings","o":"http://127.0.0.1:3000/bookings","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763511379372}
-[00:49:04.683] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/login?redirect=/bookings color: rgb(120, 120, 120) color: inherit {"dp":"/login","o":"http://127.0.0.1:3000/login?redirect=/bookings","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763511379382}
-[00:49:45.602] Server  LOG      ✓ Compiled in 141ms
-[00:50:04.024] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:50:04.025] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/l","route":"/l"}
-[00:50:04.025] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/l color: rgb(120, 120, 120) color: inherit {"dp":"/l","o":"http://127.0.0.1:3000/l","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763511438736}
-[00:50:13.469] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:50:13.469] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
-[00:50:13.469] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://127.0.0.1:3000/","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763511448184}
-[00:50:16.196] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/bookings color: rgb(120, 120, 120) color: inherit {"dp":"/bookings","o":"http://127.0.0.1:3000/bookings","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763511450921}
-[00:50:20.429] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/search color: rgb(120, 120, 120) color: inherit {"dp":"/search","o":"http://127.0.0.1:3000/search","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763511455152}
-[00:50:21.716] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/#about color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://127.0.0.1:3000/#about","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763511456433}
-[00:50:23.502] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/bookings color: rgb(120, 120, 120) color: inherit {"dp":"/bookings","o":"http://127.0.0.1:3000/bookings","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763511458221}
-[00:50:24.570] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://127.0.0.1:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763511459289}
-[00:50:29.102] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/search color: rgb(120, 120, 120) color: inherit {"dp":"/search","o":"http://127.0.0.1:3000/search","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763511463811}
-[00:50:29.894] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/bookings color: rgb(120, 120, 120) color: inherit {"dp":"/bookings","o":"http://127.0.0.1:3000/bookings","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763511464603}
-[00:50:30.585] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://127.0.0.1:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763511465307}
-[00:50:31.019] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/search color: rgb(120, 120, 120) color: inherit {"dp":"/search","o":"http://127.0.0.1:3000/search","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763511465743}
-[00:50:31.465] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/bookings color: rgb(120, 120, 120) color: inherit {"dp":"/bookings","o":"http://127.0.0.1:3000/bookings","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763511466183}
-[00:50:32.288] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/#about color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://127.0.0.1:3000/#about","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763511467008}
-[00:50:32.910] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/bookings color: rgb(120, 120, 120) color: inherit {"dp":"/bookings","o":"http://127.0.0.1:3000/bookings","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763511467629}
-[00:50:33.566] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/search color: rgb(120, 120, 120) color: inherit {"dp":"/search","o":"http://127.0.0.1:3000/search","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763511468277}
-[00:51:45.256] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/#about color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://127.0.0.1:3000/#about","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763511539974}
-[01:03:47.312] Server  LOG      ✓ Compiled in 542ms
-[01:04:25.339] Server  LOG      ✓ Compiled in 167ms
-[01:04:25.339] Browser LOG     Refreshing page data due to server-side change
-[01:04:25.504] Browser ERROR   ./pages/index.jsx:223:21
-Parsing ecmascript source code failed
-  221 |                 <h3 className="text-lg font-bold text-gray-900 mb-2">บริการดี ตลอด 24 ชม.</h3>
-  222 |                 <p className="text-gray-600 text-sm">สอบถามได้ทุกเวลา ทีมงานพร้อมช่วยเหลือ
-> 223 |               </div>
-      |                     ^
-> 224 |             </div>
-      | ^^^^^^^^^^^^^
-  225 |           </div>
-  226 |         </section>
-  227 |
-
-Expected '</', got 'jsx text (
-            )'
-[01:04:25.504] Browser ERROR   ./pages/index.jsx
-Code generation for chunk item errored
-An error occurred while generating the chunk item [project]/pages/index.jsx [ssr] (ecmascript)
-
-Caused by:
-- CJS module can't be async.
-
-Debug info:
-- An error occurred while generating the chunk item [project]/pages/index.jsx [ssr] (ecmascript)
-- Execution of <ModuleChunkItem as EcmascriptChunkItem>::content_with_async_module_info failed
-- Execution of EcmascriptChunkItemContent::new failed
-- CJS module can't be async.
-[01:04:41.326] Server  LOG      ✓ Compiled in 219ms
-[01:04:41.425] Browser LOG     Refreshing page data due to server-side change
-[01:05:06.655] Server  LOG      ✓ Compiled in 161ms
-[01:06:22.496] Server  LOG      ✓ Compiled in 167ms
-[01:07:43.887] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/search color: rgb(120, 120, 120) color: inherit {"dp":"/search","o":"http://127.0.0.1:3000/search","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763512498552}
-[01:07:45.901] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://127.0.0.1:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763512500624}
-[01:07:47.291] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/search color: rgb(120, 120, 120) color: inherit {"dp":"/search","o":"http://127.0.0.1:3000/search","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763512502002}
-[01:20:05.540] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/login color: rgb(120, 120, 120) color: inherit {"dp":"/login","o":"http://127.0.0.1:3000/login","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763513240280}
-[01:20:07.714] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/search color: rgb(120, 120, 120) color: inherit {"dp":"/search","o":"http://127.0.0.1:3000/search","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763513242448}
-[01:20:09.745] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/login color: rgb(120, 120, 120) color: inherit {"dp":"/login","o":"http://127.0.0.1:3000/login","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763513244483}
-[01:20:11.696] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/search color: rgb(120, 120, 120) color: inherit {"dp":"/search","o":"http://127.0.0.1:3000/search","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763513246244}
-[01:22:28.564] Server  LOG      ✓ Compiled in 168ms
-[01:24:30.545] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/#about color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://127.0.0.1:3000/#about","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763513505246}
-[01:24:31.459] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/bookings color: rgb(120, 120, 120) color: inherit {"dp":"/bookings","o":"http://127.0.0.1:3000/bookings","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763513506195}
-[01:24:34.407] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/search color: rgb(120, 120, 120) color: inherit {"dp":"/search","o":"http://127.0.0.1:3000/search","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763513509011}
-[01:24:35.600] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/login color: rgb(120, 120, 120) color: inherit {"dp":"/login","o":"http://127.0.0.1:3000/login","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763513510335}
-[01:24:37.142] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/search color: rgb(120, 120, 120) color: inherit {"dp":"/search","o":"http://127.0.0.1:3000/search","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763513511880}
-[01:25:15.456] Browser LOG     Refreshing page data due to server-side change
-[01:25:15.581] Server  LOG      ✓ Compiled in 528ms
-[01:25:17.665] Server  LOG      ✓ Compiled in 378ms
-[01:25:19.639] Server  LOG      ✓ Compiled in 175ms
-[01:25:19.650] Browser LOG     Refreshing page data due to server-side change
-[01:28:57.496] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/login color: rgb(120, 120, 120) color: inherit {"dp":"/login","o":"http://127.0.0.1:3000/login","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763513772233}
-[01:28:59.521] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/search color: rgb(120, 120, 120) color: inherit {"dp":"/search","o":"http://127.0.0.1:3000/search","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763513774038}
-[01:29:12.527] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/login color: rgb(120, 120, 120) color: inherit {"dp":"/login","o":"http://127.0.0.1:3000/login","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763513787255}
-[01:29:14.352] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/search color: rgb(120, 120, 120) color: inherit {"dp":"/search","o":"http://127.0.0.1:3000/search","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763513789080}
-[01:29:24.524] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/login color: rgb(120, 120, 120) color: inherit {"dp":"/login","o":"http://127.0.0.1:3000/login","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763513799263}
-[01:29:26.243] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/search color: rgb(120, 120, 120) color: inherit {"dp":"/search","o":"http://127.0.0.1:3000/search","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763513800982}
-[01:30:25.160] Server  LOG      ✓ Compiled in 210ms
-[01:30:30.027] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/login color: rgb(120, 120, 120) color: inherit {"dp":"/login","o":"http://127.0.0.1:3000/login","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763513864771}
-[01:30:31.965] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/search color: rgb(120, 120, 120) color: inherit {"dp":"/search","o":"http://127.0.0.1:3000/search","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763513866699}
-[01:30:42.729] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/login color: rgb(120, 120, 120) color: inherit {"dp":"/login","o":"http://127.0.0.1:3000/login","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763513877464}
-[01:30:44.279] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/search color: rgb(120, 120, 120) color: inherit {"dp":"/search","o":"http://127.0.0.1:3000/search","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763513879015}
-[01:30:46.291] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/login color: rgb(120, 120, 120) color: inherit {"dp":"/login","o":"http://127.0.0.1:3000/login","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763513881023}
-[01:30:47.691] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/search color: rgb(120, 120, 120) color: inherit {"dp":"/search","o":"http://127.0.0.1:3000/search","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763513882213}
-[01:31:45.035] Server  LOG      ✓ Compiled in 314ms
-[01:31:49.191] Browser ERROR   %o
-
-%s
-
-%s
- {} The above error occurred in the <SeatSelectionPage> component. React will try to recreate this component tree from scratch using the error boundary you provided, PagesDevOverlayErrorBoundary.
-[01:31:49.191] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/seats/af0fca69-66be-4470-b125-73b67886b176 color: rgb(120, 120, 120) color: inherit {"dp":"/seats/[id]","o":"http://127.0.0.1:3000/seats/af0fca69-66be-4470-b125-73b67886b176","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763513943928}
-[01:32:09.434] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[01:32:09.435] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/bookings","route":"/bookings"}
-[01:32:09.435] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/bookings color: rgb(120, 120, 120) color: inherit {"dp":"/bookings","o":"http://127.0.0.1:3000/bookings","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763513964177}
-[01:32:12.357] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/search color: rgb(120, 120, 120) color: inherit {"dp":"/search","o":"http://127.0.0.1:3000/search","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763513967085}
-[01:32:13.651] Browser ERROR   %o
-
-%s
-
-%s
- {} The above error occurred in the <SeatSelectionPage> component. React will try to recreate this component tree from scratch using the error boundary you provided, PagesDevOverlayErrorBoundary.
-[01:32:13.651] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/seats/af0fca69-66be-4470-b125-73b67886b176 color: rgb(120, 120, 120) color: inherit {"dp":"/seats/[id]","o":"http://127.0.0.1:3000/seats/af0fca69-66be-4470-b125-73b67886b176","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763513968371}
-[01:32:30.301] Server  LOG      ✓ Compiled in 234ms
-[01:32:45.222] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[01:32:45.222] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/search","route":"/search"}
-[01:32:45.222] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/search color: rgb(120, 120, 120) color: inherit {"dp":"/search","o":"http://127.0.0.1:3000/search","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763513999955}
-[01:32:47.858] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/seats/af0fca69-66be-4470-b125-73b67886b176 color: rgb(120, 120, 120) color: inherit {"dp":"/seats/[id]","o":"http://127.0.0.1:3000/seats/af0fca69-66be-4470-b125-73b67886b176","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763514002584}
-[01:33:12.072] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/confirm?scheduleId=af0fca69-66be-4470-b125-73b67886b176&seats=9&total=0 color: rgb(120, 120, 120) color: inherit {"dp":"/confirm","o":"http://127.0.0.1:3000/confirm?scheduleId=af0fca69-66be-4470-b125-73b67886b176&seats=9&total=0","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763514026797}
-[01:33:19.753] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/success color: rgb(120, 120, 120) color: inherit {"dp":"/success","o":"http://127.0.0.1:3000/success","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763514034493}
-[01:33:25.761] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/bookings color: rgb(120, 120, 120) color: inherit {"dp":"/bookings","o":"http://127.0.0.1:3000/bookings","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763514040495}
-[01:34:54.202] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/search color: rgb(120, 120, 120) color: inherit {"dp":"/search","o":"http://127.0.0.1:3000/search","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763514128933}
-[01:34:56.165] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/seats/af0fca69-66be-4470-b125-73b67886b176 color: rgb(120, 120, 120) color: inherit {"dp":"/seats/[id]","o":"http://127.0.0.1:3000/seats/af0fca69-66be-4470-b125-73b67886b176","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763514130883}
-[01:35:04.950] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/confirm?scheduleId=af0fca69-66be-4470-b125-73b67886b176&seats=7&total=0 color: rgb(120, 120, 120) color: inherit {"dp":"/confirm","o":"http://127.0.0.1:3000/confirm?scheduleId=af0fca69-66be-4470-b125-73b67886b176&seats=7&total=0","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763514139684}
-[01:35:23.386] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/seats/1 color: rgb(120, 120, 120) color: inherit {"dp":"/seats/[id]","o":"http://127.0.0.1:3000/seats/1","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763514158112}
-[01:35:26.303] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/confirm?scheduleId=1&seats=7%2C11&total=0 color: rgb(120, 120, 120) color: inherit {"dp":"/confirm","o":"http://127.0.0.1:3000/confirm?scheduleId=1&seats=7%2C11&total=0","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763514161035}
-[01:35:33.950] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/seats/1 color: rgb(120, 120, 120) color: inherit {"dp":"/seats/[id]","o":"http://127.0.0.1:3000/seats/1","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763514168673}
-[01:35:39.075] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/confirm?scheduleId=1&seats=3&total=0 color: rgb(120, 120, 120) color: inherit {"dp":"/confirm","o":"http://127.0.0.1:3000/confirm?scheduleId=1&seats=3&total=0","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763514173809}
-[01:35:44.707] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/seats/1 color: rgb(120, 120, 120) color: inherit {"dp":"/seats/[id]","o":"http://127.0.0.1:3000/seats/1","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763514179430}
-[01:35:49.477] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/confirm?scheduleId=1&seats=11&total=0 color: rgb(120, 120, 120) color: inherit {"dp":"/confirm","o":"http://127.0.0.1:3000/confirm?scheduleId=1&seats=11&total=0","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763514184114}
-[01:35:55.072] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/success color: rgb(120, 120, 120) color: inherit {"dp":"/success","o":"http://127.0.0.1:3000/success","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763514189810}
-[01:36:02.909] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://127.0.0.1:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763514197647}
-[01:36:04.565] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/search color: rgb(120, 120, 120) color: inherit {"dp":"/search","o":"http://127.0.0.1:3000/search","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763514198910}
-[01:36:05.510] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/seats/af0fca69-66be-4470-b125-73b67886b176 color: rgb(120, 120, 120) color: inherit {"dp":"/seats/[id]","o":"http://127.0.0.1:3000/seats/af0fca69-66be-4470-b125-73b67886b176","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763514200223}
-[01:36:08.298] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/confirm?scheduleId=af0fca69-66be-4470-b125-73b67886b176&seats=11&total=0 color: rgb(120, 120, 120) color: inherit {"dp":"/confirm","o":"http://127.0.0.1:3000/confirm?scheduleId=af0fca69-66be-4470-b125-73b67886b176&seats=11&total=0","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763514203030}
-[01:37:54.222] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/#about color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://127.0.0.1:3000/#about","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763514308959}
-[01:37:55.992] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/search color: rgb(120, 120, 120) color: inherit {"dp":"/search","o":"http://127.0.0.1:3000/search","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763514310541}
-[01:37:56.853] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/bookings color: rgb(120, 120, 120) color: inherit {"dp":"/bookings","o":"http://127.0.0.1:3000/bookings","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763514311586}
-[01:37:58.362] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/search color: rgb(120, 120, 120) color: inherit {"dp":"/search","o":"http://127.0.0.1:3000/search","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763514312841}
-[01:43:12.907] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/seats/af0fca69-66be-4470-b125-73b67886b176 color: rgb(120, 120, 120) color: inherit {"dp":"/seats/[id]","o":"http://127.0.0.1:3000/seats/af0fca69-66be-4470-b125-73b67886b176","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763514627643}
-[01:43:20.731] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/confirm?scheduleId=af0fca69-66be-4470-b125-73b67886b176&seats=3&total=0 color: rgb(120, 120, 120) color: inherit {"dp":"/confirm","o":"http://127.0.0.1:3000/confirm?scheduleId=af0fca69-66be-4470-b125-73b67886b176&seats=3&total=0","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763514635464}
-[01:43:23.515] Server  LOG      ✓ Compiled in 373ms
-[01:43:24.590] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/success color: rgb(120, 120, 120) color: inherit {"dp":"/success","o":"http://127.0.0.1:3000/success","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763514639333}
-[01:43:28.045] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/bookings color: rgb(120, 120, 120) color: inherit {"dp":"/bookings","o":"http://127.0.0.1:3000/bookings","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763514642785}
-[01:44:02.800] Server  LOG      ✓ Compiled in 508ms
-[01:44:24.594] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/search color: rgb(120, 120, 120) color: inherit {"dp":"/search","o":"http://127.0.0.1:3000/search","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763514699326}
-[01:44:27.404] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/seats/af0fca69-66be-4470-b125-73b67886b176 color: rgb(120, 120, 120) color: inherit {"dp":"/seats/[id]","o":"http://127.0.0.1:3000/seats/af0fca69-66be-4470-b125-73b67886b176","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763514702129}
-[01:44:33.673] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/confirm?scheduleId=af0fca69-66be-4470-b125-73b67886b176&seats=11&total=0 color: rgb(120, 120, 120) color: inherit {"dp":"/confirm","o":"http://127.0.0.1:3000/confirm?scheduleId=af0fca69-66be-4470-b125-73b67886b176&seats=11&total=0","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763514708419}
-[01:44:36.893] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/success color: rgb(120, 120, 120) color: inherit {"dp":"/success","o":"http://127.0.0.1:3000/success","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763514711639}
-[01:44:56.979] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/bookings color: rgb(120, 120, 120) color: inherit {"dp":"/bookings","o":"http://127.0.0.1:3000/bookings","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763514731719}
-[01:45:16.321] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/search color: rgb(120, 120, 120) color: inherit {"dp":"/search","o":"http://127.0.0.1:3000/search","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763514751029}
-[01:45:17.511] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/seats/af0fca69-66be-4470-b125-73b67886b176 color: rgb(120, 120, 120) color: inherit {"dp":"/seats/[id]","o":"http://127.0.0.1:3000/seats/af0fca69-66be-4470-b125-73b67886b176","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763514752243}
-[01:45:19.970] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/confirm?scheduleId=af0fca69-66be-4470-b125-73b67886b176&seats=11&total=0 color: rgb(120, 120, 120) color: inherit {"dp":"/confirm","o":"http://127.0.0.1:3000/confirm?scheduleId=af0fca69-66be-4470-b125-73b67886b176&seats=11&total=0","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763514754719}
-[01:45:22.046] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/success color: rgb(120, 120, 120) color: inherit {"dp":"/success","o":"http://127.0.0.1:3000/success","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763514756792}
-[01:45:26.045] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/confirm?scheduleId=af0fca69-66be-4470-b125-73b67886b176&seats=11&total=0 color: rgb(120, 120, 120) color: inherit {"dp":"/confirm","o":"http://127.0.0.1:3000/confirm?scheduleId=af0fca69-66be-4470-b125-73b67886b176&seats=11&total=0","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763514760787}
-[01:46:57.880] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[01:46:57.880] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/bookings","route":"/bookings"}
-[01:46:57.880] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/bookings color: rgb(120, 120, 120) color: inherit {"dp":"/bookings","o":"http://127.0.0.1:3000/bookings","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763514852615}
-[01:47:24.245] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/search color: rgb(120, 120, 120) color: inherit {"dp":"/search","o":"http://127.0.0.1:3000/search","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763514878985}
-[01:47:26.077] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/seats/af0fca69-66be-4470-b125-73b67886b176 color: rgb(120, 120, 120) color: inherit {"dp":"/seats/[id]","o":"http://127.0.0.1:3000/seats/af0fca69-66be-4470-b125-73b67886b176","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763514880819}
-[01:48:18.961] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/confirm?scheduleId=af0fca69-66be-4470-b125-73b67886b176&seats=8&total=0 color: rgb(120, 120, 120) color: inherit {"dp":"/confirm","o":"http://127.0.0.1:3000/confirm?scheduleId=af0fca69-66be-4470-b125-73b67886b176&seats=8&total=0","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763514933710}
-[01:48:21.575] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/success color: rgb(120, 120, 120) color: inherit {"dp":"/success","o":"http://127.0.0.1:3000/success","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763514936324}
-[01:49:40.854] Server  LOG      ✓ Compiled in 340ms
-[01:49:41.048] Browser LOG     Refreshing page data due to server-side change
-[01:49:42.523] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/bookings color: rgb(120, 120, 120) color: inherit {"dp":"/bookings","o":"http://127.0.0.1:3000/bookings","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763515017257}
-[01:49:50.559] Server  LOG      ✓ Compiled in 191ms
-[01:49:57.920] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/search color: rgb(120, 120, 120) color: inherit {"dp":"/search","o":"http://127.0.0.1:3000/search","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763515032648}
-[01:49:59.265] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/seats/af0fca69-66be-4470-b125-73b67886b176 color: rgb(120, 120, 120) color: inherit {"dp":"/seats/[id]","o":"http://127.0.0.1:3000/seats/af0fca69-66be-4470-b125-73b67886b176","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763515034001}
-[01:50:01.989] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/confirm?scheduleId=af0fca69-66be-4470-b125-73b67886b176&seats=8&total=0 color: rgb(120, 120, 120) color: inherit {"dp":"/confirm","o":"http://127.0.0.1:3000/confirm?scheduleId=af0fca69-66be-4470-b125-73b67886b176&seats=8&total=0","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763515036722}
-[01:50:50.350] Browser LOG     Refreshing page data due to server-side change
-[01:50:50.580] Server  LOG      ✓ Compiled in 459ms
-[01:50:51.040] Browser LOG     Refreshing page data due to server-side change
-[01:51:07.502] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/payments/b41632df-fea9-4796-b73a-93d973fa2029 color: rgb(120, 120, 120) color: inherit {"dp":"/payments/[bookingId]","o":"http://127.0.0.1:3000/payments/b41632df-fea9-4796-b73a-93d973fa2029","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763515102242}
-[01:51:07.776] Server  LOG      ✓ Compiled in 178ms
-[01:51:24.283] Server  LOG      ✓ Compiled in 281ms
-[01:51:25.038] Browser LOG     Refreshing page data due to server-side change
-[01:51:40.593] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/bookings color: rgb(120, 120, 120) color: inherit {"dp":"/bookings","o":"http://127.0.0.1:3000/bookings","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763515135335}
-[01:51:44.361] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/search color: rgb(120, 120, 120) color: inherit {"dp":"/search","o":"http://127.0.0.1:3000/search","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763515139091}
-[01:51:46.235] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/seats/bc89593d-87f8-4a33-a9a0-998309db03b1 color: rgb(120, 120, 120) color: inherit {"dp":"/seats/[id]","o":"http://127.0.0.1:3000/seats/bc89593d-87f8-4a33-a9a0-998309db03b1","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763515140981}
-[01:51:56.306] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/confirm?scheduleId=bc89593d-87f8-4a33-a9a0-998309db03b1&seats=12&total=0 color: rgb(120, 120, 120) color: inherit {"dp":"/confirm","o":"http://127.0.0.1:3000/confirm?scheduleId=bc89593d-87f8-4a33-a9a0-998309db03b1&seats=12&total=0","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763515151048}
-[01:51:56.764] Server  LOG      ✓ Compiled in 200ms
-[01:52:03.073] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/seats/bc89593d-87f8-4a33-a9a0-998309db03b1 color: rgb(120, 120, 120) color: inherit {"dp":"/seats/[id]","o":"http://127.0.0.1:3000/seats/bc89593d-87f8-4a33-a9a0-998309db03b1","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763515157807}
-[01:52:05.243] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/confirm?scheduleId=bc89593d-87f8-4a33-a9a0-998309db03b1&seats=8&total=0 color: rgb(120, 120, 120) color: inherit {"dp":"/confirm","o":"http://127.0.0.1:3000/confirm?scheduleId=bc89593d-87f8-4a33-a9a0-998309db03b1&seats=8&total=0","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763515159989}
-[01:52:13.176] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/payments/e3ee836c-d7e0-46bd-ae7e-e3534cfb8722 color: rgb(120, 120, 120) color: inherit {"dp":"/payments/[bookingId]","o":"http://127.0.0.1:3000/payments/e3ee836c-d7e0-46bd-ae7e-e3534cfb8722","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763515167927}
-[01:52:58.902] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/bookings color: rgb(120, 120, 120) color: inherit {"dp":"/bookings","o":"http://127.0.0.1:3000/bookings","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763515213642}
-[01:53:15.533] Server  LOG      ✓ Compiled in 171ms
-[01:53:32.834] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/search color: rgb(120, 120, 120) color: inherit {"dp":"/search","o":"http://127.0.0.1:3000/search","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763515247574}
-[01:53:34.712] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/seats/f8ecdb15-a5c5-405a-9efc-93982470390e color: rgb(120, 120, 120) color: inherit {"dp":"/seats/[id]","o":"http://127.0.0.1:3000/seats/f8ecdb15-a5c5-405a-9efc-93982470390e","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763515249445}
-[01:53:36.743] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/confirm?scheduleId=f8ecdb15-a5c5-405a-9efc-93982470390e&seats=4&total=0 color: rgb(120, 120, 120) color: inherit {"dp":"/confirm","o":"http://127.0.0.1:3000/confirm?scheduleId=f8ecdb15-a5c5-405a-9efc-93982470390e&seats=4&total=0","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763515251485}
-[01:53:41.618] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/payments/5122c3ac-75e4-41df-81a8-3df421475ced color: rgb(120, 120, 120) color: inherit {"dp":"/payments/[bookingId]","o":"http://127.0.0.1:3000/payments/5122c3ac-75e4-41df-81a8-3df421475ced","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763515256366}
-[01:53:41.730] Browser LOG     Booking data: {"booking_number":"BK20251119297","cancellation_reason":null,"cancelled_at":null,"created_at":"2025-11-19T01:20:56.559Z","id":"5122c3ac-75e4-41df-81a8-3df421475ced","paid_at":null,"passenger_email":"Kessaraonwan1@gmail.com","passenger_name":"เกษรา_ อ่อนหวาน","passenger_phone":"0972132129","payment":{"amount":"150.00","booking_id":"5122c3ac-75e4-41df-81a8-3df421475ced","created_at":"2025-11-19T01:20:56.564Z","id":"ee41e6e4-2b71-44cf-800c-069f822034b4","paid_at":null,"payment_method":"cash","payment_status":"pending","refunded_at":null,"transaction_id":null,"updated_at":"2025-11-19T01:20:56.564Z"},"payment_method":null,"payment_slip_url":null,"payment_status":"UNPAID","schedule":{"available_seats":11,"created_at":"2025-11-18T17:20:55.059Z","departure_date":"2025-11-18","departure_time":"08:00:00","id":"f8ecdb15-a5c5-405a-9efc-93982470390e","price":"150.00","route":{"base_price":"150.00","created_at":"2025-11-18T15:41:36.297Z","destination":"พัทยา","distance_km":"147.00","duration_minutes":120,"id":"ec9e93d5-d813-4707-9adc-fbd8172fcc1e","image_url":"https://i0.wp.com/www.iurban.in.th/wp-content/uploads/2019/12/trave-pattaya-beach-2.jpg?ssl=1","is_active":true,"origin":"กรุงเทพฯ","updated_at":"2025-11-18T15:41:36.297Z"},"route_id":"ec9e93d5-d813-4707-9adc-fbd8172fcc1e","status":"scheduled","updated_at":"2025-11-19T01:20:56.563Z","van":{"created_at":"2025-11-18T17:20:04.192Z","id":"8b57e98c-9049-450a-bdc3-b8dccb068bac","is_active":true,"license_plate":"กซ-1357","status":"available","total_seats":12,"updated_at":"2025-11-18T17:20:04.192Z","van_number":"V007"},"van_id":"8b57e98c-9049-450a-bdc3-b8dccb068bac"},"schedule_id":"f8ecdb15-a5c5-405a-9efc-93982470390e","seat_numbers":[4],"seats":[{"booking_id":"5122c3ac-75e4-41df-81a8-3df421475ced","created_at":"2025-11-18T17:20:55.162Z","id":"b90b1d79-ec6d-41e7-969e-9eb9d5d31306","schedule_id":"f8ecdb15-a5c5-405a-9efc-93982470390e","seat_number":4,"status":"booked","updated_at":"2025-11-19T01:20:56.561Z"}],"status":"confirmed","total_price":"150.00","total_seats":1,"updated_at":"2025-11-19T01:20:56.559Z","user_id":"525a0980-cb77-404d-8392-b301e15af509"}
-[01:53:41.730] Browser LOG     Origin city: undefined
-[01:53:41.730] Browser LOG     Destination city: undefined
-[01:53:44.808] Server  LOG      ✓ Compiled in 273ms
-[01:53:45.611] Browser LOG     Booking data: {"booking_number":"BK20251119297","cancellation_reason":null,"cancelled_at":null,"created_at":"2025-11-19T01:20:56.559Z","id":"5122c3ac-75e4-41df-81a8-3df421475ced","paid_at":null,"passenger_email":"Kessaraonwan1@gmail.com","passenger_name":"เกษรา_ อ่อนหวาน","passenger_phone":"0972132129","payment":{"amount":"150.00","booking_id":"5122c3ac-75e4-41df-81a8-3df421475ced","created_at":"2025-11-19T01:20:56.564Z","id":"ee41e6e4-2b71-44cf-800c-069f822034b4","paid_at":null,"payment_method":"cash","payment_status":"pending","refunded_at":null,"transaction_id":null,"updated_at":"2025-11-19T01:20:56.564Z"},"payment_method":null,"payment_slip_url":null,"payment_status":"UNPAID","schedule":{"available_seats":11,"created_at":"2025-11-18T17:20:55.059Z","departure_date":"2025-11-18","departure_time":"08:00:00","id":"f8ecdb15-a5c5-405a-9efc-93982470390e","price":"150.00","route":{"base_price":"150.00","created_at":"2025-11-18T15:41:36.297Z","destination":"พัทยา","distance_km":"147.00","duration_minutes":120,"id":"ec9e93d5-d813-4707-9adc-fbd8172fcc1e","image_url":"https://i0.wp.com/www.iurban.in.th/wp-content/uploads/2019/12/trave-pattaya-beach-2.jpg?ssl=1","is_active":true,"origin":"กรุงเทพฯ","updated_at":"2025-11-18T15:41:36.297Z"},"route_id":"ec9e93d5-d813-4707-9adc-fbd8172fcc1e","status":"scheduled","updated_at":"2025-11-19T01:20:56.563Z","van":{"created_at":"2025-11-18T17:20:04.192Z","id":"8b57e98c-9049-450a-bdc3-b8dccb068bac","is_active":true,"license_plate":"กซ-1357","status":"available","total_seats":12,"updated_at":"2025-11-18T17:20:04.192Z","van_number":"V007"},"van_id":"8b57e98c-9049-450a-bdc3-b8dccb068bac"},"schedule_id":"f8ecdb15-a5c5-405a-9efc-93982470390e","seat_numbers":[4],"seats":[{"booking_id":"5122c3ac-75e4-41df-81a8-3df421475ced","created_at":"2025-11-18T17:20:55.162Z","id":"b90b1d79-ec6d-41e7-969e-9eb9d5d31306","schedule_id":"f8ecdb15-a5c5-405a-9efc-93982470390e","seat_number":4,"status":"booked","updated_at":"2025-11-19T01:20:56.561Z"}],"status":"confirmed","total_price":"150.00","total_seats":1,"updated_at":"2025-11-19T01:20:56.559Z","user_id":"525a0980-cb77-404d-8392-b301e15af509"}
-[01:53:45.611] Browser LOG     Origin city: undefined
-[01:53:45.611] Browser LOG     Destination city: undefined
-[01:54:49.282] Server  LOG      ✓ Compiled in 392ms
-[01:55:05.380] Server  LOG      ✓ Compiled in 209ms
-[01:55:16.498] Server  LOG      ✓ Compiled in 259ms
-[01:57:34.839] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/#about color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://127.0.0.1:3000/#about","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763515489502}
-[01:59:06.671] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/bookings color: rgb(120, 120, 120) color: inherit {"dp":"/bookings","o":"http://127.0.0.1:3000/bookings","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763515581409}
-[01:59:07.613] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/search color: rgb(120, 120, 120) color: inherit {"dp":"/search","o":"http://127.0.0.1:3000/search","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763515582329}
-[01:59:07.703] Server  LOG      ✓ Compiled in 258ms
-[01:59:08.695] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://127.0.0.1:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763515583436}
-[01:59:09.404] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/search color: rgb(120, 120, 120) color: inherit {"dp":"/search","o":"http://127.0.0.1:3000/search","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763515584137}
-[01:59:10.039] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/bookings color: rgb(120, 120, 120) color: inherit {"dp":"/bookings","o":"http://127.0.0.1:3000/bookings","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763515584786}
-[01:59:11.419] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/#about color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://127.0.0.1:3000/#about","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763515586156}
-[01:59:41.815] Server  LOG      ✓ Compiled in 493ms
+[00:00:21.371] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:00:21.371] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/search","route":"/search"}
+[00:00:21.371] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/search color: rgb(120, 120, 120) color: inherit {"dp":"/search","o":"http://127.0.0.1:3000/search","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1764017287219}
+[00:00:28.508] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://127.0.0.1:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1764017294309}
+[00:00:29.994] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/search color: rgb(120, 120, 120) color: inherit {"dp":"/search","o":"http://127.0.0.1:3000/search","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1764017295821}
+[00:00:31.309] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/#about color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://127.0.0.1:3000/#about","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1764017297147}
+[00:01:54.505] Server  LOG      ✓ Compiled in 394ms
+[00:02:05.999] Server  LOG      ✓ Compiled in 258ms
+[00:02:06.280] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/search color: rgb(120, 120, 120) color: inherit {"dp":"/search","o":"http://127.0.0.1:3000/search","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1764017392090}
+[00:20:44.355] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:20:44.355] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/search","route":"/search"}
+[00:20:44.355] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/search color: rgb(120, 120, 120) color: inherit {"dp":"/search","o":"http://127.0.0.1:3000/search","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1764018510206}
+[00:24:22.733] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:24:22.733] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/search","route":"/search"}
+[00:24:22.733] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/search color: rgb(120, 120, 120) color: inherit {"dp":"/search","o":"http://127.0.0.1:3000/search","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1764018728585}
+[00:34:39.828] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/login color: rgb(120, 120, 120) color: inherit {"dp":"/login","o":"http://127.0.0.1:3000/login","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1764019345693}
+[00:34:52.728] Browser ERROR   API Request Error: {}
+[00:34:52.728] Browser ERROR   Login error: {}
+[00:34:59.465] Browser ERROR   API Request Error: {}
+[00:34:59.465] Browser ERROR   Login error: {}
+[00:36:02.011] Browser ERROR   API Request Error: {}
+[00:36:02.011] Browser ERROR   Login error: {}
+[00:37:06.059] Browser ERROR   API Request Error: {}
+[00:37:06.059] Browser ERROR   Login error: {}
+[00:37:15.442] Browser ERROR   API Request Error: {}
+[00:37:15.442] Browser ERROR   Login error: {}
+[00:37:19.374] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/login color: rgb(120, 120, 120) color: inherit {"dp":"/admin/login","o":"http://127.0.0.1:3000/admin/login","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1764019505240}
+[00:37:47.928] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/admin/dashboard","o":"http://127.0.0.1:3000/admin/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1764019533783}
+[00:37:48.416] Browser ERROR   API Request Error: {}
+[00:37:48.416] Browser ERROR   Failed to fetch dashboard data: {}
+[00:37:48.416] Browser ERROR   API Request Error: {}
+[00:37:48.416] Browser ERROR   API Request Error: {}
+[00:37:48.416] Browser ERROR   API Request Error: {}
+[00:37:53.965] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/schedules color: rgb(120, 120, 120) color: inherit {"dp":"/admin/schedules","o":"http://127.0.0.1:3000/admin/schedules","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1764019539738}
+[00:37:53.965] Browser ERROR   API Request Error: {}
+[00:37:53.965] Browser ERROR   Error fetching schedules: {}
+[00:37:53.965] Browser ERROR   API Request Error: {}
+[00:37:53.965] Browser ERROR   Error fetching vans: {}
+[00:38:05.210] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/admin/dashboard","o":"http://127.0.0.1:3000/admin/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1764019550972}
+[00:38:05.210] Browser ERROR   API Request Error: {}
+[00:38:05.210] Browser ERROR   Failed to fetch dashboard data: {}
+[00:38:05.210] Browser ERROR   API Request Error: {}
+[00:38:05.210] Browser ERROR   API Request Error: {}
+[00:38:05.210] Browser ERROR   API Request Error: {}
+[00:38:06.641] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/vans color: rgb(120, 120, 120) color: inherit {"dp":"/admin/vans","o":"http://127.0.0.1:3000/admin/vans","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1764019552471}
+[00:38:06.641] Browser ERROR   API Request Error: {}
+[00:38:06.641] Browser ERROR   Error fetching vans: {}
+[00:38:07.877] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/routes color: rgb(120, 120, 120) color: inherit {"dp":"/admin/routes","o":"http://127.0.0.1:3000/admin/routes","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1764019553660}
+[00:38:07.877] Browser ERROR   API Request Error: {}
+[00:38:07.877] Browser ERROR   Error fetching routes: {}
+[00:38:09.544] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/bookings color: rgb(120, 120, 120) color: inherit {"dp":"/admin/bookings","o":"http://127.0.0.1:3000/admin/bookings","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1764019555330}
+[00:38:09.544] Browser ERROR   API Request Error: {}
+[00:38:09.544] Browser ERROR   Error fetching bookings: {}
+[00:38:13.305] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/admin/dashboard","o":"http://127.0.0.1:3000/admin/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1764019559081}
+[00:38:13.305] Browser ERROR   API Request Error: {}
+[00:38:13.305] Browser ERROR   Failed to fetch dashboard data: {}
+[00:38:13.305] Browser ERROR   API Request Error: {}
+[00:38:13.305] Browser ERROR   API Request Error: {}
+[00:38:13.305] Browser ERROR   API Request Error: {}
+[00:38:16.513] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:3000/admin/vans color: rgb(120, 120, 120) color: inherit {"dp":"/admin/vans","o":"http://127.0.0.1:3000/admin/vans","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1764019562327}
+[00:38:16.513] Browser ERROR   API Request Error: {}
+[00:38:16.513] Browser ERROR   Error fetching vans: {}

@@ -886,7 +886,7 @@ function HomePage() {
     (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react__$5b$external$5d$__$28$react$2c$__cjs$29$__["useEffect"])(()=>{
         const fetchRoutes = async ()=>{
             try {
-                const response = await fetch('http://localhost:8000/api/routes');
+                const response = await fetch('http://localhost:8080/api/routes');
                 const result = await response.json();
                 if (result.success && result.data) {
                     // แปลงข้อมูลจาก API ให้ตรงกับ format ที่ใช้ใน UI
@@ -912,14 +912,35 @@ function HomePage() {
         };
         fetchRoutes();
     }, []);
+    // ฟังก์ชันสุ่มสี Avatar
+    const getAvatarColor = (userId)=>{
+        const colors = [
+            '#EF4444',
+            '#F59E0B',
+            '#10B981',
+            '#3B82F6',
+            '#8B5CF6',
+            '#EC4899',
+            '#14B8A6',
+            '#F97316',
+            '#06B6D4',
+            '#6366F1'
+        ];
+        return colors[userId % colors.length];
+    };
     // ดึงข้อมูลรีวิวจาก API
     (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react__$5b$external$5d$__$28$react$2c$__cjs$29$__["useEffect"])(()=>{
         const fetchReviews = async ()=>{
             try {
-                const response = await fetch('http://localhost:8000/api/reviews?limit=3');
+                const response = await fetch('http://localhost:8080/api/reviews?limit=3');
                 const result = await response.json();
                 if (result.success && result.data) {
-                    setReviews(result.data);
+                    // เพิ่ม avatar_color ให้แต่ละรีวิว
+                    const reviewsWithColor = result.data.map((review)=>({
+                            ...review,
+                            avatar_color: getAvatarColor(review.user_id)
+                        }));
+                    setReviews(reviewsWithColor);
                 }
             } catch (error) {
                 console.error('Error fetching reviews:', error);
@@ -975,7 +996,7 @@ function HomePage() {
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$navbar$2e$jsx__$5b$ssr$5d$__$28$ecmascript$29$__["default"], {}, void 0, false, {
                 fileName: "[project]/pages/index.jsx",
-                lineNumber: 97,
+                lineNumber: 111,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("main", {
@@ -991,7 +1012,7 @@ function HomePage() {
                                 className: "absolute inset-0 bg-gradient-to-r from-gray-900/80 via-gray-900/70 to-gray-900/60"
                             }, void 0, false, {
                                 fileName: "[project]/pages/index.jsx",
-                                lineNumber: 108,
+                                lineNumber: 122,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -1004,7 +1025,7 @@ function HomePage() {
                                             children: "จองรถตู้ออนไลน์"
                                         }, void 0, false, {
                                             fileName: "[project]/pages/index.jsx",
-                                            lineNumber: 112,
+                                            lineNumber: 126,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("h1", {
@@ -1013,7 +1034,7 @@ function HomePage() {
                                                 "เดินทางทั่วไทย",
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("br", {}, void 0, false, {
                                                     fileName: "[project]/pages/index.jsx",
-                                                    lineNumber: 115,
+                                                    lineNumber: 129,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("span", {
@@ -1021,13 +1042,13 @@ function HomePage() {
                                                     children: "จองง่าย ได้ที่นั่ง"
                                                 }, void 0, false, {
                                                     fileName: "[project]/pages/index.jsx",
-                                                    lineNumber: 116,
+                                                    lineNumber: 130,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/pages/index.jsx",
-                                            lineNumber: 113,
+                                            lineNumber: 127,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("p", {
@@ -1035,7 +1056,7 @@ function HomePage() {
                                             children: "จองล่วงหน้า เลือกที่นั่งเอง ชำระเงินออนไลน์"
                                         }, void 0, false, {
                                             fileName: "[project]/pages/index.jsx",
-                                            lineNumber: 119,
+                                            lineNumber: 133,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -1052,7 +1073,7 @@ function HomePage() {
                                                                     children: "ต้นทาง"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/pages/index.jsx",
-                                                                    lineNumber: 127,
+                                                                    lineNumber: 141,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("select", {
@@ -1062,40 +1083,40 @@ function HomePage() {
                                                                             children: "กรุงเทพฯ"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/pages/index.jsx",
-                                                                            lineNumber: 131,
+                                                                            lineNumber: 145,
                                                                             columnNumber: 23
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("option", {
                                                                             children: "เชียงใหม่"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/pages/index.jsx",
-                                                                            lineNumber: 132,
+                                                                            lineNumber: 146,
                                                                             columnNumber: 23
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("option", {
                                                                             children: "ภูเก็ต"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/pages/index.jsx",
-                                                                            lineNumber: 133,
+                                                                            lineNumber: 147,
                                                                             columnNumber: 23
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("option", {
                                                                             children: "ขอนแก่น"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/pages/index.jsx",
-                                                                            lineNumber: 134,
+                                                                            lineNumber: 148,
                                                                             columnNumber: 23
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/pages/index.jsx",
-                                                                    lineNumber: 130,
+                                                                    lineNumber: 144,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/pages/index.jsx",
-                                                            lineNumber: 126,
+                                                            lineNumber: 140,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -1106,7 +1127,7 @@ function HomePage() {
                                                                     children: "ปลายทาง"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/pages/index.jsx",
-                                                                    lineNumber: 139,
+                                                                    lineNumber: 153,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("select", {
@@ -1116,40 +1137,40 @@ function HomePage() {
                                                                             children: "พัทยา"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/pages/index.jsx",
-                                                                            lineNumber: 143,
+                                                                            lineNumber: 157,
                                                                             columnNumber: 23
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("option", {
                                                                             children: "หัวหิน"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/pages/index.jsx",
-                                                                            lineNumber: 144,
+                                                                            lineNumber: 158,
                                                                             columnNumber: 23
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("option", {
                                                                             children: "เชียงใหม่"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/pages/index.jsx",
-                                                                            lineNumber: 145,
+                                                                            lineNumber: 159,
                                                                             columnNumber: 23
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("option", {
                                                                             children: "กรุงเทพฯ"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/pages/index.jsx",
-                                                                            lineNumber: 146,
+                                                                            lineNumber: 160,
                                                                             columnNumber: 23
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/pages/index.jsx",
-                                                                    lineNumber: 142,
+                                                                    lineNumber: 156,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/pages/index.jsx",
-                                                            lineNumber: 138,
+                                                            lineNumber: 152,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -1160,7 +1181,7 @@ function HomePage() {
                                                                     children: "วันเดินทาง"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/pages/index.jsx",
-                                                                    lineNumber: 151,
+                                                                    lineNumber: 165,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("input", {
@@ -1168,19 +1189,19 @@ function HomePage() {
                                                                     className: "w-full px-4 py-4 rounded-xl border-2 border-gray-200 hover:border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-100 transition-all text-base bg-white"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/pages/index.jsx",
-                                                                    lineNumber: 154,
+                                                                    lineNumber: 168,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/pages/index.jsx",
-                                                            lineNumber: 150,
+                                                            lineNumber: 164,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/pages/index.jsx",
-                                                    lineNumber: 125,
+                                                    lineNumber: 139,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$3_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$link$2e$js__$5b$ssr$5d$__$28$ecmascript$29$__["default"], {
@@ -1200,47 +1221,47 @@ function HomePage() {
                                                                     d: "M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/pages/index.jsx",
-                                                                    lineNumber: 164,
+                                                                    lineNumber: 178,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/pages/index.jsx",
-                                                                lineNumber: 163,
+                                                                lineNumber: 177,
                                                                 columnNumber: 21
                                                             }, this),
                                                             "ค้นหาเที่ยวรถ"
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/pages/index.jsx",
-                                                        lineNumber: 162,
+                                                        lineNumber: 176,
                                                         columnNumber: 19
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/pages/index.jsx",
-                                                    lineNumber: 161,
+                                                    lineNumber: 175,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/pages/index.jsx",
-                                            lineNumber: 124,
+                                            lineNumber: 138,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/pages/index.jsx",
-                                    lineNumber: 111,
+                                    lineNumber: 125,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/pages/index.jsx",
-                                lineNumber: 110,
+                                lineNumber: 124,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/pages/index.jsx",
-                        lineNumber: 101,
+                        lineNumber: 115,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("section", {
@@ -1256,7 +1277,7 @@ function HomePage() {
                                             children: "บริการของเรา"
                                         }, void 0, false, {
                                             fileName: "[project]/pages/index.jsx",
-                                            lineNumber: 178,
+                                            lineNumber: 192,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("h2", {
@@ -1264,13 +1285,13 @@ function HomePage() {
                                             children: "ทำไมต้องจองกับเรา"
                                         }, void 0, false, {
                                             fileName: "[project]/pages/index.jsx",
-                                            lineNumber: 179,
+                                            lineNumber: 193,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/pages/index.jsx",
-                                    lineNumber: 177,
+                                    lineNumber: 191,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -1293,17 +1314,17 @@ function HomePage() {
                                                             d: "M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
                                                         }, void 0, false, {
                                                             fileName: "[project]/pages/index.jsx",
-                                                            lineNumber: 188,
+                                                            lineNumber: 202,
                                                             columnNumber: 21
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/pages/index.jsx",
-                                                        lineNumber: 187,
+                                                        lineNumber: 201,
                                                         columnNumber: 19
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/pages/index.jsx",
-                                                    lineNumber: 186,
+                                                    lineNumber: 200,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("h3", {
@@ -1311,7 +1332,7 @@ function HomePage() {
                                                     children: "จองง่ายรวดเร็ว"
                                                 }, void 0, false, {
                                                     fileName: "[project]/pages/index.jsx",
-                                                    lineNumber: 191,
+                                                    lineNumber: 205,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("p", {
@@ -1319,13 +1340,13 @@ function HomePage() {
                                                     children: "จองได้ทันที ชำระเงินปลอดภัย ยืนยันทันใจ"
                                                 }, void 0, false, {
                                                     fileName: "[project]/pages/index.jsx",
-                                                    lineNumber: 192,
+                                                    lineNumber: 206,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/pages/index.jsx",
-                                            lineNumber: 185,
+                                            lineNumber: 199,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -1345,17 +1366,17 @@ function HomePage() {
                                                             d: "M5 13l4 4L19 7"
                                                         }, void 0, false, {
                                                             fileName: "[project]/pages/index.jsx",
-                                                            lineNumber: 198,
+                                                            lineNumber: 212,
                                                             columnNumber: 21
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/pages/index.jsx",
-                                                        lineNumber: 197,
+                                                        lineNumber: 211,
                                                         columnNumber: 19
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/pages/index.jsx",
-                                                    lineNumber: 196,
+                                                    lineNumber: 210,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("h3", {
@@ -1363,7 +1384,7 @@ function HomePage() {
                                                     children: "เลือกที่นั่งได้"
                                                 }, void 0, false, {
                                                     fileName: "[project]/pages/index.jsx",
-                                                    lineNumber: 201,
+                                                    lineNumber: 215,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("p", {
@@ -1371,13 +1392,13 @@ function HomePage() {
                                                     children: "เลือกที่นั่งที่ต้องการได้เลย"
                                                 }, void 0, false, {
                                                     fileName: "[project]/pages/index.jsx",
-                                                    lineNumber: 202,
+                                                    lineNumber: 216,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/pages/index.jsx",
-                                            lineNumber: 195,
+                                            lineNumber: 209,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -1397,17 +1418,17 @@ function HomePage() {
                                                             d: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                                                         }, void 0, false, {
                                                             fileName: "[project]/pages/index.jsx",
-                                                            lineNumber: 208,
+                                                            lineNumber: 222,
                                                             columnNumber: 21
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/pages/index.jsx",
-                                                        lineNumber: 207,
+                                                        lineNumber: 221,
                                                         columnNumber: 19
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/pages/index.jsx",
-                                                    lineNumber: 206,
+                                                    lineNumber: 220,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("h3", {
@@ -1415,7 +1436,7 @@ function HomePage() {
                                                     children: "ราคาชัดเจน"
                                                 }, void 0, false, {
                                                     fileName: "[project]/pages/index.jsx",
-                                                    lineNumber: 211,
+                                                    lineNumber: 225,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("p", {
@@ -1423,13 +1444,13 @@ function HomePage() {
                                                     children: "ราคาโปร่งใส เห็นราคาก่อนจอง"
                                                 }, void 0, false, {
                                                     fileName: "[project]/pages/index.jsx",
-                                                    lineNumber: 212,
+                                                    lineNumber: 226,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/pages/index.jsx",
-                                            lineNumber: 205,
+                                            lineNumber: 219,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -1449,17 +1470,17 @@ function HomePage() {
                                                             d: "M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"
                                                         }, void 0, false, {
                                                             fileName: "[project]/pages/index.jsx",
-                                                            lineNumber: 218,
+                                                            lineNumber: 232,
                                                             columnNumber: 21
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/pages/index.jsx",
-                                                        lineNumber: 217,
+                                                        lineNumber: 231,
                                                         columnNumber: 19
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/pages/index.jsx",
-                                                    lineNumber: 216,
+                                                    lineNumber: 230,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("h3", {
@@ -1467,7 +1488,7 @@ function HomePage() {
                                                     children: "บริการดี ตลอด 24 ชม."
                                                 }, void 0, false, {
                                                     fileName: "[project]/pages/index.jsx",
-                                                    lineNumber: 221,
+                                                    lineNumber: 235,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("p", {
@@ -1475,30 +1496,30 @@ function HomePage() {
                                                     children: "สอบถามได้ทุกเวลา ทีมงานพร้อมช่วยเหลือ"
                                                 }, void 0, false, {
                                                     fileName: "[project]/pages/index.jsx",
-                                                    lineNumber: 222,
+                                                    lineNumber: 236,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/pages/index.jsx",
-                                            lineNumber: 215,
+                                            lineNumber: 229,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/pages/index.jsx",
-                                    lineNumber: 184,
+                                    lineNumber: 198,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/pages/index.jsx",
-                            lineNumber: 176,
+                            lineNumber: 190,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/pages/index.jsx",
-                        lineNumber: 175,
+                        lineNumber: 189,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("section", {
@@ -1514,7 +1535,7 @@ function HomePage() {
                                             children: "เส้นทางยอดนิยม"
                                         }, void 0, false, {
                                             fileName: "[project]/pages/index.jsx",
-                                            lineNumber: 232,
+                                            lineNumber: 246,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("h2", {
@@ -1522,7 +1543,7 @@ function HomePage() {
                                             children: "เส้นทางที่มีคนจองบ่อย"
                                         }, void 0, false, {
                                             fileName: "[project]/pages/index.jsx",
-                                            lineNumber: 233,
+                                            lineNumber: 247,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("p", {
@@ -1530,13 +1551,13 @@ function HomePage() {
                                             children: "เส้นทางหลักที่เปิดให้บริการ"
                                         }, void 0, false, {
                                             fileName: "[project]/pages/index.jsx",
-                                            lineNumber: 236,
+                                            lineNumber: 250,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/pages/index.jsx",
-                                    lineNumber: 231,
+                                    lineNumber: 245,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -1551,7 +1572,7 @@ function HomePage() {
                                                     className: "h-48 bg-gray-300"
                                                 }, void 0, false, {
                                                     fileName: "[project]/pages/index.jsx",
-                                                    lineNumber: 246,
+                                                    lineNumber: 260,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -1561,40 +1582,40 @@ function HomePage() {
                                                             className: "h-4 bg-gray-300 rounded w-1/3 mb-3"
                                                         }, void 0, false, {
                                                             fileName: "[project]/pages/index.jsx",
-                                                            lineNumber: 248,
+                                                            lineNumber: 262,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
                                                             className: "h-6 bg-gray-300 rounded w-3/4 mb-4"
                                                         }, void 0, false, {
                                                             fileName: "[project]/pages/index.jsx",
-                                                            lineNumber: 249,
+                                                            lineNumber: 263,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
                                                             className: "h-4 bg-gray-300 rounded w-full mb-2"
                                                         }, void 0, false, {
                                                             fileName: "[project]/pages/index.jsx",
-                                                            lineNumber: 250,
+                                                            lineNumber: 264,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
                                                             className: "h-4 bg-gray-300 rounded w-2/3"
                                                         }, void 0, false, {
                                                             fileName: "[project]/pages/index.jsx",
-                                                            lineNumber: 251,
+                                                            lineNumber: 265,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/pages/index.jsx",
-                                                    lineNumber: 247,
+                                                    lineNumber: 261,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, idx, true, {
                                             fileName: "[project]/pages/index.jsx",
-                                            lineNumber: 245,
+                                            lineNumber: 259,
                                             columnNumber: 19
                                         }, this)) : popularRoutes.length === 0 ? // Empty state
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -1612,12 +1633,12 @@ function HomePage() {
                                                     d: "M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
                                                 }, void 0, false, {
                                                     fileName: "[project]/pages/index.jsx",
-                                                    lineNumber: 259,
+                                                    lineNumber: 273,
                                                     columnNumber: 21
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/pages/index.jsx",
-                                                lineNumber: 258,
+                                                lineNumber: 272,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("p", {
@@ -1625,13 +1646,13 @@ function HomePage() {
                                                 children: "ไม่พบข้อมูลเส้นทาง"
                                             }, void 0, false, {
                                                 fileName: "[project]/pages/index.jsx",
-                                                lineNumber: 261,
+                                                lineNumber: 275,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/pages/index.jsx",
-                                        lineNumber: 257,
+                                        lineNumber: 271,
                                         columnNumber: 17
                                     }, this) : popularRoutes.map((route, idx)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
                                             className: "bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all overflow-hidden group",
@@ -1645,7 +1666,7 @@ function HomePage() {
                                                             className: "w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                                         }, void 0, false, {
                                                             fileName: "[project]/pages/index.jsx",
-                                                            lineNumber: 268,
+                                                            lineNumber: 282,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -1653,7 +1674,7 @@ function HomePage() {
                                                             children: "ยอดนิยม"
                                                         }, void 0, false, {
                                                             fileName: "[project]/pages/index.jsx",
-                                                            lineNumber: 273,
+                                                            lineNumber: 287,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -1666,12 +1687,12 @@ function HomePage() {
                                                                         d: "M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/pages/index.jsx",
-                                                                        lineNumber: 278,
+                                                                        lineNumber: 292,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/pages/index.jsx",
-                                                                    lineNumber: 277,
+                                                                    lineNumber: 291,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("span", {
@@ -1679,19 +1700,19 @@ function HomePage() {
                                                                     children: route.rating
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/pages/index.jsx",
-                                                                    lineNumber: 280,
+                                                                    lineNumber: 294,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/pages/index.jsx",
-                                                            lineNumber: 276,
+                                                            lineNumber: 290,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/pages/index.jsx",
-                                                    lineNumber: 267,
+                                                    lineNumber: 281,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -1713,7 +1734,7 @@ function HomePage() {
                                                                             d: "M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/pages/index.jsx",
-                                                                            lineNumber: 288,
+                                                                            lineNumber: 302,
                                                                             columnNumber: 25
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("path", {
@@ -1723,26 +1744,26 @@ function HomePage() {
                                                                             d: "M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/pages/index.jsx",
-                                                                            lineNumber: 289,
+                                                                            lineNumber: 303,
                                                                             columnNumber: 25
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/pages/index.jsx",
-                                                                    lineNumber: 287,
+                                                                    lineNumber: 301,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("span", {
                                                                     children: route.from
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/pages/index.jsx",
-                                                                    lineNumber: 291,
+                                                                    lineNumber: 305,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/pages/index.jsx",
-                                                            lineNumber: 286,
+                                                            lineNumber: 300,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("h3", {
@@ -1754,7 +1775,7 @@ function HomePage() {
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/pages/index.jsx",
-                                                            lineNumber: 294,
+                                                            lineNumber: 308,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("p", {
@@ -1765,7 +1786,7 @@ function HomePage() {
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/pages/index.jsx",
-                                                            lineNumber: 298,
+                                                            lineNumber: 312,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -1786,19 +1807,19 @@ function HomePage() {
                                                                                 d: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/pages/index.jsx",
-                                                                                lineNumber: 305,
+                                                                                lineNumber: 319,
                                                                                 columnNumber: 27
                                                                             }, this)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/pages/index.jsx",
-                                                                            lineNumber: 304,
+                                                                            lineNumber: 318,
                                                                             columnNumber: 25
                                                                         }, this),
                                                                         route.duration
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/pages/index.jsx",
-                                                                    lineNumber: 303,
+                                                                    lineNumber: 317,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -1816,12 +1837,12 @@ function HomePage() {
                                                                                 d: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/pages/index.jsx",
-                                                                                lineNumber: 311,
+                                                                                lineNumber: 325,
                                                                                 columnNumber: 27
                                                                             }, this)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/pages/index.jsx",
-                                                                            lineNumber: 310,
+                                                                            lineNumber: 324,
                                                                             columnNumber: 25
                                                                         }, this),
                                                                         route.reviews,
@@ -1829,13 +1850,13 @@ function HomePage() {
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/pages/index.jsx",
-                                                                    lineNumber: 309,
+                                                                    lineNumber: 323,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/pages/index.jsx",
-                                                            lineNumber: 302,
+                                                            lineNumber: 316,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -1848,7 +1869,7 @@ function HomePage() {
                                                                             children: "เริ่มต้น"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/pages/index.jsx",
-                                                                            lineNumber: 319,
+                                                                            lineNumber: 333,
                                                                             columnNumber: 25
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -1859,13 +1880,13 @@ function HomePage() {
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/pages/index.jsx",
-                                                                            lineNumber: 320,
+                                                                            lineNumber: 334,
                                                                             columnNumber: 25
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/pages/index.jsx",
-                                                                    lineNumber: 318,
+                                                                    lineNumber: 332,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -1881,30 +1902,30 @@ function HomePage() {
                                                                     children: "จองเลย"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/pages/index.jsx",
-                                                                    lineNumber: 325,
+                                                                    lineNumber: 339,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/pages/index.jsx",
-                                                            lineNumber: 317,
+                                                            lineNumber: 331,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/pages/index.jsx",
-                                                    lineNumber: 285,
+                                                    lineNumber: 299,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, route.id || idx, true, {
                                             fileName: "[project]/pages/index.jsx",
-                                            lineNumber: 265,
+                                            lineNumber: 279,
                                             columnNumber: 19
                                         }, this))
                                 }, void 0, false, {
                                     fileName: "[project]/pages/index.jsx",
-                                    lineNumber: 241,
+                                    lineNumber: 255,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -1928,39 +1949,39 @@ function HomePage() {
                                                         d: "M9 5l7 7-7 7"
                                                     }, void 0, false, {
                                                         fileName: "[project]/pages/index.jsx",
-                                                        lineNumber: 350,
+                                                        lineNumber: 364,
                                                         columnNumber: 21
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/pages/index.jsx",
-                                                    lineNumber: 349,
+                                                    lineNumber: 363,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/pages/index.jsx",
-                                            lineNumber: 347,
+                                            lineNumber: 361,
                                             columnNumber: 17
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/pages/index.jsx",
-                                        lineNumber: 346,
+                                        lineNumber: 360,
                                         columnNumber: 15
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/pages/index.jsx",
-                                    lineNumber: 345,
+                                    lineNumber: 359,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/pages/index.jsx",
-                            lineNumber: 230,
+                            lineNumber: 244,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/pages/index.jsx",
-                        lineNumber: 229,
+                        lineNumber: 243,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("section", {
@@ -1977,7 +1998,7 @@ function HomePage() {
                                             children: "เกี่ยวกับเรา"
                                         }, void 0, false, {
                                             fileName: "[project]/pages/index.jsx",
-                                            lineNumber: 362,
+                                            lineNumber: 376,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("h2", {
@@ -1985,7 +2006,7 @@ function HomePage() {
                                             children: "ทำไมต้องเลือก VanGo"
                                         }, void 0, false, {
                                             fileName: "[project]/pages/index.jsx",
-                                            lineNumber: 363,
+                                            lineNumber: 377,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("p", {
@@ -1993,13 +2014,13 @@ function HomePage() {
                                             children: "แพลตฟอร์มจองรถตู้ออนไลน์ที่เชื่อถือได้ พร้อมให้บริการคุณทุกเส้นทาง"
                                         }, void 0, false, {
                                             fileName: "[project]/pages/index.jsx",
-                                            lineNumber: 366,
+                                            lineNumber: 380,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/pages/index.jsx",
-                                    lineNumber: 361,
+                                    lineNumber: 375,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -2016,12 +2037,12 @@ function HomePage() {
                                                         className: "w-full h-[400px] object-cover"
                                                     }, void 0, false, {
                                                         fileName: "[project]/pages/index.jsx",
-                                                        lineNumber: 375,
+                                                        lineNumber: 389,
                                                         columnNumber: 19
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/pages/index.jsx",
-                                                    lineNumber: 374,
+                                                    lineNumber: 388,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -2032,7 +2053,7 @@ function HomePage() {
                                                             children: "5+"
                                                         }, void 0, false, {
                                                             fileName: "[project]/pages/index.jsx",
-                                                            lineNumber: 382,
+                                                            lineNumber: 396,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -2040,19 +2061,19 @@ function HomePage() {
                                                             children: "ปีของประสบการณ์"
                                                         }, void 0, false, {
                                                             fileName: "[project]/pages/index.jsx",
-                                                            lineNumber: 383,
+                                                            lineNumber: 397,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/pages/index.jsx",
-                                                    lineNumber: 381,
+                                                    lineNumber: 395,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/pages/index.jsx",
-                                            lineNumber: 373,
+                                            lineNumber: 387,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -2062,7 +2083,7 @@ function HomePage() {
                                                     children: "จองรถตู้ออนไลน์ง่ายๆ ไว้วางใจได้"
                                                 }, void 0, false, {
                                                     fileName: "[project]/pages/index.jsx",
-                                                    lineNumber: 389,
+                                                    lineNumber: 403,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("p", {
@@ -2070,7 +2091,7 @@ function HomePage() {
                                                     children: "VanGo คือแพลตฟอร์มจองรถตู้ที่ทำให้การเดินทางของคุณสะดวกสบายขึ้น ด้วยระบบจองออนไลน์ที่ใช้งานง่าย รถคุณภาพดี และราคาที่เป็นธรรม เราพร้อมดูแลทุกการเดินทางของคุณอย่างใส่ใจ"
                                                 }, void 0, false, {
                                                     fileName: "[project]/pages/index.jsx",
-                                                    lineNumber: 392,
+                                                    lineNumber: 406,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -2093,17 +2114,17 @@ function HomePage() {
                                                                             d: "M5 13l4 4L19 7"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/pages/index.jsx",
-                                                                            lineNumber: 402,
+                                                                            lineNumber: 416,
                                                                             columnNumber: 25
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/pages/index.jsx",
-                                                                        lineNumber: 401,
+                                                                        lineNumber: 415,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/pages/index.jsx",
-                                                                    lineNumber: 400,
+                                                                    lineNumber: 414,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -2113,7 +2134,7 @@ function HomePage() {
                                                                             children: "รถสะอาด ปลอดภัย"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/pages/index.jsx",
-                                                                            lineNumber: 406,
+                                                                            lineNumber: 420,
                                                                             columnNumber: 23
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("p", {
@@ -2121,19 +2142,19 @@ function HomePage() {
                                                                             children: "ตรวจเช็คสภาพรถทุกเที่ยว พร้อมใบอนุญาตครบถ้วน"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/pages/index.jsx",
-                                                                            lineNumber: 407,
+                                                                            lineNumber: 421,
                                                                             columnNumber: 23
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/pages/index.jsx",
-                                                                    lineNumber: 405,
+                                                                    lineNumber: 419,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/pages/index.jsx",
-                                                            lineNumber: 399,
+                                                            lineNumber: 413,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -2153,17 +2174,17 @@ function HomePage() {
                                                                             d: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/pages/index.jsx",
-                                                                            lineNumber: 414,
+                                                                            lineNumber: 428,
                                                                             columnNumber: 25
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/pages/index.jsx",
-                                                                        lineNumber: 413,
+                                                                        lineNumber: 427,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/pages/index.jsx",
-                                                                    lineNumber: 412,
+                                                                    lineNumber: 426,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -2173,7 +2194,7 @@ function HomePage() {
                                                                             children: "ขับขี่ปลอดภัย มีประกัน"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/pages/index.jsx",
-                                                                            lineNumber: 418,
+                                                                            lineNumber: 432,
                                                                             columnNumber: 23
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("p", {
@@ -2181,19 +2202,19 @@ function HomePage() {
                                                                             children: "คนขับมีใบอนุญาตถูกต้อง พร้อมประกันภัยทุกเที่ยว"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/pages/index.jsx",
-                                                                            lineNumber: 419,
+                                                                            lineNumber: 433,
                                                                             columnNumber: 23
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/pages/index.jsx",
-                                                                    lineNumber: 417,
+                                                                    lineNumber: 431,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/pages/index.jsx",
-                                                            lineNumber: 411,
+                                                            lineNumber: 425,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -2213,17 +2234,17 @@ function HomePage() {
                                                                             d: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/pages/index.jsx",
-                                                                            lineNumber: 426,
+                                                                            lineNumber: 440,
                                                                             columnNumber: 25
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/pages/index.jsx",
-                                                                        lineNumber: 425,
+                                                                        lineNumber: 439,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/pages/index.jsx",
-                                                                    lineNumber: 424,
+                                                                    lineNumber: 438,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -2233,7 +2254,7 @@ function HomePage() {
                                                                             children: "ราคาชัดเจน จ่ายตามที่เห็น"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/pages/index.jsx",
-                                                                            lineNumber: 430,
+                                                                            lineNumber: 444,
                                                                             columnNumber: 23
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("p", {
@@ -2241,25 +2262,25 @@ function HomePage() {
                                                                             children: "ไม่มีค่าใช้จ่ายซ่อนเร้น ราคาที่แสดงคือราคาจริง"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/pages/index.jsx",
-                                                                            lineNumber: 431,
+                                                                            lineNumber: 445,
                                                                             columnNumber: 23
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/pages/index.jsx",
-                                                                    lineNumber: 429,
+                                                                    lineNumber: 443,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/pages/index.jsx",
-                                                            lineNumber: 423,
+                                                            lineNumber: 437,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/pages/index.jsx",
-                                                    lineNumber: 398,
+                                                    lineNumber: 412,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -2273,7 +2294,7 @@ function HomePage() {
                                                                     children: "10K+"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/pages/index.jsx",
-                                                                    lineNumber: 438,
+                                                                    lineNumber: 452,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -2281,13 +2302,13 @@ function HomePage() {
                                                                     children: "ผู้ใช้งาน"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/pages/index.jsx",
-                                                                    lineNumber: 439,
+                                                                    lineNumber: 453,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/pages/index.jsx",
-                                                            lineNumber: 437,
+                                                            lineNumber: 451,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -2298,7 +2319,7 @@ function HomePage() {
                                                                     children: "20+"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/pages/index.jsx",
-                                                                    lineNumber: 442,
+                                                                    lineNumber: 456,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -2306,13 +2327,13 @@ function HomePage() {
                                                                     children: "เส้นทางบริการ"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/pages/index.jsx",
-                                                                    lineNumber: 443,
+                                                                    lineNumber: 457,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/pages/index.jsx",
-                                                            lineNumber: 441,
+                                                            lineNumber: 455,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -2323,7 +2344,7 @@ function HomePage() {
                                                                     children: "4.5★"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/pages/index.jsx",
-                                                                    lineNumber: 446,
+                                                                    lineNumber: 460,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -2331,42 +2352,42 @@ function HomePage() {
                                                                     children: "คะแนนรีวิว"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/pages/index.jsx",
-                                                                    lineNumber: 447,
+                                                                    lineNumber: 461,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/pages/index.jsx",
-                                                            lineNumber: 445,
+                                                            lineNumber: 459,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/pages/index.jsx",
-                                                    lineNumber: 436,
+                                                    lineNumber: 450,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/pages/index.jsx",
-                                            lineNumber: 388,
+                                            lineNumber: 402,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/pages/index.jsx",
-                                    lineNumber: 371,
+                                    lineNumber: 385,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/pages/index.jsx",
-                            lineNumber: 360,
+                            lineNumber: 374,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/pages/index.jsx",
-                        lineNumber: 359,
+                        lineNumber: 373,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("section", {
@@ -2382,7 +2403,7 @@ function HomePage() {
                                             children: "รีวิวจากลูกค้า"
                                         }, void 0, false, {
                                             fileName: "[project]/pages/index.jsx",
-                                            lineNumber: 459,
+                                            lineNumber: 473,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("h2", {
@@ -2390,13 +2411,13 @@ function HomePage() {
                                             children: "ความคิดเห็นจากผู้ใช้บริการจริง"
                                         }, void 0, false, {
                                             fileName: "[project]/pages/index.jsx",
-                                            lineNumber: 460,
+                                            lineNumber: 474,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/pages/index.jsx",
-                                    lineNumber: 458,
+                                    lineNumber: 472,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -2406,7 +2427,7 @@ function HomePage() {
                                         children: "กำลังโหลดรีวิว..."
                                     }, void 0, false, {
                                         fileName: "[project]/pages/index.jsx",
-                                        lineNumber: 467,
+                                        lineNumber: 481,
                                         columnNumber: 17
                                     }, this) : reviews.map((review, idx)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
                                             className: "bg-white border-2 border-gray-100 rounded-2xl p-6 hover:border-red-200 hover:shadow-lg transition-all",
@@ -2422,7 +2443,7 @@ function HomePage() {
                                                             children: getInitials(review.user_name)
                                                         }, void 0, false, {
                                                             fileName: "[project]/pages/index.jsx",
-                                                            lineNumber: 475,
+                                                            lineNumber: 489,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -2432,7 +2453,7 @@ function HomePage() {
                                                                     children: maskName(review.user_name)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/pages/index.jsx",
-                                                                    lineNumber: 482,
+                                                                    lineNumber: 496,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -2446,29 +2467,29 @@ function HomePage() {
                                                                                 d: "M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/pages/index.jsx",
-                                                                                lineNumber: 486,
+                                                                                lineNumber: 500,
                                                                                 columnNumber: 31
                                                                             }, this)
                                                                         }, i, false, {
                                                                             fileName: "[project]/pages/index.jsx",
-                                                                            lineNumber: 485,
+                                                                            lineNumber: 499,
                                                                             columnNumber: 29
                                                                         }, this))
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/pages/index.jsx",
-                                                                    lineNumber: 483,
+                                                                    lineNumber: 497,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/pages/index.jsx",
-                                                            lineNumber: 481,
+                                                            lineNumber: 495,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/pages/index.jsx",
-                                                    lineNumber: 473,
+                                                    lineNumber: 487,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("p", {
@@ -2480,7 +2501,7 @@ function HomePage() {
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/pages/index.jsx",
-                                                    lineNumber: 493,
+                                                    lineNumber: 507,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -2490,7 +2511,7 @@ function HomePage() {
                                                             children: formatDate(review.created_at)
                                                         }, void 0, false, {
                                                             fileName: "[project]/pages/index.jsx",
-                                                            lineNumber: 498,
+                                                            lineNumber: 512,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("span", {
@@ -2498,52 +2519,52 @@ function HomePage() {
                                                             children: review.route_name
                                                         }, void 0, false, {
                                                             fileName: "[project]/pages/index.jsx",
-                                                            lineNumber: 499,
+                                                            lineNumber: 513,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/pages/index.jsx",
-                                                    lineNumber: 497,
+                                                    lineNumber: 511,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, idx, true, {
                                             fileName: "[project]/pages/index.jsx",
-                                            lineNumber: 472,
+                                            lineNumber: 486,
                                             columnNumber: 19
                                         }, this))
                                 }, void 0, false, {
                                     fileName: "[project]/pages/index.jsx",
-                                    lineNumber: 465,
+                                    lineNumber: 479,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/pages/index.jsx",
-                            lineNumber: 457,
+                            lineNumber: 471,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/pages/index.jsx",
-                        lineNumber: 456,
+                        lineNumber: 470,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/pages/index.jsx",
-                lineNumber: 99,
+                lineNumber: 113,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$footer$2e$jsx__$5b$ssr$5d$__$28$ecmascript$29$__["default"], {}, void 0, false, {
                 fileName: "[project]/pages/index.jsx",
-                lineNumber: 509,
+                lineNumber: 523,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/pages/index.jsx",
-        lineNumber: 96,
+        lineNumber: 110,
         columnNumber: 5
     }, this);
 }

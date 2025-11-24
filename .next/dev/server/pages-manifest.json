@@ -1,19 +1,13 @@
 {
   "/": "pages/index.js",
-  "/404": "pages/404.js",
   "/_app": "pages/_app.js",
   "/_document": "pages/_document.js",
   "/admin/bookings": "pages/admin/bookings.js",
   "/admin/dashboard": "pages/admin/dashboard.js",
+  "/admin/login": "pages/admin/login.js",
   "/admin/routes": "pages/admin/routes.js",
   "/admin/schedules": "pages/admin/schedules.js",
   "/admin/vans": "pages/admin/vans.js",
-  "/bookings": "pages/bookings.js",
-  "/confirm": "pages/confirm.js",
   "/login": "pages/login.js",
-  "/payments/[bookingId]": "pages/payments/[bookingId].js",
-  "/register": "pages/register.js",
-  "/search": "pages/search.js",
-  "/seats/[id]": "pages/seats/[id].js",
-  "/success": "pages/success.js"
+  "/search": "pages/search.js"
 }

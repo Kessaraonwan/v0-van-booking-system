@@ -5,33 +5,138 @@ import { useRouter } from 'next/router'
 import { Button } from '@/components/ui/button'
 import Navbar from '@/components/navbar'
 import Footer from '@/components/footer'
+import { useToast } from '@/hooks/use-toast'
 
 export default function MyBookingsPage() {
   const router = useRouter()
+  const { toast } = useToast()
   const [bookings, setBookings] = useState([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('all') // all, upcoming, completed, cancelled
+  
+  // Payment Modal states
+  const [showPaymentModal, setShowPaymentModal] = useState(false)
+  const [selectedBooking, setSelectedBooking] = useState(null)
+  const [paymentMethod, setPaymentMethod] = useState('qr') // 'qr' or 'offline'
+  const [paying, setPaying] = useState(false)
 
-  // ตรวจสอบ authentication
+  // ดึงข้อมูล bookings จาก API
+  const fetchBookings = async () => {
+    try {
+      const token = localStorage.getItem('accessToken')
+      const response = await fetch('http://localhost:8080/api/bookings', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch bookings')
+      }
+
+      const data = await response.json()
+      if (data.success) {
+        setBookings(data.data || [])
+      }
+    } catch (error) {
+      console.error('Error fetching bookings:', error)
+      toast({
+        title: "เกิดข้อผิดพลาด",
+        description: "ไม่สามารถโหลดข้อมูลการจองได้",
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // ตรวจสอบ authentication และโหลดข้อมูล
   useEffect(() => {
     const token = localStorage.getItem('accessToken')
     const user = localStorage.getItem('user')
     
     if (!token || !user) {
-      // ถ้าไม่มี token ให้ redirect ไปหน้า login
       router.push('/login?redirect=/bookings')
       return
     }
     
-    // TODO: เชื่อมฐานข้อมูลจริงที่นี่
-    // Fetch user bookings from database
-    // const data = await fetchUserBookings()
-    // setBookings(data)
-    setLoading(false)
+    fetchBookings()
   }, [router])
+
+  // เปิด Payment Modal
+  const openPaymentModal = (booking) => {
+    setSelectedBooking(booking)
+    setPaymentMethod('qr')
+    setShowPaymentModal(true)
+  }
+
+  // ปิด Payment Modal
+  const closePaymentModal = () => {
+    setShowPaymentModal(false)
+    setSelectedBooking(null)
+    setPaymentMethod('qr')
+  }
+
+  // ประมวลผลการชำระเงิน
+  const handlePayment = async () => {
+    if (!selectedBooking) return
+
+    setPaying(true)
+    try {
+      const token = localStorage.getItem('accessToken')
+      
+      const response = await fetch('http://localhost:8080/api/payments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          booking_id: selectedBooking.id,
+          payment_method: paymentMethod,
+          amount: selectedBooking.total_price,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || 'Payment failed')
+      }
+
+      // ปิด Modal
+      closePaymentModal()
+
+      // แสดงข้อความสำเร็จ
+      if (paymentMethod === 'qr') {
+        toast({
+          title: "✅ ชำระเงินสำเร็จ!",
+          description: "การจองของคุณได้รับการยืนยันแล้ว",
+        })
+      } else {
+        toast({
+          title: "📝 บันทึกข้อมูลสำเร็จ",
+          description: "กรุณาชำระเงินที่ศูนย์ก่อนเดินทาง",
+        })
+      }
+
+      // รีเฟรชข้อมูล bookings
+      fetchBookings()
+    } catch (error) {
+      console.error('Payment error:', error)
+      toast({
+        title: "เกิดข้อผิดพลาด",
+        description: error.message || "ไม่สามารถประมวลผลการชำระเงินได้",
+        variant: "destructive",
+      })
+    } finally {
+      setPaying(false)
+    }
+  }
 
   const getStatusBadge = (status) => {
     switch(status) {
+      case 'pending':
       case 'BOOKED':
         return (
           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg shadow-blue-200">
@@ -39,6 +144,7 @@ export default function MyBookingsPage() {
             จองแล้ว
           </span>
         )
+      case 'confirmed':
       case 'COMPLETED':
         return (
           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg shadow-green-200">
@@ -48,6 +154,7 @@ export default function MyBookingsPage() {
             เสร็จสิ้น
           </span>
         )
+      case 'cancelled':
       case 'CANCELLED':
         return (
           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold bg-gradient-to-r from-gray-400 to-gray-500 text-white shadow-lg shadow-gray-200">
@@ -62,11 +169,28 @@ export default function MyBookingsPage() {
     }
   }
 
+  // ฟังก์ชันแปลงวันที่เป็น format ไทย
+  const formatDate = (dateString) => {
+    if (!dateString) return '-'
+    const date = new Date(dateString)
+    return date.toLocaleDateString('th-TH', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })
+  }
+
+  // ฟังก์ชันแปลงเวลา
+  const formatTime = (timeString) => {
+    if (!timeString) return '-'
+    return timeString.substring(0, 5) // HH:MM
+  }
+
   const filteredBookings = bookings.filter(booking => {
     if (filter === 'all') return true
-    if (filter === 'upcoming') return booking.status === 'BOOKED'
-    if (filter === 'completed') return booking.status === 'COMPLETED'
-    if (filter === 'cancelled') return booking.status === 'CANCELLED'
+    if (filter === 'upcoming') return booking.status === 'pending' || booking.status === 'confirmed'
+    if (filter === 'completed') return booking.status === 'completed'
+    if (filter === 'cancelled') return booking.status === 'cancelled'
     return true
   })
 
@@ -195,7 +319,7 @@ export default function MyBookingsPage() {
                           </div>
                           <div>
                             <span className="text-sm font-mono text-gray-500">รหัสการจอง</span>
-                            <div className="text-lg font-bold text-gray-900">#{booking.bookingNumber}</div>
+                            <div className="text-lg font-bold text-gray-900">#{booking.id}</div>
                           </div>
                         </div>
                         {getStatusBadge(booking.status)}
@@ -211,7 +335,7 @@ export default function MyBookingsPage() {
                           <div>
                             <div className="text-xs text-gray-600 mb-1">เส้นทาง</div>
                             <h3 className="text-2xl font-bold text-gray-900">
-                              {booking.origin} → {booking.destination}
+                              {booking.pickup_location || booking.origin} → {booking.dropoff_location || booking.destination}
                             </h3>
                           </div>
                         </div>
@@ -228,7 +352,7 @@ export default function MyBookingsPage() {
                             </div>
                             <div>
                               <div className="text-xs text-gray-600">วันที่</div>
-                              <div className="font-semibold text-gray-900">{booking.date}</div>
+                              <div className="font-semibold text-gray-900">{formatDate(booking.travel_date || booking.date)}</div>
                             </div>
                           </div>
                         </div>
@@ -242,7 +366,7 @@ export default function MyBookingsPage() {
                             </div>
                             <div>
                               <div className="text-xs text-gray-600">เวลา</div>
-                              <div className="font-semibold text-gray-900">{booking.departureTime}</div>
+                              <div className="font-semibold text-gray-900">{formatTime(booking.departure_time || booking.departureTime)}</div>
                             </div>
                           </div>
                         </div>
@@ -256,7 +380,7 @@ export default function MyBookingsPage() {
                             </div>
                             <div>
                               <div className="text-xs text-gray-600">ที่นั่ง</div>
-                              <div className="font-semibold text-gray-900">{booking.seats}</div>
+                              <div className="font-semibold text-gray-900">{booking.seat_numbers?.join(', ') || booking.seats}</div>
                             </div>
                           </div>
                         </div>
@@ -270,7 +394,7 @@ export default function MyBookingsPage() {
                             </div>
                             <div>
                               <div className="text-xs text-gray-600">ราคารวม</div>
-                              <div className="text-xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">฿{booking.totalPrice}</div>
+                              <div className="text-xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">฿{booking.total_price || booking.totalPrice}</div>
                             </div>
                           </div>
                         </div>
@@ -279,64 +403,29 @@ export default function MyBookingsPage() {
 
                     {/* Right Side - Action Buttons */}
                     <div className="lg:w-64 bg-gradient-to-br from-gray-50 to-gray-100 border-t lg:border-t-0 lg:border-l border-gray-200 p-8 flex flex-col justify-center gap-4">
-                      {/* Show Payment Button if UNPAID */}
-                      {booking.payment_status === 'UNPAID' && booking.status !== 'CANCELLED' && (
-                        <Link href={`/payments/${booking.id}`} className="w-full">
-                          <Button className="w-full h-12 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold shadow-lg shadow-green-200 animate-pulse">
-                            <span className="flex items-center gap-2">
-                              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                              </svg>
-                              💳 ชำระเงิน
-                            </span>
-                          </Button>
-                        </Link>
-                      )}
-                      
-                      {/* Pending Verification */}
-                      {booking.payment_status === 'PENDING_VERIFICATION' && (
-                        <div className="w-full h-12 bg-gradient-to-r from-yellow-100 to-orange-100 border-2 border-yellow-400 rounded-lg flex items-center justify-center">
-                          <span className="flex items-center gap-2 text-yellow-800 font-bold text-sm">
-                            <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                            </svg>
-                            รอตรวจสอบสลิป
-                          </span>
-                        </div>
-                      )}
-
-                      {/* Pending Offline Payment */}
-                      {booking.payment_status === 'PENDING_OFFLINE' && (
-                        <div className="w-full h-12 bg-gradient-to-r from-blue-100 to-indigo-100 border-2 border-blue-400 rounded-lg flex items-center justify-center">
-                          <span className="flex items-center gap-2 text-blue-800 font-bold text-sm">
+                      {/* Show Payment Button if pending */}
+                      {booking.payment_status === 'pending' && booking.status !== 'cancelled' && (
+                        <Button 
+                          onClick={() => openPaymentModal(booking)}
+                          className="w-full h-12 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold shadow-lg shadow-green-200 animate-pulse"
+                        >
+                          <span className="flex items-center gap-2">
                             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                             </svg>
-                            รอชำระที่ศูนย์
+                            💳 ชำระเงิน
                           </span>
-                        </div>
+                        </Button>
                       )}
                       
-                      {/* Show Paid Badge if PAID */}
-                      {booking.payment_status === 'PAID' && (
+                      {/* Show Paid Badge if completed */}
+                      {booking.payment_status === 'completed' && (
                         <div className="w-full h-12 bg-gradient-to-r from-green-100 to-emerald-100 border-2 border-green-300 rounded-lg flex items-center justify-center">
                           <span className="flex items-center gap-2 text-green-700 font-bold">
                             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                             </svg>
                             ชำระแล้ว
-                          </span>
-                        </div>
-                      )}
-
-                      {/* Rejected Badge */}
-                      {booking.payment_status === 'REJECTED' && (
-                        <div className="w-full h-12 bg-gradient-to-r from-red-100 to-pink-100 border-2 border-red-400 rounded-lg flex items-center justify-center">
-                          <span className="flex items-center gap-2 text-red-700 font-bold text-sm">
-                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                            สลิปไม่ถูกต้อง
                           </span>
                         </div>
                       )}
@@ -352,7 +441,7 @@ export default function MyBookingsPage() {
                           </span>
                         </Button>
                       </Link>
-                      {booking.status === 'BOOKED' && booking.payment_status === 'UNPAID' && (
+                      {booking.status === 'pending' && booking.payment_status === 'pending' && (
                         <Button 
                           variant="outline" 
                           className="w-full h-12 text-red-600 hover:bg-red-50 hover:text-red-700 border-2 border-red-300 font-semibold"
@@ -412,6 +501,163 @@ export default function MyBookingsPage() {
           )}
         </div>
       </main>
+
+      {/* Payment Modal */}
+      {showPaymentModal && selectedBooking && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden animate-in fade-in zoom-in duration-200">
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-green-500 to-emerald-500 p-6 text-white">
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-bold flex items-center gap-3">
+                  <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                  ชำระเงิน
+                </h2>
+                <button
+                  onClick={closePaymentModal}
+                  className="text-white hover:bg-white/20 rounded-full p-2 transition-colors"
+                >
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-6">
+              {/* Booking Summary */}
+              <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-2xl p-5 border border-orange-200">
+                <div className="text-sm text-gray-600 mb-2">รายละเอียดการจอง</div>
+                <div className="text-lg font-bold text-gray-900 mb-1">
+                  {selectedBooking.pickup_location} → {selectedBooking.dropoff_location}
+                </div>
+                <div className="text-sm text-gray-600">
+                  {formatDate(selectedBooking.travel_date)} • {formatTime(selectedBooking.departure_time)}
+                </div>
+                <div className="mt-3 pt-3 border-t border-orange-200 flex items-center justify-between">
+                  <span className="text-gray-700 font-medium">ยอดชำระ</span>
+                  <span className="text-2xl font-bold text-orange-600">฿{selectedBooking.total_price}</span>
+                </div>
+              </div>
+
+              {/* Payment Methods */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  เลือกวิธีชำระเงิน
+                </label>
+                <div className="space-y-3">
+                  {/* QR Code Payment */}
+                  <label className={`flex items-start p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                    paymentMethod === 'qr'
+                      ? 'border-green-500 bg-green-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}>
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="qr"
+                      checked={paymentMethod === 'qr'}
+                      onChange={(e) => setPaymentMethod(e.target.value)}
+                      className="mt-1 w-5 h-5 text-green-500"
+                    />
+                    <div className="ml-3 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-gray-900">💳 QR Code</span>
+                        <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full font-semibold">
+                          แนะนำ
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-600 mt-1">
+                        สแกน QR ชำระเงินทันที (Mock Payment)
+                      </p>
+                    </div>
+                  </label>
+
+                  {/* Offline Payment */}
+                  <label className={`flex items-start p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                    paymentMethod === 'offline'
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}>
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="offline"
+                      checked={paymentMethod === 'offline'}
+                      onChange={(e) => setPaymentMethod(e.target.value)}
+                      className="mt-1 w-5 h-5 text-blue-500"
+                    />
+                    <div className="ml-3 flex-1">
+                      <div className="font-bold text-gray-900">🏢 ชำระที่ศูนย์</div>
+                      <p className="text-sm text-gray-600 mt-1">
+                        ชำระเงินสดก่อนขึ้นรถ
+                      </p>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              {/* Info Box */}
+              <div className={`rounded-xl p-4 flex items-start gap-3 ${
+                paymentMethod === 'qr' 
+                  ? 'bg-green-50 border border-green-200' 
+                  : 'bg-blue-50 border border-blue-200'
+              }`}>
+                <svg className={`w-5 h-5 mt-0.5 flex-shrink-0 ${
+                  paymentMethod === 'qr' ? 'text-green-600' : 'text-blue-600'
+                }`} fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                </svg>
+                <p className={`text-sm ${
+                  paymentMethod === 'qr' ? 'text-green-800' : 'text-blue-800'
+                }`}>
+                  {paymentMethod === 'qr' 
+                    ? 'การจองจะได้รับการยืนยันทันทีหลังชำระเงิน' 
+                    : 'กรุณาชำระเงินก่อนเดินทางอย่างน้อย 15 นาที'
+                  }
+                </p>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="bg-gray-50 px-6 py-4 flex gap-3">
+              <Button
+                onClick={closePaymentModal}
+                variant="outline"
+                className="flex-1 h-12 font-semibold"
+                disabled={paying}
+              >
+                ยกเลิก
+              </Button>
+              <Button
+                onClick={handlePayment}
+                disabled={paying}
+                className={`flex-1 h-12 font-bold shadow-lg ${
+                  paymentMethod === 'qr'
+                    ? 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 shadow-green-200'
+                    : 'bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 shadow-blue-200'
+                }`}
+              >
+                {paying ? (
+                  <span className="flex items-center gap-2">
+                    <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    กำลังประมวลผล...
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-2">
+                    {paymentMethod === 'qr' ? '✓' : '📝'} ยืนยันการชำระเงิน
+                  </span>
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </div>

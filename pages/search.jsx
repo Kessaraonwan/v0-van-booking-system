@@ -30,7 +30,7 @@ export default function SearchResultsPage() {
 
   // Fetch routes for dropdowns
   useEffect(() => {
-    fetch('http://localhost:8000/api/routes')
+    fetch('http://localhost:8080/api/routes')
       .then(res => res.json())
       .then(data => {
         setRoutes(data.data || [])
@@ -44,8 +44,8 @@ export default function SearchResultsPage() {
     
     // If user has search criteria, use filtered API
     const url = (queryFrom && queryTo && queryDate)
-      ? `http://localhost:8000/api/schedules?from=${queryFrom}&to=${queryTo}&date=${queryDate}`
-      : 'http://localhost:8000/api/schedules'
+      ? `http://localhost:8080/api/schedules?from=${queryFrom}&to=${queryTo}&date=${queryDate}`
+      : 'http://localhost:8080/api/schedules'
     
     fetch(url)
       .then(res => res.json())
@@ -69,10 +69,10 @@ export default function SearchResultsPage() {
   const handleSelectSeats = (scheduleId) => {
     if (!isAuthenticated) {
       // Save intended destination
-      localStorage.setItem('redirectAfterLogin', `/seats/${scheduleId}`)
+      localStorage.setItem('redirectAfterLogin', `/select-points/${scheduleId}`)
       router.push('/login')
     } else {
-      router.push(`/seats/${scheduleId}`)
+      router.push(`/select-points/${scheduleId}`)
     }
   }
 
@@ -246,11 +246,24 @@ export default function SearchResultsPage() {
                 </div>
 
                 {filteredSchedules.map((schedule) => {
-                  const route = schedule.route || {}
+                  // หา route ที่ตรงกับ schedule
+                  const matchedRoute = routes.find(r => 
+                    r.origin === schedule.origin && r.destination === schedule.destination
+                  ) || schedule.route || {}
+                  
                   const van = schedule.van || {}
                   const availableSeats = schedule.available_seats || 0
-                  const totalSeats = van.total_seats || 12
-                  const price = schedule.price || route.base_price || 0
+                  const totalSeats = schedule.total_seats || van.total_seats || 13
+                  const price = schedule.price || matchedRoute.base_price || 0
+                  
+                  // ใช้ origin/destination จาก schedule
+                  const origin = schedule.origin || matchedRoute.origin || ''
+                  const destination = schedule.destination || matchedRoute.destination || ''
+                  
+                  // เลือกรูปภาพตามปลายทาง
+                  const getRouteImage = () => {
+                    return matchedRoute.image_url || null
+                  }
                   
                   return (
                     <div 
@@ -260,10 +273,10 @@ export default function SearchResultsPage() {
                       <div className="flex flex-col md:flex-row">
                         {/* Route Image */}
                         <div className="md:w-72 h-52 md:h-auto relative overflow-hidden">
-                          {route.image_url ? (
+                          {getRouteImage() ? (
                             <img 
-                              src={route.image_url} 
-                              alt={`${route.origin} ถึง ${route.destination}`}
+                              src={getRouteImage()} 
+                              alt={`${origin} ถึง ${destination}`}
                               className="w-full h-full object-cover"
                             />
                           ) : (
@@ -289,7 +302,7 @@ export default function SearchResultsPage() {
                             {/* Left: Route & Time */}
                             <div className="flex-1">
                               <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                                {route.origin} → {route.destination}
+                                {origin} → {destination}
                               </h3>
                               
                               {/* จุดขึ้น-ลงรถ */}
@@ -299,14 +312,14 @@ export default function SearchResultsPage() {
                                     <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                                   </svg>
                                   <span className="text-gray-600">ขึ้นรถ:</span>
-                                  <span className="font-semibold text-gray-900">{getPickupLocation(route.origin).name}</span>
+                                  <span className="font-semibold text-gray-900">{getPickupLocation(origin).name}</span>
                                 </div>
                                 <div className="flex items-center gap-2 text-sm mt-1.5">
                                   <svg className="w-4 h-4 text-red-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                     <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                                   </svg>
                                   <span className="text-gray-600">ลงรถ:</span>
-                                  <span className="font-semibold text-gray-900">{getDropoffLocation(route.destination).name}</span>
+                                  <span className="font-semibold text-gray-900">{getDropoffLocation(destination).name}</span>
                                 </div>
                               </div>
                               
@@ -314,7 +327,7 @@ export default function SearchResultsPage() {
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                                 </svg>
-                                {van.license_plate || 'รถตู้ VIP'} • {van.type || 'ปรับอากาศ'}
+                                {schedule.license_plate || van.license_plate || 'รถตู้ VIP'} • {van.type || 'ปรับอากาศ'}
                               </p>
 
                               <div className="grid grid-cols-2 gap-6 mb-5">
@@ -338,12 +351,14 @@ export default function SearchResultsPage() {
                                 </div>
                               </div>
 
-                              {route.duration && (
+                              {(schedule.duration_minutes || matchedRoute.duration) && (
                                 <div className="flex items-center gap-2 text-sm text-gray-600">
                                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                   </svg>
-                                  <span>ระยะเวลาเดินทาง: <span className="font-medium text-gray-900">{route.duration}</span></span>
+                                  <span>ระยะเวลาเดินทาง: <span className="font-medium text-gray-900">
+                                    {schedule.duration_minutes ? `${Math.floor(schedule.duration_minutes / 60)} ชั่วโมง ${schedule.duration_minutes % 60} นาที` : matchedRoute.duration}
+                                  </span></span>
                                 </div>
                               )}
                             </div>

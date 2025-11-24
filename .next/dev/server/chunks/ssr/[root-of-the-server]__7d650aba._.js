@@ -463,7 +463,7 @@ __turbopack_context__.s([
     "vanAPI",
     ()=>vanAPI
 ]);
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
 const getToken = ()=>{
     if ("TURBOPACK compile-time falsy", 0) //TURBOPACK unreachable
     ;
@@ -644,6 +644,12 @@ const routeAPI = {
     },
     getById: async (id)=>{
         return apiRequest(`/routes/${id}`);
+    },
+    getPickupPoints: async (routeId)=>{
+        return apiRequest(`/routes/${routeId}/pickup-points`);
+    },
+    getDropoffPoints: async (routeId)=>{
+        return apiRequest(`/routes/${routeId}/dropoff-points`);
     }
 };
 const vanAPI = {

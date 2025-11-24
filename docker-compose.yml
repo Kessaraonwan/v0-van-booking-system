@@ -49,18 +49,18 @@ services:
   #   networks:
   #     - vanbooking_network
 
-  # Backend API (Node.js)
+  # Backend API (Go)
   backend:
     build:
-      context: ./backend/nodejs
+      context: ./backend/golang
       dockerfile: Dockerfile
     container_name: vanbooking_backend
     restart: unless-stopped
     ports:
-      - "${API_PORT:-8000}:8000"
+      - "${API_PORT:-8080}:8080"
     environment:
-      NODE_ENV: ${NODE_ENV:-development}
-      PORT: 8000
+      ENV: ${ENV:-development}
+      PORT: 8080
       
       # Database
       DB_HOST: postgres
@@ -71,58 +71,16 @@ services:
       
       # JWT
       JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key-change-this-in-production}
-      JWT_EXPIRY: ${JWT_EXPIRY:-24h}
-      JWT_REFRESH_EXPIRY: ${JWT_REFRESH_EXPIRY:-7d}
-      
-      # CORS
-      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
-      
-      # Upload
-      MAX_FILE_SIZE: ${MAX_FILE_SIZE:-5mb}
+      JWT_ACCESS_EXPIRY: ${JWT_ACCESS_EXPIRY:-15m}
+      JWT_REFRESH_EXPIRY: ${JWT_REFRESH_EXPIRY:-168h}
       
     depends_on:
       postgres:
         condition: service_healthy
     volumes:
-      - ./backend/nodejs:/app
-      - /app/node_modules
-      - backend_uploads:/app/uploads
+      - ./backend/golang:/app
     networks:
       - vanbooking_network
-    command: npm run dev
-
-  # Backend API (Go) - Alternative
-  # Uncomment if using Go instead of Node.js
-  # backend_go:
-  #   build:
-  #     context: ./backend/go
-  #     dockerfile: Dockerfile
-  #   container_name: vanbooking_backend_go
-  #   restart: unless-stopped
-  #   ports:
-  #     - "${API_PORT:-8000}:8000"
-  #   environment:
-  #     ENV: ${ENV:-development}
-  #     PORT: 8000
-  #     
-  #     # Database
-  #     DB_HOST: postgres
-  #     DB_PORT: 5432
-  #     DB_USER: ${DB_USER:-vanbooking}
-  #     DB_PASSWORD: ${DB_PASSWORD:-vanbooking123}
-  #     DB_NAME: ${DB_NAME:-vanbooking_db}
-  #     
-  #     # JWT
-  #     JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key}
-  #     JWT_EXPIRY: ${JWT_EXPIRY:-24}
-  #     
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
-  #   volumes:
-  #     - ./backend/go:/app
-  #   networks:
-  #     - vanbooking_network
 
   # Frontend (Next.js)
   # Note: Frontend files are in root directory, not in /frontend folder
@@ -145,7 +103,6 @@ services:
   #     - .:/app
   #     - /app/node_modules
   #     - /app/.next
-  #     - /app/backend
   #   networks:
   #     - vanbooking_network
   #   command: pnpm run dev
@@ -183,8 +140,6 @@ volumes:
   # mysql_data:
   #   driver: local
   redis_data:
-    driver: local
-  backend_uploads:
     driver: local
 
 networks:

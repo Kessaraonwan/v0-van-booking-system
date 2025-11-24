@@ -1508,6 +1508,12 @@ const PICKUP_LOCATIONS = {
         address: 'อาคารจอดรถ ฝั่งทิศเหนือ หมอชิตใหม่',
         province: 'กรุงเทพฯ'
     },
+    'กรุงเทพมหานคร': {
+        name: 'หมอชิตใหม่',
+        full: 'ท่ารถตู้หมอชิตใหม่ - กรุงเทพฯ',
+        address: 'อาคารจอดรถ ฝั่งทิศเหนือ หมอชิตใหม่',
+        province: 'กรุงเทพฯ'
+    },
     'พัทยา': {
         name: 'พัทยากลาง',
         full: 'ท่ารถตู้พัทยากลาง - ชลบุรี',
@@ -1549,6 +1555,18 @@ const PICKUP_LOCATIONS = {
         full: 'ท่ารถตู้โคราช - นครราชสีมา',
         address: 'สถานีขนส่งผู้โดยสารจังหวัดนครราชสีมา',
         province: 'นครราชสีมา'
+    },
+    'เชียงราย': {
+        name: 'หอนาฬิกาเชียงราย',
+        full: 'ท่ารถตู้เชียงราย - เชียงราย',
+        address: 'ใกล้หอนาฬิกา ถนนพหลโยธิน',
+        province: 'เชียงราย'
+    },
+    'กาญจนบุรี': {
+        name: 'สะพานข้ามแม่น้ำแคว',
+        full: 'ท่ารถตู้กาญจนบุรี - กาญจนบุรี',
+        address: 'ใกล้สะพานข้ามแม่น้ำแคว',
+        province: 'กาญจนบุรี'
     }
 };
 function getPickupLocation(city) {
@@ -1653,7 +1671,7 @@ function SearchResultsPage() {
     // Fetch routes for dropdowns
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$index$2e$js__$5b$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "SearchResultsPage.useEffect": ()=>{
-            fetch('http://localhost:8000/api/routes').then({
+            fetch('http://localhost:8080/api/routes').then({
                 "SearchResultsPage.useEffect": (res)=>res.json()
             }["SearchResultsPage.useEffect"]).then({
                 "SearchResultsPage.useEffect": (data)=>{
@@ -1669,7 +1687,7 @@ function SearchResultsPage() {
         "SearchResultsPage.useEffect": ()=>{
             setLoading(true);
             // If user has search criteria, use filtered API
-            const url = queryFrom && queryTo && queryDate ? `http://localhost:8000/api/schedules?from=${queryFrom}&to=${queryTo}&date=${queryDate}` : 'http://localhost:8000/api/schedules';
+            const url = queryFrom && queryTo && queryDate ? `http://localhost:8080/api/schedules?from=${queryFrom}&to=${queryTo}&date=${queryDate}` : 'http://localhost:8080/api/schedules';
             fetch(url).then({
                 "SearchResultsPage.useEffect": (res)=>res.json()
             }["SearchResultsPage.useEffect"]).then({
@@ -1698,10 +1716,10 @@ function SearchResultsPage() {
     const handleSelectSeats = (scheduleId)=>{
         if (!isAuthenticated) {
             // Save intended destination
-            localStorage.setItem('redirectAfterLogin', `/seats/${scheduleId}`);
+            localStorage.setItem('redirectAfterLogin', `/select-points/${scheduleId}`);
             router.push('/login');
         } else {
-            router.push(`/seats/${scheduleId}`);
+            router.push(`/select-points/${scheduleId}`);
         }
     };
     // Get unique origins and destinations
@@ -2240,11 +2258,19 @@ function SearchResultsPage() {
                                             columnNumber: 17
                                         }, this),
                                         filteredSchedules.map((schedule)=>{
-                                            const route = schedule.route || {};
+                                            // หา route ที่ตรงกับ schedule
+                                            const matchedRoute = routes.find((r)=>r.origin === schedule.origin && r.destination === schedule.destination) || schedule.route || {};
                                             const van = schedule.van || {};
                                             const availableSeats = schedule.available_seats || 0;
-                                            const totalSeats = van.total_seats || 12;
-                                            const price = schedule.price || route.base_price || 0;
+                                            const totalSeats = schedule.total_seats || van.total_seats || 13;
+                                            const price = schedule.price || matchedRoute.base_price || 0;
+                                            // ใช้ origin/destination จาก schedule
+                                            const origin = schedule.origin || matchedRoute.origin || '';
+                                            const destination = schedule.destination || matchedRoute.destination || '';
+                                            // เลือกรูปภาพตามปลายทาง
+                                            const getRouteImage = ()=>{
+                                                return matchedRoute.image_url || null;
+                                            };
                                             return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                 className: "bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100",
                                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2253,13 +2279,13 @@ function SearchResultsPage() {
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                             className: "md:w-72 h-52 md:h-auto relative overflow-hidden",
                                                             children: [
-                                                                route.image_url ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
-                                                                    src: route.image_url,
-                                                                    alt: `${route.origin} ถึง ${route.destination}`,
+                                                                getRouteImage() ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
+                                                                    src: getRouteImage(),
+                                                                    alt: `${origin} ถึง ${destination}`,
                                                                     className: "w-full h-full object-cover"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/pages/search.jsx",
-                                                                    lineNumber: 264,
+                                                                    lineNumber: 277,
                                                                     columnNumber: 29
                                                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                                     className: "w-full h-full bg-gradient-to-br from-orange-50 to-red-50 flex items-center justify-center",
@@ -2278,12 +2304,12 @@ function SearchResultsPage() {
                                                                                     d: "M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/pages/search.jsx",
-                                                                                    lineNumber: 273,
+                                                                                    lineNumber: 286,
                                                                                     columnNumber: 35
                                                                                 }, this)
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/pages/search.jsx",
-                                                                                lineNumber: 272,
+                                                                                lineNumber: 285,
                                                                                 columnNumber: 33
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2291,18 +2317,18 @@ function SearchResultsPage() {
                                                                                 children: "ไม่มีรูปภาพ"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/pages/search.jsx",
-                                                                                lineNumber: 275,
+                                                                                lineNumber: 288,
                                                                                 columnNumber: 33
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/pages/search.jsx",
-                                                                        lineNumber: 271,
+                                                                        lineNumber: 284,
                                                                         columnNumber: 31
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/pages/search.jsx",
-                                                                    lineNumber: 270,
+                                                                    lineNumber: 283,
                                                                     columnNumber: 29
                                                                 }, this),
                                                                 availableSeats <= 3 && availableSeats > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2310,13 +2336,13 @@ function SearchResultsPage() {
                                                                     children: "เหลือไม่กี่ที่!"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/pages/search.jsx",
-                                                                    lineNumber: 280,
+                                                                    lineNumber: 293,
                                                                     columnNumber: 29
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/pages/search.jsx",
-                                                            lineNumber: 262,
+                                                            lineNumber: 275,
                                                             columnNumber: 25
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2330,13 +2356,13 @@ function SearchResultsPage() {
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
                                                                                 className: "text-2xl font-bold text-gray-900 mb-2",
                                                                                 children: [
-                                                                                    route.origin,
+                                                                                    origin,
                                                                                     " → ",
-                                                                                    route.destination
+                                                                                    destination
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/pages/search.jsx",
-                                                                                lineNumber: 291,
+                                                                                lineNumber: 304,
                                                                                 columnNumber: 31
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2355,12 +2381,12 @@ function SearchResultsPage() {
                                                                                                     clipRule: "evenodd"
                                                                                                 }, void 0, false, {
                                                                                                     fileName: "[project]/pages/search.jsx",
-                                                                                                    lineNumber: 299,
+                                                                                                    lineNumber: 312,
                                                                                                     columnNumber: 37
                                                                                                 }, this)
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/pages/search.jsx",
-                                                                                                lineNumber: 298,
+                                                                                                lineNumber: 311,
                                                                                                 columnNumber: 35
                                                                                             }, this),
                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2368,21 +2394,21 @@ function SearchResultsPage() {
                                                                                                 children: "ขึ้นรถ:"
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/pages/search.jsx",
-                                                                                                lineNumber: 301,
+                                                                                                lineNumber: 314,
                                                                                                 columnNumber: 35
                                                                                             }, this),
                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                                                 className: "font-semibold text-gray-900",
-                                                                                                children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$locations$2e$js__$5b$client$5d$__$28$ecmascript$29$__["getPickupLocation"])(route.origin).name
+                                                                                                children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$locations$2e$js__$5b$client$5d$__$28$ecmascript$29$__["getPickupLocation"])(origin).name
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/pages/search.jsx",
-                                                                                                lineNumber: 302,
+                                                                                                lineNumber: 315,
                                                                                                 columnNumber: 35
                                                                                             }, this)
                                                                                         ]
                                                                                     }, void 0, true, {
                                                                                         fileName: "[project]/pages/search.jsx",
-                                                                                        lineNumber: 297,
+                                                                                        lineNumber: 310,
                                                                                         columnNumber: 33
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2398,12 +2424,12 @@ function SearchResultsPage() {
                                                                                                     clipRule: "evenodd"
                                                                                                 }, void 0, false, {
                                                                                                     fileName: "[project]/pages/search.jsx",
-                                                                                                    lineNumber: 306,
+                                                                                                    lineNumber: 319,
                                                                                                     columnNumber: 37
                                                                                                 }, this)
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/pages/search.jsx",
-                                                                                                lineNumber: 305,
+                                                                                                lineNumber: 318,
                                                                                                 columnNumber: 35
                                                                                             }, this),
                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2411,27 +2437,27 @@ function SearchResultsPage() {
                                                                                                 children: "ลงรถ:"
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/pages/search.jsx",
-                                                                                                lineNumber: 308,
+                                                                                                lineNumber: 321,
                                                                                                 columnNumber: 35
                                                                                             }, this),
                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                                                 className: "font-semibold text-gray-900",
-                                                                                                children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$locations$2e$js__$5b$client$5d$__$28$ecmascript$29$__["getDropoffLocation"])(route.destination).name
+                                                                                                children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$locations$2e$js__$5b$client$5d$__$28$ecmascript$29$__["getDropoffLocation"])(destination).name
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/pages/search.jsx",
-                                                                                                lineNumber: 309,
+                                                                                                lineNumber: 322,
                                                                                                 columnNumber: 35
                                                                                             }, this)
                                                                                         ]
                                                                                     }, void 0, true, {
                                                                                         fileName: "[project]/pages/search.jsx",
-                                                                                        lineNumber: 304,
+                                                                                        lineNumber: 317,
                                                                                         columnNumber: 33
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/pages/search.jsx",
-                                                                                lineNumber: 296,
+                                                                                lineNumber: 309,
                                                                                 columnNumber: 31
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2449,21 +2475,21 @@ function SearchResultsPage() {
                                                                                             d: "M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/pages/search.jsx",
-                                                                                            lineNumber: 315,
+                                                                                            lineNumber: 328,
                                                                                             columnNumber: 35
                                                                                         }, this)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/pages/search.jsx",
-                                                                                        lineNumber: 314,
+                                                                                        lineNumber: 327,
                                                                                         columnNumber: 33
                                                                                     }, this),
-                                                                                    van.license_plate || 'รถตู้ VIP',
+                                                                                    schedule.license_plate || van.license_plate || 'รถตู้ VIP',
                                                                                     " • ",
                                                                                     van.type || 'ปรับอากาศ'
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/pages/search.jsx",
-                                                                                lineNumber: 313,
+                                                                                lineNumber: 326,
                                                                                 columnNumber: 31
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2476,7 +2502,7 @@ function SearchResultsPage() {
                                                                                                 children: "เวลาออกเดินทาง"
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/pages/search.jsx",
-                                                                                                lineNumber: 322,
+                                                                                                lineNumber: 335,
                                                                                                 columnNumber: 35
                                                                                             }, this),
                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2484,7 +2510,7 @@ function SearchResultsPage() {
                                                                                                 children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$locations$2e$js__$5b$client$5d$__$28$ecmascript$29$__["formatTime"])(schedule.departure_time)
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/pages/search.jsx",
-                                                                                                lineNumber: 323,
+                                                                                                lineNumber: 336,
                                                                                                 columnNumber: 35
                                                                                             }, this),
                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2492,13 +2518,13 @@ function SearchResultsPage() {
                                                                                                 children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$locations$2e$js__$5b$client$5d$__$28$ecmascript$29$__["formatThaiDate"])(schedule.departure_date)
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/pages/search.jsx",
-                                                                                                lineNumber: 326,
+                                                                                                lineNumber: 339,
                                                                                                 columnNumber: 35
                                                                                             }, this)
                                                                                         ]
                                                                                     }, void 0, true, {
                                                                                         fileName: "[project]/pages/search.jsx",
-                                                                                        lineNumber: 321,
+                                                                                        lineNumber: 334,
                                                                                         columnNumber: 33
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2508,7 +2534,7 @@ function SearchResultsPage() {
                                                                                                 children: "ที่นั่งว่าง"
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/pages/search.jsx",
-                                                                                                lineNumber: 331,
+                                                                                                lineNumber: 344,
                                                                                                 columnNumber: 35
                                                                                             }, this),
                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2519,7 +2545,7 @@ function SearchResultsPage() {
                                                                                                 ]
                                                                                             }, void 0, true, {
                                                                                                 fileName: "[project]/pages/search.jsx",
-                                                                                                lineNumber: 332,
+                                                                                                lineNumber: 345,
                                                                                                 columnNumber: 35
                                                                                             }, this),
                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2531,22 +2557,22 @@ function SearchResultsPage() {
                                                                                                 ]
                                                                                             }, void 0, true, {
                                                                                                 fileName: "[project]/pages/search.jsx",
-                                                                                                lineNumber: 335,
+                                                                                                lineNumber: 348,
                                                                                                 columnNumber: 35
                                                                                             }, this)
                                                                                         ]
                                                                                     }, void 0, true, {
                                                                                         fileName: "[project]/pages/search.jsx",
-                                                                                        lineNumber: 330,
+                                                                                        lineNumber: 343,
                                                                                         columnNumber: 33
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/pages/search.jsx",
-                                                                                lineNumber: 320,
+                                                                                lineNumber: 333,
                                                                                 columnNumber: 31
                                                                             }, this),
-                                                                            route.duration && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                            (schedule.duration_minutes || matchedRoute.duration) && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                                                 className: "flex items-center gap-2 text-sm text-gray-600",
                                                                                 children: [
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
@@ -2561,12 +2587,12 @@ function SearchResultsPage() {
                                                                                             d: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/pages/search.jsx",
-                                                                                            lineNumber: 344,
+                                                                                            lineNumber: 357,
                                                                                             columnNumber: 37
                                                                                         }, this)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/pages/search.jsx",
-                                                                                        lineNumber: 343,
+                                                                                        lineNumber: 356,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2574,28 +2600,28 @@ function SearchResultsPage() {
                                                                                             "ระยะเวลาเดินทาง: ",
                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                                                 className: "font-medium text-gray-900",
-                                                                                                children: route.duration
+                                                                                                children: schedule.duration_minutes ? `${Math.floor(schedule.duration_minutes / 60)} ชั่วโมง ${schedule.duration_minutes % 60} นาที` : matchedRoute.duration
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/pages/search.jsx",
-                                                                                                lineNumber: 346,
+                                                                                                lineNumber: 359,
                                                                                                 columnNumber: 58
                                                                                             }, this)
                                                                                         ]
                                                                                     }, void 0, true, {
                                                                                         fileName: "[project]/pages/search.jsx",
-                                                                                        lineNumber: 346,
+                                                                                        lineNumber: 359,
                                                                                         columnNumber: 35
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/pages/search.jsx",
-                                                                                lineNumber: 342,
+                                                                                lineNumber: 355,
                                                                                 columnNumber: 33
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/pages/search.jsx",
-                                                                        lineNumber: 290,
+                                                                        lineNumber: 303,
                                                                         columnNumber: 29
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2609,7 +2635,7 @@ function SearchResultsPage() {
                                                                                         children: "ราคา/ที่นั่ง"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/pages/search.jsx",
-                                                                                        lineNumber: 354,
+                                                                                        lineNumber: 369,
                                                                                         columnNumber: 33
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2620,13 +2646,13 @@ function SearchResultsPage() {
                                                                                         ]
                                                                                     }, void 0, true, {
                                                                                         fileName: "[project]/pages/search.jsx",
-                                                                                        lineNumber: 355,
+                                                                                        lineNumber: 370,
                                                                                         columnNumber: 33
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/pages/search.jsx",
-                                                                                lineNumber: 353,
+                                                                                lineNumber: 368,
                                                                                 columnNumber: 31
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -2636,35 +2662,35 @@ function SearchResultsPage() {
                                                                                 children: availableSeats === 0 ? 'เต็มแล้ว' : 'เลือกที่นั่ง'
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/pages/search.jsx",
-                                                                                lineNumber: 359,
+                                                                                lineNumber: 374,
                                                                                 columnNumber: 31
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/pages/search.jsx",
-                                                                        lineNumber: 352,
+                                                                        lineNumber: 367,
                                                                         columnNumber: 29
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/pages/search.jsx",
-                                                                lineNumber: 288,
+                                                                lineNumber: 301,
                                                                 columnNumber: 27
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/pages/search.jsx",
-                                                            lineNumber: 287,
+                                                            lineNumber: 300,
                                                             columnNumber: 25
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/pages/search.jsx",
-                                                    lineNumber: 260,
+                                                    lineNumber: 273,
                                                     columnNumber: 23
                                                 }, this)
                                             }, schedule.id, false, {
                                                 fileName: "[project]/pages/search.jsx",
-                                                lineNumber: 256,
+                                                lineNumber: 269,
                                                 columnNumber: 21
                                             }, this);
                                         })
@@ -2684,12 +2710,12 @@ function SearchResultsPage() {
                                                 d: "M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                                             }, void 0, false, {
                                                 fileName: "[project]/pages/search.jsx",
-                                                lineNumber: 377,
+                                                lineNumber: 392,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/pages/search.jsx",
-                                            lineNumber: 376,
+                                            lineNumber: 391,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
@@ -2697,7 +2723,7 @@ function SearchResultsPage() {
                                             children: "ไม่พบเที่ยวรถที่ตรงกับเงื่อนไข"
                                         }, void 0, false, {
                                             fileName: "[project]/pages/search.jsx",
-                                            lineNumber: 379,
+                                            lineNumber: 394,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2705,7 +2731,7 @@ function SearchResultsPage() {
                                             children: "ลองปรับเปลี่ยนตัวกรองหรือค้นหาด้วยเส้นทางอื่น"
                                         }, void 0, false, {
                                             fileName: "[project]/pages/search.jsx",
-                                            lineNumber: 380,
+                                            lineNumber: 395,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$3_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$link$2e$js__$5b$client$5d$__$28$ecmascript$29$__["default"], {
@@ -2715,18 +2741,18 @@ function SearchResultsPage() {
                                                 children: "กลับหน้าแรก"
                                             }, void 0, false, {
                                                 fileName: "[project]/pages/search.jsx",
-                                                lineNumber: 384,
+                                                lineNumber: 399,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/pages/search.jsx",
-                                            lineNumber: 383,
+                                            lineNumber: 398,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/pages/search.jsx",
-                                    lineNumber: 375,
+                                    lineNumber: 390,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
@@ -2748,7 +2774,7 @@ function SearchResultsPage() {
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$footer$2e$jsx__$5b$client$5d$__$28$ecmascript$29$__["default"], {}, void 0, false, {
                 fileName: "[project]/pages/search.jsx",
-                lineNumber: 394,
+                lineNumber: 409,
                 columnNumber: 5
             }, this)
         ]

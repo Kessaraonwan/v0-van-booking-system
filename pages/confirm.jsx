@@ -11,14 +11,17 @@ import { getPickupLocation, getDropoffLocation, formatThaiDate, formatTime } fro
 export default function BookingConfirmPage() {
   const router = useRouter()
   const { toast } = useToast()
-  const { scheduleId, seats, total } = router.query
+  const { scheduleId, seats, total, pickupPointId, dropoffPointId } = router.query
   
   const [formData, setFormData] = useState({
     fullName: '',
     phone: '',
-    email: ''
+    email: '',
+    specialRequests: ''
   })
   const [schedule, setSchedule] = useState(null)
+  const [pickupPoint, setPickupPoint] = useState(null)
+  const [dropoffPoint, setDropoffPoint] = useState(null)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
 
@@ -42,20 +45,40 @@ export default function BookingConfirmPage() {
     }
   }, [])
 
-  // Fetch schedule details
+  // Fetch schedule details and pickup/dropoff points
   useEffect(() => {
     if (scheduleId) {
       fetchScheduleDetails()
     }
-  }, [scheduleId])
+  }, [scheduleId, pickupPointId, dropoffPointId])
 
   const fetchScheduleDetails = async () => {
     try {
-      const response = await fetch(`http://localhost:8000/api/schedules/${scheduleId}`)
-      const data = await response.json()
+      // Fetch schedule
+      const scheduleResponse = await fetch(`http://localhost:8080/api/schedules/${scheduleId}`)
+      const scheduleData = await scheduleResponse.json()
       
-      if (data.success) {
-        setSchedule(data.data)
+      if (scheduleData.success) {
+        setSchedule(scheduleData.data)
+        
+        // Fetch pickup/dropoff points if they exist
+        if (pickupPointId) {
+          const pickupResponse = await fetch(`http://localhost:8080/api/routes/${scheduleData.data.route_id}/pickup-points`)
+          const pickupData = await pickupResponse.json()
+          if (pickupData.success) {
+            const selectedPickup = pickupData.data.find(p => p.id === parseInt(pickupPointId))
+            setPickupPoint(selectedPickup)
+          }
+        }
+        
+        if (dropoffPointId) {
+          const dropoffResponse = await fetch(`http://localhost:8080/api/routes/${scheduleData.data.route_id}/dropoff-points`)
+          const dropoffData = await dropoffResponse.json()
+          if (dropoffData.success) {
+            const selectedDropoff = dropoffData.data.find(p => p.id === parseInt(dropoffPointId))
+            setDropoffPoint(selectedDropoff)
+          }
+        }
       }
     } catch (error) {
       console.error('Error fetching schedule:', error)
@@ -71,10 +94,19 @@ export default function BookingConfirmPage() {
 
   const handleConfirm = async () => {
     // Validation
-    if (!formData.fullName || !formData.phone) {
+    if (!formData.fullName || !formData.phone || !formData.email) {
       toast({
         title: "กรุณากรอกข้อมูลให้ครบถ้วน",
-        description: "ชื่อ-นามสกุล และเบอร์โทรศัพท์เป็นข้อมูลที่จำเป็น",
+        description: "ชื่อ-นามสกุล, เบอร์โทรศัพท์, และอีเมลเป็นข้อมูลที่จำเป็น",
+        variant: "destructive"
+      })
+      return
+    }
+
+    if (!pickupPointId || !dropoffPointId) {
+      toast({
+        title: "ข้อมูลไม่ครบถ้วน",
+        description: "กรุณาเลือกจุดขึ้นและจุดลงรถ",
         variant: "destructive"
       })
       return
@@ -84,20 +116,24 @@ export default function BookingConfirmPage() {
 
     try {
       const token = localStorage.getItem('accessToken')
-      const seatArray = seats.split(',').map(Number)
+      const seatNumber = parseInt(seats.split(',')[0]) // ใช้ที่นั่งแรก (1 booking = 1 seat)
       
-      const response = await fetch('http://localhost:8000/api/bookings/create', {
+      const response = await fetch('http://localhost:8080/api/bookings', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          schedule_id: scheduleId,
-          seat_numbers: seatArray,
+          schedule_id: parseInt(scheduleId),
+          seat_number: seatNumber,
           passenger_name: formData.fullName,
           passenger_phone: formData.phone,
-          passenger_email: formData.email || null
+          passenger_email: formData.email,
+          pickup_point_id: parseInt(pickupPointId),
+          dropoff_point_id: parseInt(dropoffPointId),
+          special_requests: formData.specialRequests || '',
+          total_price: parseFloat(total || schedule.price)
         })
       })
 
@@ -106,13 +142,13 @@ export default function BookingConfirmPage() {
       if (data.success) {
         toast({
           title: "✅ สร้างการจองสำเร็จ",
-          description: `เลขที่การจอง: ${data.data.booking_number}`,
+          description: `เลขที่การจอง: ${data.data.booking_number || data.data.id}`,
         })
 
-        // Redirect to payment page
+        // Redirect to payment page or bookings
         setTimeout(() => {
-          router.push(`/payments/${data.data.id}`)
-        }, 1000)
+          router.push(`/bookings`)
+        }, 1500)
       } else {
         throw new Error(data.message || 'การจองล้มเหลว')
       }
@@ -233,7 +269,7 @@ export default function BookingConfirmPage() {
                         <svg className="w-4 h-4 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                         </svg>
-                        อีเมล (ไม่บังคับ)
+                        อีเมล
                       </label>
                       <input
                         type="email"
@@ -242,6 +278,24 @@ export default function BookingConfirmPage() {
                         onChange={handleInputChange}
                         placeholder="กรอกอีเมล"
                         className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-orange-500 focus:ring-4 focus:ring-orange-100 outline-none transition-all"
+                      />
+                    </div>
+
+                    {/* Special Requests */}
+                    <div>
+                      <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                        <svg className="w-4 h-4 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                        </svg>
+                        คำขอพิเศษ (ไม่บังคับ)
+                      </label>
+                      <textarea
+                        name="specialRequests"
+                        value={formData.specialRequests}
+                        onChange={handleInputChange}
+                        placeholder="เช่น ต้องการที่นั่งด้านหน้า, มีสัมภาระมาก"
+                        rows="3"
+                        className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-orange-500 focus:ring-4 focus:ring-orange-100 outline-none transition-all resize-none"
                       />
                     </div>
 
@@ -309,7 +363,7 @@ export default function BookingConfirmPage() {
                             <span className="text-xs">วันที่</span>
                           </div>
                           <div className="font-semibold text-gray-900 text-sm">
-                            {formatThaiDate(schedule.departure_date)}
+                            {schedule.departure_date}
                           </div>
                         </div>
                         <div className="flex-1 bg-gray-50 rounded-xl p-3 border border-gray-200">
@@ -320,10 +374,48 @@ export default function BookingConfirmPage() {
                             <span className="text-xs">เวลา</span>
                           </div>
                           <div className="font-semibold text-gray-900 text-sm">
-                            {formatTime(schedule.departure_time)}
+                            {schedule.departure_time}
                           </div>
                         </div>
                       </div>
+
+                      {/* Pickup Point */}
+                      {pickupPoint && (
+                        <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border-2 border-green-200">
+                          <div className="flex items-start gap-3">
+                            <svg className="w-5 h-5 text-green-600 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M9 11l3-3m0 0l3 3m-3-3v8m0-13a9 9 0 110 18 9 9 0 010-18z" />
+                            </svg>
+                            <div className="flex-1">
+                              <div className="text-xs text-gray-600 mb-1">จุดขึ้นรถ</div>
+                              <div className="font-bold text-gray-900 text-sm mb-1">{pickupPoint.name}</div>
+                              <div className="text-xs text-gray-600">{pickupPoint.address}</div>
+                              <div className="mt-2 px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded inline-block">
+                                เวลา {pickupPoint.pickup_time}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Dropoff Point */}
+                      {dropoffPoint && (
+                        <div className="bg-gradient-to-br from-red-50 to-pink-50 rounded-xl p-4 border-2 border-red-200">
+                          <div className="flex items-start gap-3">
+                            <svg className="w-5 h-5 text-red-600 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M15 13l-3 3m0 0l-3-3m3 3V8m0 13a9 9 0 110-18 9 9 0 010 18z" />
+                            </svg>
+                            <div className="flex-1">
+                              <div className="text-xs text-gray-600 mb-1">จุดลงรถ</div>
+                              <div className="font-bold text-gray-900 text-sm mb-1">{dropoffPoint.name}</div>
+                              <div className="text-xs text-gray-600">{dropoffPoint.address}</div>
+                              <div className="mt-2 px-2 py-1 bg-red-100 text-red-700 text-xs font-semibold rounded inline-block">
+                                ถึง {dropoffPoint.estimated_arrival}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
 
                       {/* Additional Details */}
                       <div className="space-y-3 pt-3 border-t border-gray-200">

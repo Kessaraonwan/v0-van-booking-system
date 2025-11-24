@@ -1,3 +1,0 @@
-{
-  "/payments/[bookingId]": "pages/payments/[bookingId].js"
-}

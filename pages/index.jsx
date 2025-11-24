@@ -14,7 +14,7 @@ export default function HomePage() {
   useEffect(() => {
     const fetchRoutes = async () => {
       try {
-        const response = await fetch('http://localhost:8000/api/routes')
+        const response = await fetch('http://localhost:8080/api/routes')
         const result = await response.json()
         
         if (result.success && result.data) {
@@ -45,15 +45,29 @@ export default function HomePage() {
     fetchRoutes()
   }, [])
 
+  // ฟังก์ชันสุ่มสี Avatar
+  const getAvatarColor = (userId) => {
+    const colors = [
+      '#EF4444', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6',
+      '#EC4899', '#14B8A6', '#F97316', '#06B6D4', '#6366F1'
+    ]
+    return colors[userId % colors.length]
+  }
+
   // ดึงข้อมูลรีวิวจาก API
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const response = await fetch('http://localhost:8000/api/reviews?limit=3')
+        const response = await fetch('http://localhost:8080/api/reviews?limit=3')
         const result = await response.json()
         
         if (result.success && result.data) {
-          setReviews(result.data)
+          // เพิ่ม avatar_color ให้แต่ละรีวิว
+          const reviewsWithColor = result.data.map(review => ({
+            ...review,
+            avatar_color: getAvatarColor(review.user_id)
+          }))
+          setReviews(reviewsWithColor)
         }
       } catch (error) {
         console.error('Error fetching reviews:', error)

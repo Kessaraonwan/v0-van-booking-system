@@ -2,14 +2,14 @@ self.__BUILD_MANIFEST = {
   "/": [
     "static/chunks/pages/index.js"
   ],
-  "/404": [
-    "static/chunks/pages/404.js"
-  ],
   "/admin/bookings": [
     "static/chunks/pages/admin/bookings.js"
   ],
   "/admin/dashboard": [
     "static/chunks/pages/admin/dashboard.js"
+  ],
+  "/admin/login": [
+    "static/chunks/pages/admin/login.js"
   ],
   "/admin/routes": [
     "static/chunks/pages/admin/routes.js"
@@ -20,29 +20,11 @@ self.__BUILD_MANIFEST = {
   "/admin/vans": [
     "static/chunks/pages/admin/vans.js"
   ],
-  "/bookings": [
-    "static/chunks/pages/bookings.js"
-  ],
-  "/confirm": [
-    "static/chunks/pages/confirm.js"
-  ],
   "/login": [
     "static/chunks/pages/login.js"
   ],
-  "/payments/[bookingId]": [
-    "static/chunks/pages/payments/[bookingId].js"
-  ],
-  "/register": [
-    "static/chunks/pages/register.js"
-  ],
   "/search": [
     "static/chunks/pages/search.js"
-  ],
-  "/seats/[id]": [
-    "static/chunks/pages/seats/[id].js"
-  ],
-  "/success": [
-    "static/chunks/pages/success.js"
   ],
   "__rewrites": {
     "afterFiles": [],
@@ -64,10 +46,10 @@ self.__BUILD_MANIFEST = {
     "/bookings",
     "/confirm",
     "/login",
-    "/payments/[bookingId]",
     "/register",
     "/search",
     "/seats/[id]",
+    "/select-points/[id]",
     "/success"
   ]
 };self.__BUILD_MANIFEST_CB && self.__BUILD_MANIFEST_CB()

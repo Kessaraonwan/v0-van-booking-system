@@ -8,7 +8,7 @@ import Footer from '@/components/footer'
 
 export default function SeatSelectionPage() {
   const router = useRouter()
-  const { id } = router.query
+  const { id, pickupPointId, dropoffPointId } = router.query
   
   const [selectedSeats, setSelectedSeats] = useState([])
   const [scheduleData, setScheduleData] = useState(null)
@@ -68,7 +68,9 @@ export default function SeatSelectionPage() {
         query: { 
           scheduleId: id, 
           seats: selectedSeats.join(','),
-          total: totalPrice
+          total: totalPrice,
+          pickupPointId: pickupPointId,
+          dropoffPointId: dropoffPointId
         }
       })
     }

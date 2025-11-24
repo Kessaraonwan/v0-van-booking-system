@@ -4,10 +4,10 @@
 
 ### **Tech Stack**
 - **Frontend**: Next.js 16 (Pages Router) + React 19 + Tailwind CSS v4 + Shadcn/ui
-- **Backend**: Node.js + Express.js + Sequelize ORM
+- **Backend**: Go 1.21 + Gin Framework
 - **Database**: PostgreSQL 15 (Docker)
 - **Authentication**: JWT (Access Token + Refresh Token)
-- **Port**: Frontend: 3000 | Backend: 8000
+- **Port**: Frontend: 3000 | Backend: 8080
 
 ---
 
@@ -159,13 +159,19 @@ Base URL: `http://localhost:8000/api`
   - Navbar แสดง user เมื่อล็อกอิน + ปุ่มออกจากระบบ
 - **Database + Seed Data**: ข้อมูลครบพร้อมใช้
 
-#### ⏳ กำลังทำ (30%) - **สำคัญที่สุด!**
-- **เชื่อม Frontend User API**:
-  - ✅ หน้าแรก (index.jsx) - เชื่อม API routes + reviews แล้ว
-  - ⏳ หน้าค้นหา (search.jsx) - **ยังไม่เชื่อม** → ต้องเชื่อม `GET /api/schedules/search`
-  - ⏳ หน้าเลือกที่นั่ง (seats/[id].jsx) - **ยังไม่เชื่อม** → ต้องเชื่อม `GET /api/schedules/:id/seats`
-  - ⏳ หน้ายืนยันการจอง (confirm.jsx) - **ยังไม่เชื่อม** → ต้องเชื่อม `POST /api/bookings`
-  - ⏳ หน้ารายการจอง (bookings.jsx) - **ยังไม่เชื่อม** → ต้องเชื่อม `GET /api/bookings`
+#### ⏳ กำลังทำ (0%) - **สำคัญที่สุด!**
+- **Backend Implementation** (Go):
+  - ⏳ Phase 1: Authentication (Register, Login, Refresh) - **เริ่มที่นี่!**
+  - ⏳ Phase 2: Routes & Reviews (Public APIs)
+  - ⏳ Phase 3: Schedules (Search, Seats)
+  - ⏳ Phase 4: Bookings (Create, Cancel - ใช้ Transaction!)
+  - ⏳ Phase 5: Admin (Vans, Dashboard)
+  
+- **เชื่อม Frontend User API** (หลังจาก Backend เสร็จ):
+  - ⏳ หน้าค้นหา (search.jsx) → `GET /api/schedules/search`
+  - ⏳ หน้าเลือกที่นั่ง (seats/[id].jsx) → `GET /api/schedules/:id/seats`
+  - ⏳ หน้ายืนยันการจอง (confirm.jsx) → `POST /api/bookings`
+  - ⏳ หน้ารายการจอง (bookings.jsx) → `GET /api/bookings`
 
 #### 📋 ต้องทำต่อ
 - Mock Payment System:
