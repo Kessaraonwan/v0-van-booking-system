@@ -35,6 +35,14 @@
         "nxtPid": "nxtPid"
       },
       "namedRegex": "^/seats/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/select-points/[id]",
+      "regex": "^/select\\-points/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/select\\-points/(?<nxtPid>[^/]+?)(?:/)?$"
     }
   ],
   "staticRoutes": [

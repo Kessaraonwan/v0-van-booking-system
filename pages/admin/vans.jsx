@@ -9,6 +9,11 @@ export default function VansManagement() {
   const [vans, setVans] = useState([])
   const [loading, setLoading] = useState(true)
   const [filterStatus, setFilterStatus] = useState('all')
+  const [editingVan, setEditingVan] = useState(null)
+  const [formLicense, setFormLicense] = useState('')
+  const [formSeats, setFormSeats] = useState(13)
+  const [formDriver, setFormDriver] = useState('')
+  const [formStatus, setFormStatus] = useState('active')
 
   useEffect(() => {
     fetchVans()
@@ -19,7 +24,13 @@ export default function VansManagement() {
       setLoading(true)
       const response = await adminAPI.getAllVans()
       if (response.success) {
-        setVans(response.data || [])
+        // normalize backend fields (backend returns `total_seats`)
+        const normalized = (response.data || []).map(v => ({
+          ...v,
+          seats: v.seats || v.total_seats || v.totalSeats || 0,
+          status: v.status || 'inactive',
+        }))
+        setVans(normalized)
       }
     } catch (error) {
       console.error('Error fetching vans:', error)
@@ -37,6 +48,57 @@ export default function VansManagement() {
       }
     } catch (error) {
       console.error('Error adding van:', error)
+    }
+  }
+
+  const openEditModal = (van) => {
+    setEditingVan(van)
+    setFormLicense(van.license_plate || '')
+    setFormSeats(van.seats || van.total_seats || 13)
+    setFormStatus(van.status || 'active')
+    setFormDriver(van.driver || van.driver_name || van.driver?.full_name || van.driver?.name || '')
+    setShowModal(true)
+  }
+
+  const handleDelete = async (vanId) => {
+    const ok = confirm('คุณแน่ใจหรือว่าต้องการลบรถคันนี้? การกระทำนี้ไม่สามารถย้อนกลับได้')
+    if (!ok) return
+    try {
+      const resp = await adminAPI.deleteVan(vanId)
+      if (resp && resp.success) {
+        await fetchVans()
+      } else {
+        alert('ลบไม่สำเร็จ')
+      }
+    } catch (e) {
+      console.error('Failed to delete van', e)
+      alert('เกิดข้อผิดพลาดขณะลบ')
+    }
+  }
+
+  const handleSaveVan = async () => {
+    const payload = {
+      license_plate: formLicense,
+      total_seats: Number(formSeats) || 13,
+      driver: formDriver,
+      status: formStatus,
+    }
+    try {
+      if (editingVan && editingVan.id) {
+        const resp = await adminAPI.updateVan(editingVan.id, payload)
+        if (resp && resp.success) {
+          setShowModal(false)
+          setEditingVan(null)
+          await fetchVans()
+        } else {
+          alert('อัปเดตรถไม่สำเร็จ')
+        }
+      } else {
+        await handleAddVan(payload)
+      }
+    } catch (e) {
+      console.error('Save van failed', e)
+      alert('เกิดข้อผิดพลาดขณะบันทึก')
     }
   }
 
@@ -199,42 +261,38 @@ export default function VansManagement() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredVans.map((van) => (
               <div key={van.id} className="group relative overflow-hidden rounded-xl shadow-md hover:shadow-lg transition-all duration-300 bg-white border border-gray-200 hover:border-red-300">
-                {/* Van Image */}
-                <div className="relative h-48 overflow-hidden">
-                  <img 
-                    src={van.image} 
-                    alt={van.license_plate}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
-                  
-                  {/* Status Badge on Image */}
-                  <div className="absolute top-3 right-3">
-                    {getStatusBadge(van.status)}
-                  </div>
-
-                  {/* License Plate Badge */}
-                  <div className="absolute bottom-3 left-3">
-                    <div className="bg-white/95 backdrop-blur-sm px-4 py-2 rounded-xl shadow-lg">
-                      <div className="font-mono font-bold text-lg text-gray-900">
-                        {van.license_plate}
-                      </div>
+                {/* Van Details (no image) */}
+                <div className="p-5 border-b">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="font-mono font-bold text-lg text-gray-900">{van.license_plate}</div>
+                      {van.van_number && (
+                        <div className="text-sm text-gray-600">No. {van.van_number}</div>
+                      )}
                     </div>
+                    <div className="flex items-center gap-2">{getStatusBadge(van.status)}</div>
                   </div>
                 </div>
 
                 {/* Content */}
                 <div className="p-5">
                   {/* Driver Info */}
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-12 h-12 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
-                      {van.driver_name.split(' ')[0][0]}{van.driver_name.split(' ')[1][0]}
-                    </div>
-                    <div className="flex-1">
-                      <div className="text-sm text-gray-600 font-medium">คนขับ</div>
-                      <div className="font-bold text-gray-900">{van.driver_name}</div>
-                    </div>
-                  </div>
+                  {(() => {
+                    const driverName = van.driver || van.driver_name || van.driver?.full_name || van.driver?.name || 'ไม่ระบุ'
+                    const parts = String(driverName).split(/\s+/).filter(Boolean)
+                    const initials = ((parts[0]?.[0] || '') + (parts[1]?.[0] || '')).toUpperCase() || '?'
+                    return (
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-12 h-12 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+                          {initials}
+                        </div>
+                        <div className="flex-1">
+                          <div className="text-sm text-gray-600 font-medium">คนขับ</div>
+                          <div className="font-bold text-gray-900">{driverName}</div>
+                        </div>
+                      </div>
+                    )
+                  })()}
 
                   {/* Stats */}
                   <div className="grid grid-cols-2 gap-3 mb-4">
@@ -278,6 +336,7 @@ export default function VansManagement() {
                     <Button 
                       variant="outline" 
                       className="flex-1 border border-gray-300 text-gray-600 hover:bg-gray-50 transition-all"
+                      onClick={() => openEditModal(van)}
                     >
                       <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -287,6 +346,7 @@ export default function VansManagement() {
                     <Button 
                       variant="outline" 
                       className="flex-1 border border-red-300 text-red-600 hover:bg-red-50 transition-all"
+                      onClick={() => handleDelete(van.id)}
                     >
                       <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -338,7 +398,7 @@ export default function VansManagement() {
                 </div>
 
                 {/* Modal Body */}
-                <form className="p-6 space-y-5">
+                <form className="p-6 space-y-5" onSubmit={(e) => { e.preventDefault(); handleSaveVan() }}>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">
                       <span className="flex items-center gap-2">
@@ -350,10 +410,20 @@ export default function VansManagement() {
                     </label>
                     <input
                       type="text"
+                      value={formLicense}
+                      onChange={(e) => setFormLicense(e.target.value)}
                       className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-red-500 focus:ring-2 focus:ring-red-200 transition-all font-mono font-bold text-gray-900"
                       placeholder="กข-1234"
                     />
                   </div>
+                    <div>
+                      <label className="block text-sm font-bold text-gray-700 mb-2">สถานะ</label>
+                      <select value={formStatus} onChange={(e) => setFormStatus(e.target.value)} className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-red-500 focus:ring-2 focus:ring-red-200 transition-all text-gray-900">
+                        <option value="active">พร้อมใช้งาน</option>
+                        <option value="maintenance">ซ่อมบำรุง</option>
+                        <option value="inactive">ไม่ใช้งาน</option>
+                      </select>
+                    </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">
                       <span className="flex items-center gap-2">
@@ -365,6 +435,8 @@ export default function VansManagement() {
                     </label>
                     <input
                       type="number"
+                      value={formSeats}
+                      onChange={(e) => setFormSeats(e.target.value)}
                       className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-red-500 focus:ring-2 focus:ring-red-200 transition-all text-gray-900"
                       placeholder="13"
                     />
@@ -380,25 +452,13 @@ export default function VansManagement() {
                     </label>
                     <input
                       type="text"
+                      value={formDriver}
+                      onChange={(e) => setFormDriver(e.target.value)}
                       className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-red-500 focus:ring-2 focus:ring-red-200 transition-all text-gray-900"
                       placeholder="สมชาย ใจดี"
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">
-                      <span className="flex items-center gap-2">
-                        <svg className="w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        รูปภาพรถ (URL)
-                      </span>
-                    </label>
-                    <input
-                      type="url"
-                      className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-red-500 focus:ring-2 focus:ring-red-200 transition-all text-gray-900"
-                      placeholder="https://example.com/van.jpg"
-                    />
-                  </div>
+                  
                   <div className="flex gap-3 pt-4">
                     <Button 
                       type="button"
@@ -410,9 +470,8 @@ export default function VansManagement() {
                       ยกเลิก
                     </Button>
                     <Button 
-                      type="button"
+                      type="submit"
                       className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all" 
-                      onClick={() => setShowModal(false)}
                       size="lg"
                     >
                       <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">

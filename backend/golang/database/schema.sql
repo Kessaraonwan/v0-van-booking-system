@@ -58,9 +58,17 @@ CREATE TABLE routes (
     id SERIAL PRIMARY KEY,
     origin VARCHAR(255) NOT NULL,
     destination VARCHAR(255) NOT NULL,
+    -- distance_km kept for compatibility with repository fields
     distance DECIMAL(10,2) NOT NULL,
+    -- duration stored as TIME for human-friendly format;
+    -- duration_minutes is used by the backend for numeric computations
     duration TIME NOT NULL,
+    duration_minutes INTEGER DEFAULT 0,
     base_price DECIMAL(10,2) NOT NULL,
+    -- duplicate distance column used by code expects 'distance_km'
+    distance_km DECIMAL(10,2) DEFAULT 0,
+    -- optional image URL for the route
+    image_url TEXT DEFAULT '',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

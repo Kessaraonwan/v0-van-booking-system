@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 	"vanbooking/internal/handler"
 	"vanbooking/internal/middleware"
 	"vanbooking/internal/repository"
@@ -56,18 +57,15 @@ func main() {
 	// สร้าง Gin router
 	router := gin.Default()
 
-	// CORS middleware
+	// CORS middleware - allow all origins for local development
+	// Note: when AllowOrigins contains "*", AllowCredentials must be false.
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{
-			"http://localhost:3000",
-			"http://localhost:3001",
-			"http://127.0.0.1:3000",
-			"http://127.0.0.1:3001",
-		},
+		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: true,
+		AllowCredentials: false,
+		MaxAge:           12 * time.Hour,
 	}))
 
 	// Health check endpoint
@@ -106,20 +104,21 @@ func main() {
 		protected := api.Group("")
 		protected.Use(middleware.AuthMiddleware())
 		{
-			// Booking routes
-			protected.GET("/bookings", bookingHandler.GetUserBookings)
-			protected.GET("/bookings/:id", bookingHandler.GetBookingByID)
-			protected.POST("/bookings", bookingHandler.CreateBooking)
-			protected.PUT("/bookings/:id/cancel", bookingHandler.CancelBooking)
+			// Booking routes - restrict booking actions to normal users only
+			protected.GET("/bookings", middleware.RequireRole("user"), bookingHandler.GetUserBookings)
+			protected.GET("/bookings/:id", middleware.RequireRole("user"), bookingHandler.GetBookingByID)
+			protected.POST("/bookings", middleware.RequireRole("user"), bookingHandler.CreateBooking)
+			protected.PUT("/bookings/:id/cancel", middleware.RequireRole("user"), bookingHandler.CancelBooking)
 
-			// Payment routes (Mock)
+			// Payment routes (Mock) - allow authenticated users (could be expanded)
 			protected.POST("/payments", bookingHandler.CreatePayment)
 			protected.GET("/payments/:bookingId", bookingHandler.GetPaymentByBookingID)
 		}
 
 		// Admin routes (ต้องใช้ token + role admin)
 		admin := api.Group("/admin")
-		admin.Use(middleware.AuthMiddleware(), middleware.AdminMiddleware())
+		// Require both a valid token and the admin role
+		admin.Use(middleware.AuthMiddleware(), middleware.RequireRole("admin"))
 		{
 			// Dashboard
 			admin.GET("/dashboard", adminHandler.GetDashboardStats)
@@ -147,6 +146,8 @@ func main() {
 
 			// Bookings management
 			admin.GET("/bookings", bookingHandler.GetAllBookings)
+			admin.GET("/bookings/:id", bookingHandler.AdminGetBookingByID)
+			admin.PUT("/bookings/:id/status", bookingHandler.AdminUpdateBookingStatus)
 		}
 	}
 

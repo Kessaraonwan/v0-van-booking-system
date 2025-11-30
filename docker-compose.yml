@@ -77,8 +77,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    volumes:
-      - ./backend/golang:/app
     networks:
       - vanbooking_network
 

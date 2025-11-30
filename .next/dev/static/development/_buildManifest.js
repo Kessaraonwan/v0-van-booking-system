@@ -20,6 +20,9 @@ self.__BUILD_MANIFEST = {
   "/admin/vans": [
     "static/chunks/pages/admin/vans.js"
   ],
+  "/bookings": [
+    "static/chunks/pages/bookings.js"
+  ],
   "/login": [
     "static/chunks/pages/login.js"
   ],

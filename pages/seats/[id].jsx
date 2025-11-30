@@ -26,12 +26,33 @@ export default function SeatSelectionPage() {
   // TODO: เชื่อมฐานข้อมูลจริงที่นี่
   useEffect(() => {
     if (id) {
-      // Fetch schedule and seat data
-      // const schedule = await fetchScheduleById(id)
-      // const seatData = await fetchSeats(id)
-      // setScheduleData(schedule)
-      // setSeats(seatData)
-      setLoading(false)
+      const fetchData = async () => {
+        try {
+          // scheduleAPI is a global client in lib/api-client.js
+          const { scheduleAPI } = await import('@/lib/api-client')
+          const [scheduleRes, seatsRes] = await Promise.all([
+            scheduleAPI.getById(id),
+            scheduleAPI.getSeats(id)
+          ])
+
+          if (scheduleRes && scheduleRes.success) {
+            setScheduleData(scheduleRes.data)
+          }
+
+          if (seatsRes && seatsRes.success) {
+            // Map backend seat fields (seat_number) to front-end shape
+            const mapped = seatsRes.data.map(s => ({ number: s.seat_number, status: s.status }))
+            setSeats(mapped)
+          }
+
+        } catch (err) {
+          console.error('Failed to fetch schedule or seats', err)
+        } finally {
+          setLoading(false)
+        }
+      }
+
+      fetchData()
     }
   }, [id])
 
@@ -61,6 +82,40 @@ export default function SeatSelectionPage() {
   const pricePerSeat = scheduleData?.price || 0
   const totalPrice = selectedSeats.length * pricePerSeat
 
+  // Helpers to detect and format invalid/zero timestamps
+  const isZeroOrInvalidTimestamp = (val) => {
+    if (!val) return true
+    // common zero-like strings
+    if (typeof val === 'string') {
+      const s = val.trim()
+      if (s === '' ) return true
+      if (s.startsWith('0000') || s.startsWith('0001') || s.startsWith('0000-00-00')) return true
+    }
+    const d = new Date(val)
+    if (Number.isNaN(d.getTime())) return true
+    // Guard against extremely old/zero years
+    if (d.getFullYear() <= 1) return true
+    return false
+  }
+
+  const formatDateOrFallback = (val, fallback = 'ไม่ระบุ') => {
+    if (isZeroOrInvalidTimestamp(val)) return fallback
+    try {
+      return new Date(val).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' })
+    } catch (e) {
+      return fallback
+    }
+  }
+
+  const formatTimeOrFallback = (val, fallback = '-') => {
+    if (isZeroOrInvalidTimestamp(val)) return fallback
+    try {
+      return new Date(val).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
+    } catch (e) {
+      return fallback
+    }
+  }
+
   const handleConfirm = () => {
     if (selectedSeats.length > 0) {
       router.push({
@@ -74,6 +129,37 @@ export default function SeatSelectionPage() {
         }
       })
     }
+  }
+
+  // Compute seat array from schedule/van total seats
+  const totalSeats = scheduleData?.total_seats || scheduleData?.van?.total_seats || 12
+  const seatArray = Array.from({ length: totalSeats }, (_, i) => i + 1)
+
+  // Helper to render a seat button with consistent sizing and state
+  const renderSeatButton = (seatNumber, sizeClass = 'w-20 h-20 rounded-2xl') => {
+    const status = getSeatStatus(seatNumber)
+    const isSelected = status === 'selected'
+    const isBooked = status === 'booked'
+
+    const baseClass = `${sizeClass} font-bold text-lg transition-all duration-200 relative group flex items-center justify-center `
+    const stateClass = isSelected
+      ? 'bg-gradient-to-br from-orange-500 to-red-500 text-white shadow-lg shadow-orange-200 scale-105 border-2 border-orange-400'
+      : isBooked
+        ? 'bg-gray-200 text-gray-400 cursor-not-allowed border-2 border-gray-300'
+        : 'bg-gradient-to-br from-green-50 to-emerald-50 text-gray-700 hover:from-green-100 hover:to-emerald-100 hover:scale-105 hover:shadow-md border-2 border-green-300'
+
+    const className = baseClass + stateClass
+
+    return (
+      <button key={seatNumber} onClick={() => status !== 'booked' && toggleSeat(seatNumber)} disabled={isBooked} className={className}>
+        <span className="relative z-10">{seatNumber}</span>
+        {isSelected && (
+          <svg className="absolute top-1 right-1 w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+          </svg>
+        )}
+      </button>
+    )
   }
 
   if (loading) {
@@ -119,7 +205,7 @@ export default function SeatSelectionPage() {
           {/* Trip Info */}
           <div className="space-y-3">
             <h1 className="text-3xl md:text-4xl font-bold">เลือกที่นั่งของคุณ</h1>
-            <div className="flex flex-wrap items-center gap-6 text-white/90">
+                <div className="flex flex-wrap items-center gap-6 text-white/90">
               <div className="flex items-center gap-2">
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -127,17 +213,17 @@ export default function SeatSelectionPage() {
                 </svg>
                 <span className="font-semibold">{scheduleData?.origin || 'กรุงเทพ'} → {scheduleData?.destination || 'พัทยา'}</span>
               </div>
-              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2">
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                <span>{scheduleData?.date || '18 พ.ย. 2025'}</span>
+                <span>{formatDateOrFallback(scheduleData?.date, scheduleData?.date ? formatDateOrFallback(scheduleData?.date) : '18 พ.ย. 2025')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <span>{scheduleData?.departureTime || '09:00'}</span>
+                <span>{formatTimeOrFallback(scheduleData?.departureTime, scheduleData?.departureTime ? formatTimeOrFallback(scheduleData?.departureTime) : '09:00')}</span>
               </div>
             </div>
           </div>
@@ -169,38 +255,75 @@ export default function SeatSelectionPage() {
                   </div>
                 </div>
 
-                {/* Seat Grid - 4 columns x 3 rows = 12 seats */}
-                <div className="grid grid-cols-4 gap-4 max-w-lg mx-auto mb-10">
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(seatNumber => {
-                    const status = getSeatStatus(seatNumber)
-                    const isSelected = status === 'selected'
-                    const isBooked = status === 'booked'
-                    
-                    return (
-                      <button
-                        key={seatNumber}
-                        onClick={() => status !== 'booked' && toggleSeat(seatNumber)}
-                        disabled={isBooked}
-                        className={`
-                          aspect-square rounded-2xl font-bold text-lg transition-all duration-200
-                          ${isSelected 
-                            ? 'bg-gradient-to-br from-orange-500 to-red-500 text-white shadow-lg shadow-orange-200 scale-105 border-2 border-orange-400' 
-                            : isBooked 
+                {/* Seat Grid - render layout like the attached van image when totalSeats === 13 */}
+                <div className="max-w-lg mx-auto mb-10">
+                  {totalSeats === 13 ? (
+                    <div className="space-y-4">
+                      {/* Front single seat row with driver placeholder (driver on right, seat 1 on left) */}
+                      <div className="flex items-center justify-center gap-6">
+                        {/* Seat 1 on the left */}
+                        <div className="flex flex-col items-center">
+                          {renderSeatButton(1, 'w-20 h-20 rounded-2xl')}
+                        </div>
+
+                        {/* Driver icon on the right */}
+                        <div className="flex flex-col items-center ml-2">
+                          <div className="w-10 h-10 rounded-full bg-white border-2 border-orange-200 flex items-center justify-center text-orange-600 shadow-sm">
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 14l9-5-9-5-9 5 9 5z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 14l6.16-3.422A12.083 12.083 0 0112 21.5 12.083 12.083 0 015.84 10.578L12 14z" />
+                            </svg>
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1">คนขับ</div>
+                        </div>
+                      </div>
+
+                      {/* Rows with 3 seats each: [2,3,4], [5,6,7], [8,9,10], [11,12,13] */}
+                      {[ [2,3,4], [5,6,7], [8,9,10], [11,12,13] ].map((row, ri) => (
+                        <div key={ri} className="flex items-center justify-center w-full gap-6">
+                          {/* left seat stays on the left */}
+                          <div className="flex-1 flex justify-center">
+                            {renderSeatButton(row[0], 'w-20 h-20 rounded-2xl')}
+                          </div>
+
+                          {/* aisle (visual) between left column and grouped right columns */}
+                          <div className="w-6 h-12 bg-gray-100 rounded-md" aria-hidden="true" />
+
+                          {/* grouped right side: middle + right seats together on the right */}
+                          <div className="flex-1 flex justify-center items-center space-x-4">
+                            {renderSeatButton(row[1], 'w-20 h-20 rounded-2xl')}
+                            {renderSeatButton(row[2], 'w-20 h-20 rounded-2xl')}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    // Fallback generic grid when not 13 seats
+                    <div className="grid grid-cols-4 gap-6">
+                      {seatArray.map(seatNumber => {
+                        const status = getSeatStatus(seatNumber)
+                        const isSelected = status === 'selected'
+                        const isBooked = status === 'booked'
+                        const btnClass = 'w-20 h-20 rounded-2xl font-bold text-lg transition-all duration-200 relative group '
+                          + (isSelected
+                            ? 'bg-gradient-to-br from-orange-500 to-red-500 text-white shadow-lg shadow-orange-200 scale-105 border-2 border-orange-400'
+                            : isBooked
                               ? 'bg-gray-200 text-gray-400 cursor-not-allowed border-2 border-gray-300'
-                              : 'bg-gradient-to-br from-green-50 to-emerald-50 text-gray-700 hover:from-green-100 hover:to-emerald-100 hover:scale-105 hover:shadow-md border-2 border-green-300'
-                          }
-                          relative group
-                        `}
-                      >
-                        <span className="relative z-10">{seatNumber}</span>
-                        {isSelected && (
-                          <svg className="absolute top-1 right-1 w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                        )}
-                      </button>
-                    )
-                  })}
+                              : 'bg-gradient-to-br from-green-50 to-emerald-50 text-gray-700 hover:from-green-100 hover:to-emerald-100 hover:scale-105 hover:shadow-md border-2 border-green-300')
+
+                        return (
+                          <button key={seatNumber} onClick={() => status !== 'booked' && toggleSeat(seatNumber)} disabled={isBooked} className={btnClass}>
+                            <span className="relative z-10">{seatNumber}</span>
+                            {isSelected && (
+                              <svg className="absolute top-1 right-1 w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            )}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  )}
                 </div>
 
                 {/* Legend with Icons */}

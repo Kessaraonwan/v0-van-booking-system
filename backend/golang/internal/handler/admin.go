@@ -30,6 +30,31 @@ func (h *AdminHandler) GetDashboardStats(c *gin.Context) {
 		return
 	}
 
+	// Bookings today (created today)
+	err = h.db.QueryRow("SELECT COUNT(*) FROM bookings WHERE DATE(created_at) = CURRENT_DATE").Scan(&stats.BookingsToday)
+	if err != nil {
+		utils.ErrorResponse(c, 500, "Failed to count today's bookings")
+		return
+	}
+
+	// Pending bookings created today
+	err = h.db.QueryRow("SELECT COUNT(*) FROM bookings WHERE DATE(created_at) = CURRENT_DATE AND booking_status = 'pending'").Scan(&stats.PendingToday)
+	if err != nil {
+		utils.ErrorResponse(c, 500, "Failed to count today's pending bookings")
+		return
+	}
+
+	// Passengers today: confirmed bookings whose schedule departs today
+	err = h.db.QueryRow(`
+		SELECT COUNT(*) FROM bookings b
+		JOIN schedules s ON b.schedule_id = s.id
+		WHERE b.booking_status = 'confirmed' AND DATE(s.departure_time) = CURRENT_DATE
+	`).Scan(&stats.PassengersToday)
+	if err != nil {
+		utils.ErrorResponse(c, 500, "Failed to count today's passengers")
+		return
+	}
+
 	// 2. Count total users
 	err = h.db.QueryRow("SELECT COUNT(*) FROM users WHERE role = 'user'").Scan(&stats.TotalUsers)
 	if err != nil {
@@ -41,6 +66,13 @@ func (h *AdminHandler) GetDashboardStats(c *gin.Context) {
 	err = h.db.QueryRow("SELECT COUNT(*) FROM routes").Scan(&stats.TotalRoutes)
 	if err != nil {
 		utils.ErrorResponse(c, 500, "Failed to count routes")
+		return
+	}
+
+	// Trips today (schedules departing today)
+	err = h.db.QueryRow("SELECT COUNT(*) FROM schedules WHERE DATE(departure_time) = CURRENT_DATE").Scan(&stats.TripsToday)
+	if err != nil {
+		utils.ErrorResponse(c, 500, "Failed to count today's trips")
 		return
 	}
 

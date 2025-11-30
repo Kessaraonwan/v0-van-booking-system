@@ -851,8 +851,12 @@ __turbopack_context__.s([
     ()=>getToken,
     "getUser",
     ()=>getUser,
+    "paymentsAPI",
+    ()=>paymentsAPI,
     "removeTokens",
     ()=>removeTokens,
+    "reviewAPI",
+    ()=>reviewAPI,
     "routeAPI",
     ()=>routeAPI,
     "scheduleAPI",
@@ -928,7 +932,14 @@ const apiRequest = async (endpoint, options = {})=>{
     };
     try {
         const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
-        const data = await response.json();
+        const text = await response.text();
+        let data = null;
+        try {
+            data = text ? JSON.parse(text) : null;
+        } catch (e) {
+            // response is not JSON (could be HTML error page or plain text)
+            data = text;
+        }
         if (!response.ok) {
             // Handle token expiration
             if (response.status === 401 && token) {
@@ -941,7 +952,8 @@ const apiRequest = async (endpoint, options = {})=>{
                     window.location.href = '/login';
                 }
             }
-            throw new Error(data.message || 'API request failed');
+            const message = data && typeof data === 'object' && data.message ? data.message : typeof data === 'string' ? data : 'API request failed';
+            throw new Error(message);
         }
         return data;
     } catch (error) {
@@ -965,8 +977,14 @@ const refreshAccessToken = async ()=>{
                 refreshToken
             })
         });
-        const data = await response.json();
-        if (response.ok && data.success) {
+        const text = await response.text();
+        let data = null;
+        try {
+            data = text ? JSON.parse(text) : null;
+        } catch (e) {
+            data = text;
+        }
+        if (response.ok && data && data.success) {
             setToken(data.data.accessToken);
             setRefreshToken(data.data.refreshToken);
             return true;
@@ -1031,28 +1049,43 @@ const scheduleAPI = {
     },
     getSeats: async (id)=>{
         return apiRequest(`/schedules/${id}/seats`);
+    },
+    getAll: async ()=>{
+        return apiRequest('/schedules');
     }
 };
 const bookingAPI = {
     create: async (bookingData)=>{
-        return apiRequest('/bookings/create', {
+        return apiRequest('/bookings', {
             method: 'POST',
             body: JSON.stringify(bookingData)
         });
     },
     getMyBookings: async (status = 'all')=>{
-        return apiRequest(`/bookings/my-bookings?status=${status}`);
+        const q = status && status !== 'all' ? `?status=${status}` : '';
+        return apiRequest(`/bookings${q}`);
     },
     getById: async (id)=>{
         return apiRequest(`/bookings/${id}`);
     },
     cancel: async (id, reason)=>{
         return apiRequest(`/bookings/${id}/cancel`, {
-            method: 'POST',
+            method: 'PUT',
             body: JSON.stringify({
                 reason
             })
         });
+    }
+};
+const paymentsAPI = {
+    create: async (paymentData)=>{
+        return apiRequest('/payments', {
+            method: 'POST',
+            body: JSON.stringify(paymentData)
+        });
+    },
+    getByBookingId: async (bookingId)=>{
+        return apiRequest(`/payments/${bookingId}`);
     }
 };
 const routeAPI = {
@@ -1069,6 +1102,13 @@ const routeAPI = {
         return apiRequest(`/routes/${routeId}/dropoff-points`);
     }
 };
+const reviewAPI = {
+    getAll: async (params = {})=>{
+        const qs = new URLSearchParams(params).toString();
+        const suffix = qs ? `?${qs}` : '';
+        return apiRequest(`/reviews${suffix}`);
+    }
+};
 const vanAPI = {
     getAll: async ()=>{
         return apiRequest('/vans');
@@ -1080,13 +1120,15 @@ const vanAPI = {
 const adminAPI = {
     // Dashboard
     getDashboardStats: async ()=>{
-        return apiRequest('/admin/dashboard/stats');
+        return apiRequest('/admin/dashboard');
     },
     getTodaySchedules: async ()=>{
-        return apiRequest('/admin/dashboard/today-schedules');
+        // kept for compatibility; frontend uses scheduleAPI.search for today schedules
+        return apiRequest('/admin/schedules');
     },
     getRecentBookings: async (limit = 10)=>{
-        return apiRequest(`/admin/dashboard/recent-bookings?limit=${limit}`);
+        // recent bookings are returned inside /admin/dashboard
+        return apiRequest('/admin/dashboard');
     },
     // Bookings
     getAllBookings: async (params = {})=>{
@@ -1247,6 +1289,19 @@ function LoginPage() {
                 password
             });
             if (response.success) {
+                const user = response?.data?.user || null;
+                // Prevent admin accounts from staying logged-in via the public user login page.
+                if (user && user.role === 'admin') {
+                    // Clear any tokens that were set by the shared auth API and redirect to admin login.
+                    (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$api$2d$client$2e$js__$5b$client$5d$__$28$ecmascript$29$__["removeTokens"])();
+                    toast({
+                        variant: 'destructive',
+                        title: 'บัญชีผู้ดูแลระบบ',
+                        description: 'กรุณาเข้าสู่ระบบผ่านหน้าแอดมิน'
+                    });
+                    router.push('/admin/login');
+                    return;
+                }
                 toast({
                     title: 'เข้าสู่ระบบสำเร็จ',
                     description: 'ยินดีต้อนรับกลับมา'
@@ -1271,12 +1326,12 @@ function LoginPage() {
                     children: "เข้าสู่ระบบ - ระบบจองตั๋วรถตู้"
                 }, void 0, false, {
                     fileName: "[project]/pages/login.jsx",
-                    lineNumber: 79,
+                    lineNumber: 94,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/pages/login.jsx",
-                lineNumber: 78,
+                lineNumber: 93,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1297,12 +1352,12 @@ function LoginPage() {
                                                 children: "V"
                                             }, void 0, false, {
                                                 fileName: "[project]/pages/login.jsx",
-                                                lineNumber: 89,
+                                                lineNumber: 104,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/pages/login.jsx",
-                                            lineNumber: 88,
+                                            lineNumber: 103,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
@@ -1310,7 +1365,7 @@ function LoginPage() {
                                             children: "เข้าสู่ระบบ"
                                         }, void 0, false, {
                                             fileName: "[project]/pages/login.jsx",
-                                            lineNumber: 93,
+                                            lineNumber: 108,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1318,13 +1373,13 @@ function LoginPage() {
                                             children: "ยินดีต้อนรับกลับมา"
                                         }, void 0, false, {
                                             fileName: "[project]/pages/login.jsx",
-                                            lineNumber: 94,
+                                            lineNumber: 109,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/pages/login.jsx",
-                                    lineNumber: 87,
+                                    lineNumber: 102,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
@@ -1342,13 +1397,13 @@ function LoginPage() {
                                                             children: "*"
                                                         }, void 0, false, {
                                                             fileName: "[project]/pages/login.jsx",
-                                                            lineNumber: 102,
+                                                            lineNumber: 117,
                                                             columnNumber: 25
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/pages/login.jsx",
-                                                    lineNumber: 101,
+                                                    lineNumber: 116,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1368,17 +1423,17 @@ function LoginPage() {
                                                                     d: "M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/pages/login.jsx",
-                                                                    lineNumber: 107,
+                                                                    lineNumber: 122,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/pages/login.jsx",
-                                                                lineNumber: 106,
+                                                                lineNumber: 121,
                                                                 columnNumber: 21
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/pages/login.jsx",
-                                                            lineNumber: 105,
+                                                            lineNumber: 120,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1396,13 +1451,13 @@ function LoginPage() {
                                                             disabled: isLoading
                                                         }, void 0, false, {
                                                             fileName: "[project]/pages/login.jsx",
-                                                            lineNumber: 110,
+                                                            lineNumber: 125,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/pages/login.jsx",
-                                                    lineNumber: 104,
+                                                    lineNumber: 119,
                                                     columnNumber: 17
                                                 }, this),
                                                 errors.email && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1418,25 +1473,25 @@ function LoginPage() {
                                                                 clipRule: "evenodd"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/pages/login.jsx",
-                                                                lineNumber: 127,
+                                                                lineNumber: 142,
                                                                 columnNumber: 23
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/pages/login.jsx",
-                                                            lineNumber: 126,
+                                                            lineNumber: 141,
                                                             columnNumber: 21
                                                         }, this),
                                                         errors.email
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/pages/login.jsx",
-                                                    lineNumber: 125,
+                                                    lineNumber: 140,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/pages/login.jsx",
-                                            lineNumber: 100,
+                                            lineNumber: 115,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1450,13 +1505,13 @@ function LoginPage() {
                                                             children: "*"
                                                         }, void 0, false, {
                                                             fileName: "[project]/pages/login.jsx",
-                                                            lineNumber: 137,
+                                                            lineNumber: 152,
                                                             columnNumber: 28
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/pages/login.jsx",
-                                                    lineNumber: 136,
+                                                    lineNumber: 151,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1476,17 +1531,17 @@ function LoginPage() {
                                                                     d: "M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/pages/login.jsx",
-                                                                    lineNumber: 142,
+                                                                    lineNumber: 157,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/pages/login.jsx",
-                                                                lineNumber: 141,
+                                                                lineNumber: 156,
                                                                 columnNumber: 21
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/pages/login.jsx",
-                                                            lineNumber: 140,
+                                                            lineNumber: 155,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1504,13 +1559,13 @@ function LoginPage() {
                                                             disabled: isLoading
                                                         }, void 0, false, {
                                                             fileName: "[project]/pages/login.jsx",
-                                                            lineNumber: 145,
+                                                            lineNumber: 160,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/pages/login.jsx",
-                                                    lineNumber: 139,
+                                                    lineNumber: 154,
                                                     columnNumber: 17
                                                 }, this),
                                                 errors.password && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1526,25 +1581,25 @@ function LoginPage() {
                                                                 clipRule: "evenodd"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/pages/login.jsx",
-                                                                lineNumber: 162,
+                                                                lineNumber: 177,
                                                                 columnNumber: 23
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/pages/login.jsx",
-                                                            lineNumber: 161,
+                                                            lineNumber: 176,
                                                             columnNumber: 21
                                                         }, this),
                                                         errors.password
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/pages/login.jsx",
-                                                    lineNumber: 160,
+                                                    lineNumber: 175,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/pages/login.jsx",
-                                            lineNumber: 135,
+                                            lineNumber: 150,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -1568,7 +1623,7 @@ function LoginPage() {
                                                                 strokeWidth: "4"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/pages/login.jsx",
-                                                                lineNumber: 178,
+                                                                lineNumber: 193,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
@@ -1577,31 +1632,31 @@ function LoginPage() {
                                                                 d: "M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/pages/login.jsx",
-                                                                lineNumber: 179,
+                                                                lineNumber: 194,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/pages/login.jsx",
-                                                        lineNumber: 177,
+                                                        lineNumber: 192,
                                                         columnNumber: 21
                                                     }, this),
                                                     "กำลังเข้าสู่ระบบ..."
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/pages/login.jsx",
-                                                lineNumber: 176,
+                                                lineNumber: 191,
                                                 columnNumber: 19
                                             }, this) : 'เข้าสู่ระบบ'
                                         }, void 0, false, {
                                             fileName: "[project]/pages/login.jsx",
-                                            lineNumber: 170,
+                                            lineNumber: 185,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/pages/login.jsx",
-                                    lineNumber: 98,
+                                    lineNumber: 113,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1620,18 +1675,18 @@ function LoginPage() {
                                                         children: "สมัครสมาชิก"
                                                     }, void 0, false, {
                                                         fileName: "[project]/pages/login.jsx",
-                                                        lineNumber: 194,
+                                                        lineNumber: 209,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/pages/login.jsx",
-                                                lineNumber: 192,
+                                                lineNumber: 207,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/pages/login.jsx",
-                                            lineNumber: 191,
+                                            lineNumber: 206,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1652,41 +1707,41 @@ function LoginPage() {
                                                             d: "M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
                                                         }, void 0, false, {
                                                             fileName: "[project]/pages/login.jsx",
-                                                            lineNumber: 203,
+                                                            lineNumber: 218,
                                                             columnNumber: 21
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/pages/login.jsx",
-                                                        lineNumber: 202,
+                                                        lineNumber: 217,
                                                         columnNumber: 19
                                                     }, this),
                                                     "เข้าสู่ระบบสำหรับผู้ดูแลระบบ"
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/pages/login.jsx",
-                                                lineNumber: 201,
+                                                lineNumber: 216,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/pages/login.jsx",
-                                            lineNumber: 200,
+                                            lineNumber: 215,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/pages/login.jsx",
-                                    lineNumber: 190,
+                                    lineNumber: 205,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/pages/login.jsx",
-                            lineNumber: 85,
+                            lineNumber: 100,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/pages/login.jsx",
-                        lineNumber: 84,
+                        lineNumber: 99,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1699,20 +1754,20 @@ function LoginPage() {
                                         className: "absolute top-20 left-20 w-72 h-72 bg-white rounded-full blur-3xl"
                                     }, void 0, false, {
                                         fileName: "[project]/pages/login.jsx",
-                                        lineNumber: 216,
+                                        lineNumber: 231,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "absolute bottom-20 right-20 w-96 h-96 bg-white rounded-full blur-3xl"
                                     }, void 0, false, {
                                         fileName: "[project]/pages/login.jsx",
-                                        lineNumber: 217,
+                                        lineNumber: 232,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/pages/login.jsx",
-                                lineNumber: 215,
+                                lineNumber: 230,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1732,17 +1787,17 @@ function LoginPage() {
                                                 d: "M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
                                             }, void 0, false, {
                                                 fileName: "[project]/pages/login.jsx",
-                                                lineNumber: 224,
+                                                lineNumber: 239,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/pages/login.jsx",
-                                            lineNumber: 223,
+                                            lineNumber: 238,
                                             columnNumber: 15
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/pages/login.jsx",
-                                        lineNumber: 222,
+                                        lineNumber: 237,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
@@ -1750,7 +1805,7 @@ function LoginPage() {
                                         children: "ระบบจองตั๋วรถตู้"
                                     }, void 0, false, {
                                         fileName: "[project]/pages/login.jsx",
-                                        lineNumber: 227,
+                                        lineNumber: 242,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1758,7 +1813,7 @@ function LoginPage() {
                                         children: "จองตั๋วรถตู้ออนไลน์ สะดวก รวดเร็ว ปลอดภัย"
                                     }, void 0, false, {
                                         fileName: "[project]/pages/login.jsx",
-                                        lineNumber: 228,
+                                        lineNumber: 243,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1781,17 +1836,17 @@ function LoginPage() {
                                                                 d: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/pages/login.jsx",
-                                                                lineNumber: 233,
+                                                                lineNumber: 248,
                                                                 columnNumber: 21
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/pages/login.jsx",
-                                                            lineNumber: 232,
+                                                            lineNumber: 247,
                                                             columnNumber: 19
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/pages/login.jsx",
-                                                        lineNumber: 231,
+                                                        lineNumber: 246,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1799,13 +1854,13 @@ function LoginPage() {
                                                         children: "จองง่าย รวดเร็ว"
                                                     }, void 0, false, {
                                                         fileName: "[project]/pages/login.jsx",
-                                                        lineNumber: 236,
+                                                        lineNumber: 251,
                                                         columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/pages/login.jsx",
-                                                lineNumber: 230,
+                                                lineNumber: 245,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1825,17 +1880,17 @@ function LoginPage() {
                                                                 d: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/pages/login.jsx",
-                                                                lineNumber: 241,
+                                                                lineNumber: 256,
                                                                 columnNumber: 21
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/pages/login.jsx",
-                                                            lineNumber: 240,
+                                                            lineNumber: 255,
                                                             columnNumber: 19
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/pages/login.jsx",
-                                                        lineNumber: 239,
+                                                        lineNumber: 254,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1843,13 +1898,13 @@ function LoginPage() {
                                                         children: "ปลอดภัย มั่นใจ"
                                                     }, void 0, false, {
                                                         fileName: "[project]/pages/login.jsx",
-                                                        lineNumber: 244,
+                                                        lineNumber: 259,
                                                         columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/pages/login.jsx",
-                                                lineNumber: 238,
+                                                lineNumber: 253,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1869,17 +1924,17 @@ function LoginPage() {
                                                                 d: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/pages/login.jsx",
-                                                                lineNumber: 249,
+                                                                lineNumber: 264,
                                                                 columnNumber: 21
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/pages/login.jsx",
-                                                            lineNumber: 248,
+                                                            lineNumber: 263,
                                                             columnNumber: 19
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/pages/login.jsx",
-                                                        lineNumber: 247,
+                                                        lineNumber: 262,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$react$40$19$2e$2$2e$0$2f$node_modules$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1887,37 +1942,37 @@ function LoginPage() {
                                                         children: "ราคาประหยัด"
                                                     }, void 0, false, {
                                                         fileName: "[project]/pages/login.jsx",
-                                                        lineNumber: 252,
+                                                        lineNumber: 267,
                                                         columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/pages/login.jsx",
-                                                lineNumber: 246,
+                                                lineNumber: 261,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/pages/login.jsx",
-                                        lineNumber: 229,
+                                        lineNumber: 244,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/pages/login.jsx",
-                                lineNumber: 221,
+                                lineNumber: 236,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/pages/login.jsx",
-                        lineNumber: 213,
+                        lineNumber: 228,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/pages/login.jsx",
-                lineNumber: 82,
+                lineNumber: 97,
                 columnNumber: 7
             }, this)
         ]

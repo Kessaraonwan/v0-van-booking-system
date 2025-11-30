@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button'
 import Navbar from '@/components/navbar'
 import Footer from '@/components/footer'
 import { useToast } from '@/hooks/use-toast'
+import apiClient, { bookingAPI, paymentsAPI, removeTokens } from '@/lib/api-client'
+import { formatThaiDate, formatTime, formatIsoTime } from '@/lib/locations'
 
 export default function MyBookingsPage() {
   const router = useRouter()
@@ -23,19 +25,8 @@ export default function MyBookingsPage() {
   // ดึงข้อมูล bookings จาก API
   const fetchBookings = async () => {
     try {
-      const token = localStorage.getItem('accessToken')
-      const response = await fetch('http://localhost:8080/api/bookings', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch bookings')
-      }
-
-      const data = await response.json()
-      if (data.success) {
+      const data = await bookingAPI.getMyBookings('all')
+      if (data && data.success) {
         setBookings(data.data || [])
       }
     } catch (error) {
@@ -53,13 +44,28 @@ export default function MyBookingsPage() {
   // ตรวจสอบ authentication และโหลดข้อมูล
   useEffect(() => {
     const token = localStorage.getItem('accessToken')
-    const user = localStorage.getItem('user')
-    
-    if (!token || !user) {
+    const userRaw = localStorage.getItem('user')
+
+    if (!token || !userRaw) {
       router.push('/login?redirect=/bookings')
       return
     }
-    
+
+    let user = null
+    try {
+      user = JSON.parse(userRaw)
+    } catch (e) {
+      user = null
+    }
+
+    // If an admin session accidentally exists in the browser, clear it
+    // when visiting public pages so we don't silently auto-login as admin.
+    if (user && user.role && typeof user.role === 'string' && user.role.toLowerCase() === 'admin') {
+      removeTokens()
+      router.push('/login?redirect=/bookings')
+      return
+    }
+
     fetchBookings()
   }, [router])
 
@@ -83,25 +89,16 @@ export default function MyBookingsPage() {
 
     setPaying(true)
     try {
-      const token = localStorage.getItem('accessToken')
-      
-      const response = await fetch('http://localhost:8080/api/payments', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          booking_id: selectedBooking.id,
-          payment_method: paymentMethod,
-          amount: selectedBooking.total_price,
-        }),
-      })
+      const payload = {
+        booking_id: selectedBooking.id,
+        payment_method: paymentMethod,
+        amount: selectedBooking.total_price,
+      }
 
-      const data = await response.json()
+      const data = await paymentsAPI.create(payload)
 
-      if (!response.ok || !data.success) {
-        throw new Error(data.message || 'Payment failed')
+      if (!data || !data.success) {
+        throw new Error(data?.message || 'Payment failed')
       }
 
       // ปิด Modal
@@ -131,6 +128,28 @@ export default function MyBookingsPage() {
       })
     } finally {
       setPaying(false)
+    }
+  }
+
+  // ยกเลิกการจอง (ผู้ใช้)
+  const handleCancelBooking = async (bookingId) => {
+    if (!confirm('คุณแน่ใจหรือว่าต้องการยกเลิกการจองนี้?')) return
+    try {
+      const data = await bookingAPI.cancel(bookingId)
+      if (!data || !data.success) throw new Error(data?.message || 'Cancel failed')
+      toast({
+        title: 'ยกเลิกสำเร็จ',
+        description: 'การจองของคุณยกเลิกเรียบร้อยแล้ว',
+      })
+      // รีเฟรชรายการ
+      fetchBookings()
+    } catch (error) {
+      console.error('Cancel error:', error)
+      toast({
+        title: 'เกิดข้อผิดพลาด',
+        description: error.message || 'ไม่สามารถยกเลิกได้',
+        variant: 'destructive',
+      })
     }
   }
 
@@ -169,28 +188,14 @@ export default function MyBookingsPage() {
     }
   }
 
-  // ฟังก์ชันแปลงวันที่เป็น format ไทย
-  const formatDate = (dateString) => {
-    if (!dateString) return '-'
-    const date = new Date(dateString)
-    return date.toLocaleDateString('th-TH', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    })
-  }
-
-  // ฟังก์ชันแปลงเวลา
-  const formatTime = (timeString) => {
-    if (!timeString) return '-'
-    return timeString.substring(0, 5) // HH:MM
-  }
+  // Use shared helpers from lib/locations: formatThaiDate, formatTime, formatIsoTime
 
   const filteredBookings = bookings.filter(booking => {
     if (filter === 'all') return true
-    if (filter === 'upcoming') return booking.status === 'pending' || booking.status === 'confirmed'
-    if (filter === 'completed') return booking.status === 'completed'
-    if (filter === 'cancelled') return booking.status === 'cancelled'
+    const status = booking.booking_status || booking.status || ''
+    if (filter === 'upcoming') return status === 'pending' || status === 'confirmed' || status === 'BOOKED'
+    if (filter === 'completed') return status === 'completed' || status === 'COMPLETED'
+    if (filter === 'cancelled') return status === 'cancelled' || status === 'CANCELLED'
     return true
   })
 
@@ -301,7 +306,10 @@ export default function MyBookingsPage() {
             </div>
           ) : filteredBookings.length > 0 ? (
             <div className="space-y-6">
-              {filteredBookings.map((booking) => (
+              {filteredBookings.map((booking) => {
+                const bookingStatus = booking.booking_status || booking.status || ''
+                const paymentStatus = booking.payment_status || booking.paymentStatus || ''
+                return (
                 <div 
                   key={booking.id} 
                   className="bg-white rounded-3xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-xl transition-all duration-200 hover:scale-[1.01]"
@@ -322,7 +330,7 @@ export default function MyBookingsPage() {
                             <div className="text-lg font-bold text-gray-900">#{booking.id}</div>
                           </div>
                         </div>
-                        {getStatusBadge(booking.status)}
+                        {getStatusBadge(booking.booking_status || booking.status)}
                       </div>
 
                       {/* Route */}
@@ -352,7 +360,10 @@ export default function MyBookingsPage() {
                             </div>
                             <div>
                               <div className="text-xs text-gray-600">วันที่</div>
-                              <div className="font-semibold text-gray-900">{formatDate(booking.travel_date || booking.date)}</div>
+                              <div className="font-semibold text-gray-900">{formatThaiDate( booking.travel_date || booking.date || (booking.departure_time && booking.departure_time.includes('T') ? booking.departure_time.split('T')[0] : booking.departure_time) )}</div>
+                              { (booking.created_at || booking.createdAt) && (
+                                <div className="text-xs text-gray-500 mt-2">จองเมื่อ {formatThaiDate( (booking.created_at || booking.createdAt) )} • {formatTime(formatIsoTime(booking.created_at || booking.createdAt) || (booking.created_at || booking.createdAt))}</div>
+                              ) }
                             </div>
                           </div>
                         </div>
@@ -366,7 +377,7 @@ export default function MyBookingsPage() {
                             </div>
                             <div>
                               <div className="text-xs text-gray-600">เวลา</div>
-                              <div className="font-semibold text-gray-900">{formatTime(booking.departure_time || booking.departureTime)}</div>
+                              <div className="font-semibold text-gray-900">{formatTime(booking.departure_time || booking.departureTime || booking.arrival_time)}</div>
                             </div>
                           </div>
                         </div>
@@ -380,7 +391,9 @@ export default function MyBookingsPage() {
                             </div>
                             <div>
                               <div className="text-xs text-gray-600">ที่นั่ง</div>
-                              <div className="font-semibold text-gray-900">{booking.seat_numbers?.join(', ') || booking.seats}</div>
+                              <div className="font-semibold text-gray-900">{
+                                booking.seat_numbers?.join(', ') || booking.seats || booking.seat_number || booking.seatNumber || '-'
+                              }</div>
                             </div>
                           </div>
                         </div>
@@ -404,7 +417,7 @@ export default function MyBookingsPage() {
                     {/* Right Side - Action Buttons */}
                     <div className="lg:w-64 bg-gradient-to-br from-gray-50 to-gray-100 border-t lg:border-t-0 lg:border-l border-gray-200 p-8 flex flex-col justify-center gap-4">
                       {/* Show Payment Button if pending */}
-                      {booking.payment_status === 'pending' && booking.status !== 'cancelled' && (
+                      {(['pending','PENDING'].includes(paymentStatus) && !['cancelled','CANCELLED'].includes(bookingStatus)) && (
                         <Button 
                           onClick={() => openPaymentModal(booking)}
                           className="w-full h-12 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold shadow-lg shadow-green-200 animate-pulse"
@@ -419,7 +432,7 @@ export default function MyBookingsPage() {
                       )}
                       
                       {/* Show Paid Badge if completed */}
-                      {booking.payment_status === 'completed' && (
+                      {['completed','COMPLETED'].includes(paymentStatus) && (
                         <div className="w-full h-12 bg-gradient-to-r from-green-100 to-emerald-100 border-2 border-green-300 rounded-lg flex items-center justify-center">
                           <span className="flex items-center gap-2 text-green-700 font-bold">
                             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -441,8 +454,9 @@ export default function MyBookingsPage() {
                           </span>
                         </Button>
                       </Link>
-                      {booking.status === 'pending' && booking.payment_status === 'pending' && (
+                      {( ['pending','PENDING','BOOKED','booked'].includes(bookingStatus) && !['completed','COMPLETED'].includes(String(paymentStatus)) ) && (
                         <Button 
+                          onClick={() => handleCancelBooking(booking.id)}
                           variant="outline" 
                           className="w-full h-12 text-red-600 hover:bg-red-50 hover:text-red-700 border-2 border-red-300 font-semibold"
                         >
@@ -457,7 +471,7 @@ export default function MyBookingsPage() {
                     </div>
                   </div>
                 </div>
-              ))}
+              )})}
             </div>
           ) : (
             <div className="bg-white rounded-3xl shadow-lg p-16 border border-gray-100">
@@ -535,7 +549,7 @@ export default function MyBookingsPage() {
                   {selectedBooking.pickup_location} → {selectedBooking.dropoff_location}
                 </div>
                 <div className="text-sm text-gray-600">
-                  {formatDate(selectedBooking.travel_date)} • {formatTime(selectedBooking.departure_time)}
+                  {formatThaiDate(selectedBooking.travel_date || (selectedBooking.departure_time && selectedBooking.departure_time.includes('T') ? selectedBooking.departure_time.split('T')[0] : selectedBooking.departure_time))} • {formatTime(formatIsoTime(selectedBooking.departure_time) || selectedBooking.departure_time)}
                 </div>
                 <div className="mt-3 pt-3 border-t border-orange-200 flex items-center justify-between">
                   <span className="text-gray-700 font-medium">ยอดชำระ</span>

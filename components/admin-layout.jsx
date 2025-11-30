@@ -1,9 +1,36 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import { useEffect, useState } from 'react'
+import { getToken, getUser, removeTokens } from '@/lib/api-client'
 
 export default function AdminLayout({ children }) {
   const router = useRouter()
   const pathname = router.pathname
+  const [showAuthModal, setShowAuthModal] = useState(false)
+
+  useEffect(() => {
+    // If no token or not an admin user, redirect to admin login immediately
+    if (typeof window !== 'undefined') {
+      const token = getToken()
+      const user = getUser()
+      if (!token || !(user && user.role && user.role.toLowerCase() === 'admin')) {
+        // show modal briefly then redirect to admin login
+        setShowAuthModal(true)
+        setTimeout(() => {
+          window.location.href = '/admin/login'
+        }, 650)
+        return
+      }
+
+      const handler = (e) => {
+        setShowAuthModal(true)
+      }
+      window.addEventListener('api:unauthorized', handler)
+      return () => {
+        window.removeEventListener('api:unauthorized', handler)
+      }
+    }
+  }, [])
   
   const menuItems = [
     { 
@@ -71,14 +98,21 @@ export default function AdminLayout({ children }) {
               </div>
             </div>
             
-            <Link href="/admin/login">
-              <button className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors px-3 py-2 rounded-lg hover:bg-gray-100">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
-                ออกจากระบบ
-              </button>
-            </Link>
+            <button onClick={() => {
+              // Clear tokens and user, then navigate to admin login
+              try {
+                removeTokens()
+              } catch (e) {
+                // ignore
+              }
+              // show login page
+              router.push('/admin/login')
+            }} className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors px-3 py-2 rounded-lg hover:bg-gray-100">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+              ออกจากระบบ
+            </button>
           </div>
         </div>
       </header>
@@ -112,6 +146,19 @@ export default function AdminLayout({ children }) {
           </div>
         </main>
       </div>
+      {/* Simple modal to inform admin about auth required */}
+      {showAuthModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+            <h3 className="text-lg font-bold mb-2">ต้องล็อกอินด้วยบัญชีแอดมิน</h3>
+            <p className="text-sm text-gray-700 mb-4">หน้านี้ต้องใช้สิทธิ์ผู้ดูแลระบบ กรุณาล็อกอินด้วยบัญชีแอดมินเพื่อใช้งานหรือคลิกปุ่มเข้าสู่ระบบ</p>
+            <div className="flex justify-end gap-2">
+              <button onClick={() => { setShowAuthModal(false) }} className="px-4 py-2 rounded-lg border">ปิด</button>
+              <Link href="/admin/login"><button className="px-4 py-2 rounded-lg bg-red-600 text-white">ไปที่หน้าเข้าสู่ระบบ</button></Link>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

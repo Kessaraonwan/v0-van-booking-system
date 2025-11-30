@@ -3,9 +3,12 @@ import { useRouter } from 'next/router'
 import Head from 'next/head'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { useToast } from '@/hooks/use-toast'
+import { authAPI } from '@/lib/api-client'
 
 export default function AdminLoginPage() {
   const router = useRouter()
+  const { toast } = useToast()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -17,27 +20,26 @@ export default function AdminLoginPage() {
     setLoading(true)
 
     try {
-      // TODO: เชื่อม API จริง
-      // const response = await fetch('http://localhost:8000/api/admin/login', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ email, password })
-      // })
-      // const data = await response.json()
-      // if (data.success) {
-      //   localStorage.setItem('adminToken', data.token)
-      //   router.push('/admin/dashboard')
-      // } else {
-      //   setError(data.message || 'เข้าสู่ระบบไม่สำเร็จ')
-      // }
-      
-      // Temporary: Auto redirect for development
-      setTimeout(() => {
-        router.push('/admin/dashboard')
-      }, 500)
+      const res = await authAPI.login({ email, password })
+      if (res && res.success) {
+        // authAPI already stored tokens and user in localStorage
+        const user = res.data?.user || null
+        if (user && user.role === 'admin') {
+          router.push('/admin/dashboard')
+          return
+        }
+
+        // Not an admin
+        setError('บัญชีนี้ไม่มีสิทธิ์ผู้ดูแลระบบ')
+        // clear tokens just in case
+        authAPI.logout()
+      } else {
+        setError(res?.message || 'เข้าสู่ระบบไม่สำเร็จ')
+      }
     } catch (error) {
       console.error('Login error:', error)
-      setError('เกิดข้อผิดพลาดในการเข้าสู่ระบบ')
+      setError(error?.message || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ')
+      toast?.({ variant: 'destructive', title: 'เข้าสู่ระบบไม่สำเร็จ', description: error?.message })
     } finally {
       setLoading(false)
     }

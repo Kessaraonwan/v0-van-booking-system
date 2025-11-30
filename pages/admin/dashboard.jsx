@@ -3,7 +3,8 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import AdminLayout from '@/components/admin-layout'
 import Head from 'next/head'
-import { adminAPI } from '@/lib/api-client'
+import { adminAPI, scheduleAPI } from '@/lib/api-client'
+import { formatTime, formatThaiDate, getRouteShortText } from '@/lib/locations'
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -26,43 +27,78 @@ export default function AdminDashboard() {
     try {
       setLoading(true)
       
-      // Fetch all dashboard data in parallel
-      const [statsResponse, schedulesResponse, bookingsResponse, vansResponse] = await Promise.all([
+      // Fetch dashboard stats, today's schedules, and vans in parallel
+      const todayStr = new Date().toISOString().split('T')[0]
+      const [statsResponse, schedulesResponse, vansResponse] = await Promise.all([
         adminAPI.getDashboardStats(),
+        // Use admin API to list schedules (backend requires from/to for public search)
         adminAPI.getTodaySchedules(),
-        adminAPI.getRecentBookings(10),
         adminAPI.getAllVans()
       ])
 
       if (statsResponse.success) {
-        const { today, total } = statsResponse.data
-        
-        // Count pending bookings from recent bookings
-        const pendingCount = bookingsResponse.success 
-          ? bookingsResponse.data.filter(b => b.status === 'pending').length 
-          : 0
-        
-        // Count active vans
-        const activeVansCount = vansResponse.success 
-          ? vansResponse.data.filter(v => v.status === 'active').length 
+        const data = statsResponse.data || {}
+
+        // recent bookings are returned inside dashboard response
+        const recent = data.recent_bookings || []
+
+        const pendingCount = recent.filter(b => (b.booking_status || b.status || '').toLowerCase() === 'pending').length
+
+        const activeVansCount = vansResponse && vansResponse.success
+          ? (vansResponse.data || []).filter(v => (v.status || '').toLowerCase() === 'active').length
           : 0
 
         setStats({
-          todayBookings: today.bookings || 0,
-          todayPassengers: today.passengers || 0,
-          todayTrips: today.trips || 0,
-          revenue: today.revenue || 0,
+          todayBookings: data.bookings_today || data.total_bookings || 0,
+          todayPassengers: data.passengers_today || 0,
+          todayTrips: data.trips_today || data.total_routes || 0,
+          revenue: data.total_revenue || 0,
           activeVans: activeVansCount,
-          pendingBookings: pendingCount
+          pendingBookings: (data.pending_today !== undefined) ? data.pending_today : pendingCount
         })
+
+        // Set recent bookings, then enrich those missing route/schedule details
+        setRecentBookings(recent)
+
+        // Enrich recent bookings with schedule data when route info is missing
+        try {
+          const toEnrich = recent.filter(b => {
+            return !(b.schedule && ((b.schedule.route && (b.schedule.route.origin || b.schedule.route.destination)) || (b.schedule.origin && b.schedule.destination)))
+          })
+
+          if (toEnrich.length > 0) {
+            const fetched = await Promise.all(recent.map(async (b) => {
+              try {
+                const scheduleId = b.schedule?.id || b.schedule_id || b.schedule?.schedule_id || b.schedule_id
+                if (!scheduleId) return b
+                const schedResp = await scheduleAPI.getById(scheduleId)
+                if (schedResp && schedResp.success && schedResp.data) {
+                  return { ...b, schedule: schedResp.data }
+                }
+                return b
+              } catch (e) {
+                return b
+              }
+            }))
+            setRecentBookings(fetched)
+          }
+        } catch (e) {
+          // ignore enrichment errors
+          console.warn('Failed to enrich recent bookings with schedules', e)
+        }
       }
 
-      if (schedulesResponse.success) {
-        setTodaySchedules(schedulesResponse.data || [])
-      }
+      if (schedulesResponse && schedulesResponse.success) {
+        // admin schedules endpoint may return paginated or direct list
+        const schedulesList = schedulesResponse.data || schedulesResponse.schedules || []
 
-      if (bookingsResponse.success) {
-        setRecentBookings(bookingsResponse.data || [])
+        // Filter to only today's schedules (based on departure_date or departure_time)
+        const todayOnly = schedulesList.filter(s => {
+          const dateSource = s.departure_date || s.date || (s.departure_time ? s.departure_time.split('T')[0] : null)
+          return dateSource && dateSource.startsWith(todayStr)
+        })
+
+        setTodaySchedules(todayOnly)
       }
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error)
@@ -263,91 +299,110 @@ export default function AdminDashboard() {
                 </div>
               ) : null}
               {todaySchedules.map((schedule) => {
-                const totalPassengers = schedule.total_passengers || 0
-                const totalSeats = schedule.van?.total_seats || 13
-                const occupancy = (totalPassengers / totalSeats) * 100
+                // Determine total seats (try schedule, then van, fallback 13)
+                const totalSeats = Number(schedule.total_seats ?? schedule.van?.total_seats) || 13
+
+                // Safety: ensure we have a sane total seats value before using it
+                const safeTotalSeats = Math.max(Number(totalSeats) || 13, 1)
+
+                // Determine booked/occupied seats from multiple possible backend shapes
+                let bookedSeats = 0
+                if (typeof schedule.booked_seats === 'number') {
+                  bookedSeats = schedule.booked_seats
+                } else if (typeof schedule.booked_seats === 'string' && !isNaN(Number(schedule.booked_seats))) {
+                  bookedSeats = Number(schedule.booked_seats)
+                } else if (typeof schedule.total_passengers === 'number') {
+                  bookedSeats = schedule.total_passengers
+                } else if (typeof schedule.total_passengers === 'string' && !isNaN(Number(schedule.total_passengers))) {
+                  bookedSeats = Number(schedule.total_passengers)
+                } else if (Array.isArray(schedule.bookings)) {
+                  bookedSeats = schedule.bookings.length
+                } else if (typeof schedule.bookings_count === 'number') {
+                  bookedSeats = schedule.bookings_count
+                } else if (typeof schedule.bookings_count === 'string' && !isNaN(Number(schedule.bookings_count))) {
+                  bookedSeats = Number(schedule.bookings_count)
+                } else if (typeof schedule.booked_count === 'number') {
+                  bookedSeats = schedule.booked_count
+                } else if (typeof schedule.booked_count === 'string' && !isNaN(Number(schedule.booked_count))) {
+                  bookedSeats = Number(schedule.booked_count)
+                }
+
+                // If backend provides available seats, compute booked = total - available
+                if ((schedule.available_seats !== undefined && schedule.available_seats !== null) || (schedule.availableSeats !== undefined && schedule.availableSeats !== null)) {
+                  const avail = schedule.available_seats ?? schedule.availableSeats
+                  if (typeof avail === 'number') {
+                    const av = Number(avail)
+                    // avoid negative
+                    if (!isNaN(av)) {
+                      bookedSeats = Math.max(safeTotalSeats - av, 0)
+                    }
+                  } else if (typeof avail === 'string' && !isNaN(Number(avail))) {
+                    const av = Number(avail)
+                    bookedSeats = Math.max(safeTotalSeats - av, 0)
+                  }
+                }
+
+                // Safety: clamp values
+                const safeBookedSeats = Math.max(Number(bookedSeats) || 0, 0)
+
+                // Expose a clear name used in the template
+                const totalPassengers = safeBookedSeats
+
+                let occupancy = (safeBookedSeats / safeTotalSeats) * 100
+                if (!isFinite(occupancy) || isNaN(occupancy)) occupancy = 0
+                occupancy = Math.min(Math.max(occupancy, 0), 100)
                 const defaultImage = 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=400'
                 return (
-                  <div key={schedule.id} className="group relative overflow-hidden rounded-xl shadow-md hover:shadow-lg transition-all duration-300 bg-white border border-gray-200 hover:border-red-300">
-                    {/* Image */}
-                    <div className="relative h-40 overflow-hidden">
-                      <img 
-                        src={schedule.van?.image || defaultImage} 
-                        alt={`${schedule.route?.origin} to ${schedule.route?.destination}`}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                      
-                      {/* Status Badge on Image */}
-                      <div className="absolute top-3 right-3">
-                        {occupancy === 100 ? (
-                          <span className="px-3 py-1 rounded-full text-xs font-bold bg-red-500 text-white shadow-lg">
-                            เต็ม
-                          </span>
-                        ) : occupancy >= 80 ? (
-                          <span className="px-3 py-1 rounded-full text-xs font-bold bg-yellow-500 text-white shadow-lg">
-                            ใกล้เต็ม
-                          </span>
-                        ) : (
-                          <span className="px-3 py-1 rounded-full text-xs font-bold bg-green-500 text-white shadow-lg">
-                            ว่าง {schedule.total_seats - schedule.booked_seats} ที่
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Time Badge */}
-                      <div className="absolute bottom-3 left-3">
-                        <span className="px-3 py-1 rounded-full text-sm font-bold bg-white/90 backdrop-blur-sm text-gray-900 shadow-lg">
-                          <svg className="w-4 h-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div key={schedule.id} className="group relative rounded-xl shadow-md hover:shadow-lg transition-all duration-300 bg-white border border-gray-200 hover:border-red-300">
+                    <div className="p-4 md:p-5 flex items-center gap-4">
+                      {/* Time */}
+                      <div className="flex-shrink-0">
+                        <span className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white/90 text-gray-900 font-bold shadow">
+                          <svg className="w-5 h-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
-                          {schedule.departure_time}
+                          <span className="text-sm">{formatTime(schedule.departure_time)}</span>
                         </span>
                       </div>
-                    </div>
 
-                    {/* Content */}
-                    <div className="p-5">
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                            <span className="font-bold text-gray-900">{schedule.route?.origin}</span>
-                          </div>
-                        </div>
-                        <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                        </svg>
-                        <div className="flex-1 text-right">
-                          <div className="flex items-center gap-2 justify-end">
-                            <span className="font-bold text-gray-900">{schedule.route?.destination}</span>
-                            <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                      {/* Route and meta */}
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="font-bold text-gray-900 text-sm md:text-base">{schedule.route?.origin} → {schedule.route?.destination}</div>
+                            <div className="text-xs text-gray-500 mt-1 flex items-center gap-3">
+                              <span className="flex items-center gap-1">{schedule.van?.license_plate || '—'}</span>
+                              <span>{totalPassengers}/{totalSeats} ที่นั่ง</span>
+                              <span className="text-gray-400">{formatThaiDate(schedule.departure_date || schedule.date || schedule.departure_time)}</span>
+                            </div>
                           </div>
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between text-sm text-gray-600 mb-3">
-                        <span className="flex items-center gap-1">
-                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                          </svg>
-                          {schedule.van?.license_plate}
-                        </span>
-                        <span className="font-bold text-gray-900">
-                          {totalPassengers}/{totalSeats} ที่นั่ง
-                        </span>
-                      </div>
+                      {/* Occupancy and progress */}
+                      <div className="flex flex-col items-end gap-2 w-36">
+                        <div>
+                          {occupancy === 100 ? (
+                            <span className="px-3 py-1 rounded-full text-xs font-bold bg-red-500 text-white shadow">
+                              เต็ม
+                            </span>
+                          ) : occupancy >= 80 ? (
+                            <span className="px-3 py-1 rounded-full text-xs font-bold bg-yellow-500 text-white shadow">
+                              ใกล้เต็ม
+                            </span>
+                          ) : (
+                            <span className="px-3 py-1 rounded-full text-xs font-bold bg-green-500 text-white shadow">
+                              ว่าง {Math.max(safeTotalSeats - safeBookedSeats, 0)} ที่
+                            </span>
+                          )}
+                        </div>
 
-                      {/* Progress Bar */}
-                      <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                        <div 
-                          className={`h-full rounded-full transition-all ${
-                            occupancy === 100 ? 'bg-red-500' :
-                            occupancy >= 80 ? 'bg-yellow-500' :
-                            'bg-green-500'
-                          }`}
-                          style={{ width: `${occupancy}%` }}
-                        ></div>
+                        <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                          <div 
+                            className={`h-full rounded-full ${
+                              occupancy === 100 ? 'bg-red-500' : occupancy >= 80 ? 'bg-yellow-500' : 'bg-green-500'
+                            }`} style={{ width: `${occupancy}%` }}></div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -383,12 +438,62 @@ export default function AdminDashboard() {
                 </div>
               ) : null}
               {recentBookings.map((booking) => {
-                const userName = booking.user?.full_name || 'ไม่ระบุชื่อ'
-                const userInitial = userName.substring(0, 2).toUpperCase()
-                const routeText = booking.schedule?.route 
-                  ? `${booking.schedule.route.origin} → ${booking.schedule.route.destination}`
-                  : 'ไม่ระบุเส้นทาง'
-                
+                // Derive a display name from multiple possible fields
+                const possibleNames = [
+                  booking.user?.full_name,
+                  booking.user?.name,
+                  booking.customer_name,
+                  booking.passenger_name,
+                  booking.name,
+                  booking.email
+                ]
+                const userName = possibleNames.find(n => !!n) || 'ไม่ระบุชื่อ'
+                const userInitial = (userName || 'น').substring(0, 2).toUpperCase()
+
+                // Route text - support different shapes
+                let routeText = 'ไม่ระบุเส้นทาง'
+                if (booking.schedule?.route?.origin && booking.schedule?.route?.destination) {
+                  routeText = `${booking.schedule.route.origin} → ${booking.schedule.route.destination}`
+                } else if (booking.schedule?.origin && booking.schedule?.destination) {
+                  routeText = `${booking.schedule.origin} → ${booking.schedule.destination}`
+                } else if (booking.route_origin && booking.route_destination) {
+                  routeText = `${booking.route_origin} → ${booking.route_destination}`
+                }
+
+                // Seats: compute a numeric count from multiple possible shapes
+                const computeSeatsCount = (b) => {
+                  // If seats is an array
+                  if (Array.isArray(b.seats) && b.seats.length > 0) return b.seats.length
+                  // Common single-seat field
+                  if (b.seat_number || b.SeatNumber || b.seatNumber) return 1
+                  // Count-like numeric fields
+                  if (typeof b.seats_count === 'number') return b.seats_count
+                  if (typeof b.number_of_seats === 'number') return b.number_of_seats
+                  if (typeof b.total_seats === 'number') return b.total_seats
+                  if (typeof b.quantity === 'number') return b.quantity
+                  // String variants that contain numbers
+                  const numericFields = ['seats_count','number_of_seats','total_seats','quantity','bookings_count','booked_count']
+                  for (const key of numericFields) {
+                    if (typeof b[key] === 'string' && b[key].trim() !== '' && !isNaN(Number(b[key]))) return Number(b[key])
+                  }
+                  // If booking has bookings array
+                  if (Array.isArray(b.bookings) && b.bookings.length > 0) return b.bookings.length
+                  // If schedule exposes available_seats and total seats, try to compute
+                  if ((b.schedule && (b.schedule.total_seats || b.schedule.available_seats)) || (b.total_seats && b.available_seats !== undefined)) {
+                    const total = Number(b.schedule?.total_seats ?? b.total_seats) || 0
+                    const avail = Number(b.schedule?.available_seats ?? b.available_seats)
+                    if (total > 0 && !isNaN(avail)) return Math.max(total - avail, 0)
+                  }
+                  return '--'
+                }
+
+                const seatsCount = computeSeatsCount(booking)
+
+                // Price: fallback chain
+                const price = booking.payment?.amount || booking.total_price || booking.price || booking.amount || 0
+
+                const status = (booking.status || booking.booking_status || booking.payment?.status || '').toUpperCase()
+
                 return (
                   <div key={booking.id} className="flex items-center gap-4 p-5 rounded-xl border border-gray-200 hover:border-red-300 hover:shadow-md transition-all duration-300 hover:bg-gray-50">
                     {/* Avatar */}
@@ -412,18 +517,18 @@ export default function AdminDashboard() {
 
                     {/* Seats */}
                     <div className="text-center px-4">
-                      <div className="text-2xl font-bold text-gray-900">{booking.total_seats}</div>
+                      <div className="text-2xl font-bold text-gray-900">{seatsCount}</div>
                       <div className="text-xs text-gray-600">ที่นั่ง</div>
                     </div>
 
                     {/* Price */}
                     <div className="text-right px-4">
-                      <div className="text-xl font-bold text-red-600">฿{booking.payment?.amount || booking.total_price || 0}</div>
+                      <div className="text-xl font-bold text-red-600">฿{price}</div>
                     </div>
 
                     {/* Status */}
                     <div className="flex-shrink-0">
-                      {getStatusBadge(booking.status.toUpperCase())}
+                      {getStatusBadge(status)}
                     </div>
                   </div>
                 )

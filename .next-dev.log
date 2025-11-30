@@ -1,0 +1,67 @@
+
+> my-v0-project@0.1.0 dev /workspaces/v0-van-booking-system
+> next dev
+
+ ⚠ Port 3000 is in use by an unknown process, using available port 3001 instead.
+   ▲ Next.js 16.0.3 (Turbopack)
+   - Local:         http://localhost:3001
+   - Network:       http://10.0.2.199:3001
+
+ ✓ Starting...
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+ ⚠ Minimum recommended TypeScript version is v5.1.0, older versions can potentially be incompatible with Next.js. Detected: 5.0.2
+ ✓ Ready in 607ms
+ ○ Compiling / ...
+ GET / 200 in 4.2s (compile: 4.2s, render: 60ms)
+ ⚠ Cross origin request detected from 127.0.0.1 to /_next/* resource. In a future major version of Next.js, you will need to explicitly configure "allowedDevOrigins" in next.config to allow this.
+Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
+ GET / 200 in 60ms (compile: 6ms, render: 54ms)
+ GET / 200 in 52ms (compile: 3ms, render: 48ms)
+ GET /search 200 in 59ms (compile: 25ms, render: 33ms)
+ GET /login 200 in 205ms (compile: 169ms, render: 36ms)
+ GET /bookings 200 in 55ms (compile: 18ms, render: 37ms)
+ GET /search 200 in 40ms (compile: 5ms, render: 35ms)
+ ✓ Compiled in 486ms
+ GET /search 200 in 98ms (compile: 55ms, render: 44ms)
+ ✓ Compiled in 432ms
+ GET /search 200 in 89ms (compile: 43ms, render: 46ms)
+ ✓ Compiled in 540ms
+ ✓ Compiled in 521ms
+ ✓ Compiled in 347ms
+ ✓ Compiled in 404ms
+ GET /bookings 200 in 75ms (compile: 11ms, render: 64ms)
+ GET /bookings 200 in 32ms (compile: 3ms, render: 29ms)
+ GET / 200 in 63ms (compile: 4ms, render: 59ms)
+/pages/_app/build-manifest.json'
+    at ignore-listed frames {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/workspaces/v0-van-booking-system/.next/dev/server/pages/_app/build-manifest.json'
+}
+ ⨯ Error: ENOENT: no such file or directory, open '/workspaces/v0-van-booking-system/.next/dev/server/pages/_app/build-manifest.json'
+    at ignore-listed frames {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/workspaces/v0-van-booking-system/.next/dev/server/pages/_app/build-manifest.json'
+}
+Error: ENOENT: no such file or directory, open '/workspaces/v0-van-booking-system/.next/dev/server/pages/_app/build-manifest.json'
+    at ignore-listed frames {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/workspaces/v0-van-booking-system/.next/dev/server/pages/_app/build-manifest.json'
+}
+ ✓ Compiled in 571ms
+ ✓ Compiled in 436ms
+ ✓ Compiled in 426ms
+ ✓ Compiled in 382ms
+ ✓ Compiled in 354ms
+ ✓ Compiled in 556ms
+ GET /search 200 in 73ms (compile: 39ms, render: 35ms)

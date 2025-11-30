@@ -6,6 +6,14 @@ import { adminAPI } from '@/lib/api-client'
 
 export default function RoutesManagement() {
   const [showModal, setShowModal] = useState(false)
+  const [editingRoute, setEditingRoute] = useState(null)
+  const [formOrigin, setFormOrigin] = useState('')
+  const [formDestination, setFormDestination] = useState('')
+  const [formPrice, setFormPrice] = useState('')
+  const [formDuration, setFormDuration] = useState('')
+  const [formDistance, setFormDistance] = useState('')
+  const [formImage, setFormImage] = useState('')
+  const [formIsPopular, setFormIsPopular] = useState(false)
   const [routes, setRoutes] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -36,6 +44,70 @@ export default function RoutesManagement() {
       }
     } catch (error) {
       console.error('Error adding route:', error)
+    }
+  }
+
+  const openEditModal = (route) => {
+    setEditingRoute(route)
+    setFormOrigin(route.origin || '')
+    setFormDestination(route.destination || '')
+    setFormPrice(route.base_price || '')
+    setFormDuration(route.duration_minutes || '')
+    setFormDistance(route.distance_km || '')
+    setFormImage(route.image_url || '')
+    setFormIsPopular(!!route.is_popular)
+    setShowModal(true)
+  }
+
+  const clearForm = () => {
+    setEditingRoute(null)
+    setFormOrigin('')
+    setFormDestination('')
+    setFormPrice('')
+    setFormDuration('')
+    setFormDistance('')
+    setFormImage('')
+    setFormIsPopular(false)
+  }
+
+  const handleSaveRoute = async () => {
+    const payload = {
+      origin: formOrigin,
+      destination: formDestination,
+      base_price: Number(formPrice) || 0,
+      duration_minutes: Number(formDuration) || 0,
+      distance_km: Number(formDistance) || 0,
+      image_url: formImage || null,
+      is_popular: !!formIsPopular,
+    }
+
+    try {
+      let response
+      if (editingRoute && editingRoute.id) {
+        response = await adminAPI.updateRoute(editingRoute.id, payload)
+      } else {
+        response = await adminAPI.createRoute(payload)
+      }
+
+      if (response && response.success) {
+        await fetchRoutes()
+        setShowModal(false)
+        clearForm()
+      }
+    } catch (err) {
+      console.error('Error saving route:', err)
+    }
+  }
+
+  const handleDeleteRoute = async (routeId) => {
+    if (!confirm('ต้องการลบเส้นทางนี้ใช่หรือไม่?')) return
+    try {
+      const res = await adminAPI.deleteRoute(routeId)
+      if (res && res.success) {
+        await fetchRoutes()
+      }
+    } catch (err) {
+      console.error('Error deleting route:', err)
     }
   }
 
@@ -188,6 +260,7 @@ export default function RoutesManagement() {
                       <Button 
                         variant="outline" 
                         className="flex-1 border border-gray-300 text-gray-600 hover:bg-gray-50 transition-all"
+                        onClick={() => openEditModal(route)}
                       >
                         <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -197,6 +270,7 @@ export default function RoutesManagement() {
                       <Button 
                         variant="outline" 
                         className="flex-1 border border-red-300 text-red-600 hover:bg-red-50 transition-all"
+                        onClick={() => handleDeleteRoute(route.id)}
                       >
                         <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -246,7 +320,7 @@ export default function RoutesManagement() {
                   </div>
                 </div>
 
-                <form className="p-6 space-y-5">
+                <form className="p-6 space-y-5" onSubmit={(e) => { e.preventDefault(); handleSaveRoute(); }}>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-bold text-gray-700 mb-2">
@@ -259,6 +333,8 @@ export default function RoutesManagement() {
                       </label>
                       <input
                         type="text"
+                        value={formOrigin}
+                        onChange={(e) => setFormOrigin(e.target.value)}
                         className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-red-500 focus:ring-2 focus:ring-red-200 transition-all text-gray-900"
                         placeholder="กรุงเทพฯ"
                       />
@@ -274,6 +350,8 @@ export default function RoutesManagement() {
                       </label>
                       <input
                         type="text"
+                        value={formDestination}
+                        onChange={(e) => setFormDestination(e.target.value)}
                         className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-red-500 focus:ring-2 focus:ring-red-200 transition-all text-gray-900"
                         placeholder="พัทยา"
                       />
@@ -292,6 +370,8 @@ export default function RoutesManagement() {
                       </label>
                       <input
                         type="number"
+                        value={formPrice}
+                        onChange={(e) => setFormPrice(e.target.value)}
                         className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-red-500 focus:ring-2 focus:ring-red-200 transition-all text-gray-900"
                         placeholder="300"
                       />
@@ -307,6 +387,8 @@ export default function RoutesManagement() {
                       </label>
                       <input
                         type="number"
+                        value={formDuration}
+                        onChange={(e) => setFormDuration(e.target.value)}
                         className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-red-500 focus:ring-2 focus:ring-red-200 transition-all text-gray-900"
                         placeholder="120"
                       />
@@ -324,6 +406,8 @@ export default function RoutesManagement() {
                     </label>
                     <input
                       type="number"
+                      value={formDistance}
+                      onChange={(e) => setFormDistance(e.target.value)}
                       className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-red-500 focus:ring-2 focus:ring-red-200 transition-all text-gray-900"
                       placeholder="147"
                     />
@@ -340,9 +424,16 @@ export default function RoutesManagement() {
                     </label>
                     <input
                       type="url"
+                      value={formImage}
+                      onChange={(e) => setFormImage(e.target.value)}
                       className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-red-500 focus:ring-2 focus:ring-red-200 transition-all text-gray-900"
                       placeholder="https://example.com/destination.jpg"
                     />
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <input id="popular" type="checkbox" checked={formIsPopular} onChange={(e) => setFormIsPopular(e.target.checked)} className="w-4 h-4" />
+                    <label htmlFor="popular" className="text-sm text-gray-700">ทำเครื่องหมายว่ายอดนิยม</label>
                   </div>
 
                   <div className="flex gap-3 pt-4">
@@ -350,15 +441,14 @@ export default function RoutesManagement() {
                       type="button"
                       variant="outline" 
                       className="flex-1 border-2 hover:bg-gray-50" 
-                      onClick={() => setShowModal(false)}
+                      onClick={() => { setShowModal(false); clearForm(); }}
                       size="lg"
                     >
                       ยกเลิก
                     </Button>
                     <Button 
-                      type="button"
+                      type="submit"
                       className="flex-1 bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white shadow-lg hover:shadow-xl transition-all" 
-                      onClick={() => setShowModal(false)}
                       size="lg"
                     >
                       <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">

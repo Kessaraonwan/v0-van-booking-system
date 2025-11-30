@@ -4,7 +4,8 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import Navbar from '@/components/navbar'
 import Footer from '@/components/footer'
-import { getPickupLocation, getDropoffLocation, formatThaiDate, formatTime } from '@/lib/locations'
+import { getPickupLocation, getDropoffLocation, formatThaiDate, formatTime, formatIsoTime } from '@/lib/locations'
+import apiClient, { scheduleAPI, routeAPI } from '@/lib/api-client'
 
 export default function SearchResultsPage() {
   const router = useRouter()
@@ -16,6 +17,7 @@ export default function SearchResultsPage() {
   const [priceFilter, setPriceFilter] = useState('all')
   const [sortBy, setSortBy] = useState('time')
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [searchActive, setSearchActive] = useState(false)
   
   // Search form state
   const [searchFrom, setSearchFrom] = useState(queryFrom || '')
@@ -30,33 +32,69 @@ export default function SearchResultsPage() {
 
   // Fetch routes for dropdowns
   useEffect(() => {
-    fetch('http://localhost:8080/api/routes')
-      .then(res => res.json())
-      .then(data => {
+    const fetchRoutes = async () => {
+      try {
+        const data = await routeAPI.getAll()
         setRoutes(data.data || [])
-      })
-      .catch(err => console.error('Error fetching routes:', err))
+      } catch (err) {
+        console.error('Error fetching routes:', err)
+      }
+    }
+
+    fetchRoutes()
   }, [])
 
   // Fetch schedules - show all if no search params, otherwise filter
   useEffect(() => {
     setLoading(true)
-    
-    // If user has search criteria, use filtered API
-    const url = (queryFrom && queryTo && queryDate)
-      ? `http://localhost:8080/api/schedules?from=${queryFrom}&to=${queryTo}&date=${queryDate}`
-      : 'http://localhost:8080/api/schedules'
-    
-    fetch(url)
-      .then(res => res.json())
-      .then(data => {
-        setSchedules(data.data || [])
-        setLoading(false)
-      })
-      .catch(err => {
+
+    const fetchSchedules = async () => {
+      try {
+        let data
+
+        if (queryFrom || queryTo || queryDate) {
+          // mark that a filtered search is active
+          setSearchActive(true)
+          const params = {}
+          if (queryFrom) params.from = queryFrom
+          if (queryTo) params.to = queryTo
+          if (queryDate) params.date = queryDate
+          data = await scheduleAPI.search(params)
+        } else {
+          setSearchActive(false)
+          data = await scheduleAPI.getAll()
+        }
+
+        // Filter out schedules in the past (client-side safety)
+        try {
+          const raw = data.data || []
+          const now = new Date()
+          const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+          const future = raw.filter(s => {
+            if (!s.departure_time) return false
+            // Normalize departure_time: if it's ISO-like, parse; if space-separated, replace with 'T' to ensure consistent parsing
+            let dep = s.departure_time
+            if (typeof dep === 'string' && dep.includes(' ')) {
+              dep = dep.replace(' ', 'T')
+            }
+            const d = new Date(dep)
+            // Include schedules whose date is today or later (compare date part)
+            const depStart = new Date(d.getFullYear(), d.getMonth(), d.getDate())
+            return depStart >= startOfToday
+          })
+          setSchedules(future)
+        } catch (e) {
+          setSchedules(data.data || [])
+        }
+      } catch (err) {
         console.error('Error fetching schedules:', err)
+        setSchedules([])
+      } finally {
         setLoading(false)
-      })
+      }
+    }
+
+    fetchSchedules()
   }, [queryFrom, queryTo, queryDate])
 
   const handleSearch = (e) => {
@@ -107,7 +145,6 @@ export default function SearchResultsPage() {
             <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')]"></div>
           </div>
           <div className="relative z-10">
-            <h1 className="text-3xl md:text-4xl font-bold mb-6">ค้นหาเที่ยวรถตู้</h1>
             <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-4 gap-4">
               {/* From */}
               <div>
@@ -305,23 +342,7 @@ export default function SearchResultsPage() {
                                 {origin} → {destination}
                               </h3>
                               
-                              {/* จุดขึ้น-ลงรถ */}
-                              <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
-                                <div className="flex items-center gap-2 text-sm">
-                                  <svg className="w-4 h-4 text-green-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-                                  </svg>
-                                  <span className="text-gray-600">ขึ้นรถ:</span>
-                                  <span className="font-semibold text-gray-900">{getPickupLocation(origin).name}</span>
-                                </div>
-                                <div className="flex items-center gap-2 text-sm mt-1.5">
-                                  <svg className="w-4 h-4 text-red-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-                                  </svg>
-                                  <span className="text-gray-600">ลงรถ:</span>
-                                  <span className="font-semibold text-gray-900">{getDropoffLocation(destination).name}</span>
-                                </div>
-                              </div>
+                              {/* จุดขึ้น-ลงรถ ถูกซ่อนไว้ตามคำขอ (ไม่แสดงในหน้า Search) */}
                               
                               <p className="text-sm text-gray-500 mb-5 flex items-center gap-2">
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -334,11 +355,15 @@ export default function SearchResultsPage() {
                                 <div>
                                   <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">เวลาออกเดินทาง</p>
                                   <p className="text-xl font-bold text-gray-900">
-                                    {formatTime(schedule.departure_time)}
+                                      {formatTime(formatIsoTime(schedule.departure_time) || schedule.departure_time)}
                                   </p>
                                   <p className="text-xs text-gray-500 mt-1">
-                                    {formatThaiDate(schedule.departure_date)}
-                                  </p>
+                                      {(() => {
+                                        // If departure_date missing, try to extract date from departure_time (ISO)
+                                        const depDate = schedule.departure_date || (schedule.departure_time && schedule.departure_time.includes('T') ? schedule.departure_time.split('T')[0] : null)
+                                        return formatThaiDate(depDate)
+                                      })()}
+                                    </p>
                                 </div>
                                 <div>
                                   <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">ที่นั่งว่าง</p>

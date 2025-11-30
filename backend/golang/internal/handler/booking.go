@@ -2,6 +2,8 @@ package handler
 
 import (
 	"strconv"
+	"time"
+
 	"vanbooking/internal/model"
 	"vanbooking/internal/repository"
 	"vanbooking/internal/utils"
@@ -90,13 +92,29 @@ func (h *BookingHandler) CreateBooking(c *gin.Context) {
 		SeatNumber:     req.SeatNumber,
 		PassengerName:  req.PassengerName,
 		PassengerPhone: req.PassengerPhone,
-		BookingStatus:  "pending", // เริ่มต้นเป็น pending รอชำระเงิน
+		PassengerEmail: req.PassengerEmail,
+		PickupPointID:  req.PickupPointID,
+		DropoffPointID: req.DropoffPointID,
+		SpecialRequests: req.SpecialRequests,
+		BookingStatus:  "pending",
 		TotalPrice:     req.TotalPrice,
 	}
 
-	// Create booking with transaction (จะ check seat + create booking + update seat + update schedule)
-	err := h.bookingRepo.Create(booking)
+	// Validate schedule exists and is in the future (prevent booking past schedules)
+	schedule, err := h.scheduleRepo.GetByID(req.ScheduleID)
 	if err != nil {
+		utils.ErrorResponse(c, 404, "Schedule not found")
+		return
+	}
+
+	// Compare schedule departure time with current time
+	if !schedule.DepartureTime.After(time.Now()) {
+		utils.ErrorResponse(c, 400, "Cannot create booking for past or current departures")
+		return
+	}
+
+	// Create booking with transaction (จะ check seat + create booking + update seat + update schedule)
+	if err := h.bookingRepo.Create(booking); err != nil {
 		// Error อาจเป็น "seat already booked" หรือ error อื่นๆ
 		utils.ErrorResponse(c, 400, err.Error())
 		return
@@ -129,8 +147,7 @@ func (h *BookingHandler) CancelBooking(c *gin.Context) {
 	}
 
 	// Cancel booking with transaction
-	err = h.bookingRepo.Cancel(id)
-	if err != nil {
+	if err := h.bookingRepo.Cancel(id); err != nil {
 		utils.ErrorResponse(c, 400, err.Error())
 		return
 	}
@@ -143,11 +160,61 @@ func (h *BookingHandler) CancelBooking(c *gin.Context) {
 func (h *BookingHandler) GetAllBookings(c *gin.Context) {
 	bookings, err := h.bookingRepo.GetAll()
 	if err != nil {
-		utils.ErrorResponse(c, 500, "Failed to fetch bookings")
+		// Return underlying error message in dev to aid debugging
+		utils.ErrorResponse(c, 500, err.Error())
 		return
 	}
 
 	utils.SuccessResponse(c, 200, "Bookings fetched successfully", bookings)
+}
+
+// AdminUpdateBookingStatus สำหรับให้แอดมินเปลี่ยนสถานะการจอง
+// PUT /api/admin/bookings/:id/status
+func (h *BookingHandler) AdminUpdateBookingStatus(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		utils.ErrorResponse(c, 400, "Invalid booking ID")
+		return
+	}
+
+	var body struct{
+		Status string `json:"status"`
+	}
+	if err := c.ShouldBindJSON(&body); err != nil {
+		utils.ErrorResponse(c, 400, "Invalid request body")
+		return
+	}
+
+	if body.Status == "" {
+		utils.ErrorResponse(c, 400, "Status is required")
+		return
+	}
+
+	// Use repository UpdateStatus (Cancel will be handled transactionally)
+	if err := h.bookingRepo.UpdateStatus(id, body.Status); err != nil {
+		utils.ErrorResponse(c, 400, err.Error())
+		return
+	}
+
+	utils.SuccessResponse(c, 200, "Booking status updated successfully", nil)
+}
+
+// AdminGetBookingByID ดูการจองตาม ID สำหรับแอดมิน (ไม่ตรวจ ownership)
+// GET /api/admin/bookings/:id
+func (h *BookingHandler) AdminGetBookingByID(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		utils.ErrorResponse(c, 400, "Invalid booking ID")
+		return
+	}
+
+	booking, err := h.bookingRepo.GetByID(id)
+	if err != nil {
+		utils.ErrorResponse(c, 404, "Booking not found")
+		return
+	}
+
+	utils.SuccessResponse(c, 200, "Booking fetched successfully", booking)
 }
 
 // CreatePayment สร้างการชำระเงิน (Mock Payment)
@@ -181,8 +248,7 @@ func (h *BookingHandler) CreatePayment(c *gin.Context) {
 		Amount:        req.Amount,
 	}
 
-	err = h.bookingRepo.CreatePayment(payment)
-	if err != nil {
+	if err := h.bookingRepo.CreatePayment(payment); err != nil {
 		utils.ErrorResponse(c, 500, "Failed to create payment")
 		return
 	}

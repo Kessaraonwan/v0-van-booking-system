@@ -3,6 +3,8 @@ import Head from 'next/head'
 import { Button } from '@/components/ui/button'
 import AdminLayout from '@/components/admin-layout'
 import { adminAPI } from '@/lib/api-client'
+import { formatTime, formatIsoTime, formatThaiDate } from '@/lib/locations'
+import { useToast } from '@/hooks/use-toast'
 
 export default function BookingsManagement() {
   const [bookings, setBookings] = useState([])
@@ -10,6 +12,10 @@ export default function BookingsManagement() {
   const [filterStatus, setFilterStatus] = useState('all')
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedBooking, setSelectedBooking] = useState(null)
+  const [bookingDetails, setBookingDetails] = useState(null)
+  const [detailsLoading, setDetailsLoading] = useState(false)
+  const [fetchError, setFetchError] = useState(null)
+  const { toast } = useToast()
 
   useEffect(() => {
     fetchBookings()
@@ -19,24 +25,83 @@ export default function BookingsManagement() {
     try {
       setLoading(true)
       const response = await adminAPI.getAllBookings()
-      if (response.success) {
-        setBookings(response.data || [])
+      if (response && response.success) {
+        setFetchError(null)
+        const list = response.data || []
+        // Sort bookings by booking code/number (BK...), fallback to created_at or id
+        const extractNumber = (b) => {
+          const code = b.booking_code || b.booking_number || b.bookingNumber || b.BookingNumber || ''
+          if (!code) return 0
+          const digits = ('' + code).replace(/\D/g, '')
+          if (digits) return Number(digits)
+          // fallback: try created_at timestamp
+          if (b.created_at) return new Date(b.created_at).getTime()
+          if (b.createdAt) return new Date(b.createdAt).getTime()
+          return b.id || 0
+        }
+
+        list.sort((a, b) => extractNumber(b) - extractNumber(a))
+        setBookings(list)
+      } else {
+        // show an informative message (e.g., authorization required)
+        const msg = (response && response.message) ? response.message : 'ไม่สามารถโหลดข้อมูลการจองได้'
+        setFetchError(msg)
+        setBookings([])
       }
     } catch (error) {
       console.error('Error fetching bookings:', error)
+      setFetchError(error.message || 'Failed to fetch bookings')
     } finally {
       setLoading(false)
     }
   }
 
-  const handleUpdateStatus = async (bookingId, newStatus) => {
+  const openBookingDetails = async (booking) => {
     try {
-      const response = await adminAPI.updateBookingStatus(bookingId, newStatus)
-      if (response.success) {
+      setDetailsLoading(true)
+      setBookingDetails(null)
+      setSelectedBooking(booking)
+      const res = await adminAPI.getBookingDetails(booking.id)
+      if (res && res.success) {
+        setBookingDetails(res.data)
+      } else {
+        setBookingDetails(booking)
+      }
+    } catch (err) {
+      console.error('Failed to load booking details', err)
+      setBookingDetails(booking)
+    } finally {
+      setDetailsLoading(false)
+    }
+  }
+
+  const handleUpdateStatus = async (bookingId, newStatus) => {
+    // Normalize status to allowed DB values (lowercase)
+    const normalize = (s) => {
+      if (!s) return s
+      const up = String(s).toUpperCase()
+      if (up === 'CONFIRMED') return 'confirmed'
+      if (up === 'PENDING') return 'pending'
+      if (up === 'CANCELLED' || up === 'CANCELED') return 'cancelled'
+      if (up === 'COMPLETED') return 'completed'
+      // fallback to lowercase string
+      return String(s).toLowerCase()
+    }
+
+    const payloadStatus = normalize(newStatus)
+
+    try {
+      const response = await adminAPI.updateBookingStatus(bookingId, payloadStatus)
+      if (response && response.success) {
+        toast({ title: 'อัพเดทสถานะเรียบร้อย', description: `สถานะถูกเปลี่ยนเป็น ${payloadStatus}`, })
         await fetchBookings()
+      } else {
+        const msg = response && response.message ? response.message : 'ไม่สามารถอัพเดทสถานะได้'
+        toast({ title: 'เกิดข้อผิดพลาด', description: msg, variant: 'destructive' })
       }
     } catch (error) {
       console.error('Error updating booking:', error)
+      toast({ title: 'Error updating booking', description: error.message || String(error), variant: 'destructive' })
     }
   }
 
@@ -83,23 +148,28 @@ export default function BookingsManagement() {
     }
   }
 
-  const filteredBookings = bookings
-    .filter(booking => {
-      if (filterStatus !== 'all' && booking.status !== filterStatus) return false
-      if (searchTerm && !booking.user?.first_name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-          !booking.user?.last_name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-          !booking.booking_code?.toLowerCase().includes(searchTerm.toLowerCase())) {
-        return false
-      }
-      return true
-    })
+  const getBookingStatus = (b) => (b.status || b.booking_status || b.bookingStatus || '').toUpperCase()
+
+  const matchesSearch = (b) => {
+    const term = searchTerm.trim().toLowerCase()
+    if (!term) return true
+    const names = [b.user?.first_name, b.user?.last_name, b.user?.name, b.user?.full_name].filter(Boolean).join(' ').toLowerCase()
+    const code = (b.booking_code || b.booking_number || b.bookingNumber || '').toLowerCase()
+    return names.includes(term) || code.includes(term)
+  }
+
+  const filteredBookings = bookings.filter(b => {
+    if (filterStatus !== 'all' && getBookingStatus(b) !== filterStatus) return false
+    if (!matchesSearch(b)) return false
+    return true
+  })
 
   const statsCount = {
     all: bookings.length,
-    PENDING: bookings.filter(b => b.status === 'PENDING').length,
-    CONFIRMED: bookings.filter(b => b.status === 'CONFIRMED').length,
-    COMPLETED: bookings.filter(b => b.status === 'COMPLETED').length,
-    CANCELLED: bookings.filter(b => b.status === 'CANCELLED').length,
+    PENDING: bookings.filter(b => getBookingStatus(b) === 'PENDING').length,
+    CONFIRMED: bookings.filter(b => getBookingStatus(b) === 'CONFIRMED').length,
+    COMPLETED: bookings.filter(b => getBookingStatus(b) === 'COMPLETED').length,
+    CANCELLED: bookings.filter(b => getBookingStatus(b) === 'CANCELLED').length,
   }
 
   return (
@@ -227,6 +297,18 @@ export default function BookingsManagement() {
                 </div>
               ))}
             </div>
+          ) : fetchError ? (
+            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="font-bold text-yellow-800">ไม่สามารถโหลดข้อมูลการจอง</div>
+                  <div className="text-sm text-yellow-700 mt-1">{fetchError}</div>
+                </div>
+                <div>
+                  <a href="/admin/login" className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-600 text-white rounded-lg">ไปหน้าเข้าสู่ระบบ</a>
+                </div>
+              </div>
+            </div>
           ) : filteredBookings.length > 0 ? (
             <div className="space-y-4">
               {filteredBookings.map((booking) => (
@@ -235,20 +317,27 @@ export default function BookingsManagement() {
                     <div className="flex items-start gap-6">
                       {/* Customer Avatar */}
                       <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-white font-bold text-xl flex-shrink-0 shadow-lg">
-                        {booking.user?.first_name?.[0]}{booking.user?.last_name?.[0]}
-                      </div>
+                          {(() => {
+                            const name = booking.user?.first_name && booking.user?.last_name ? `${booking.user.first_name} ${booking.user.last_name}` : (booking.passenger_name || booking.passengerName || booking.PassengerName || booking.user?.name || booking.user?.full_name || '')
+                            const initials = (name || '').trim().split(' ').map(s => s[0] || '').slice(0,2).join('')
+                            return initials || '–'
+                          })()}
+                        </div>
 
                       {/* Booking Info */}
                       <div className="flex-1">
                         <div className="flex items-start justify-between mb-3">
                           <div>
                             <div className="text-sm text-gray-600 mb-1">รหัสการจอง</div>
-                            <div className="font-mono font-bold text-lg text-gray-900 mb-2">{booking.booking_code}</div>
+                            <div className="font-mono font-bold text-lg text-gray-900 mb-2">{booking.booking_code || booking.booking_number || booking.bookingNumber || booking.BookingNumber || booking.booking_number}</div>
                             <div className="text-xl font-bold text-gray-900">
-                              {booking.user?.first_name} {booking.user?.last_name}
+                              {(() => {
+                                if (booking.user?.first_name || booking.user?.last_name) return `${booking.user?.first_name || ''} ${booking.user?.last_name || ''}`.trim()
+                                return booking.passenger_name || booking.passengerName || booking.PassengerName || booking.user?.name || booking.user?.full_name || '-' 
+                              })()}
                             </div>
                           </div>
-                          {getStatusBadge(booking.status)}
+                          {getStatusBadge(getBookingStatus(booking))}
                         </div>
 
                         {/* Route & Schedule Info */}
@@ -261,7 +350,7 @@ export default function BookingsManagement() {
                               <span className="text-sm font-medium text-blue-700">เส้นทาง</span>
                             </div>
                             <div className="font-bold text-blue-900">
-                              {booking.schedule?.route?.origin} → {booking.schedule?.route?.destination}
+                              {booking.origin || booking.route_origin || booking.route?.origin || '-'} → {booking.destination || booking.route_destination || booking.route?.destination || '-'}
                             </div>
                           </div>
 
@@ -273,7 +362,14 @@ export default function BookingsManagement() {
                               <span className="text-sm font-medium text-green-700">วันที่</span>
                             </div>
                             <div className="font-bold text-green-900">
-                              {new Date(booking.schedule?.departure_date).toLocaleDateString('th-TH')}
+                              {(() => {
+                                const iso = booking.departure_time || booking.DepartureTime || booking.schedule?.departure_time || booking.schedule?.departureDate || ''
+                                if (!iso) return '-'
+                                const datePart = iso.includes('T') ? iso.split('T')[0] : iso
+                                const dt = new Date(datePart)
+                                if (isNaN(dt.getTime())) return '-'
+                                return dt.toLocaleDateString('th-TH')
+                              })()}
                             </div>
                           </div>
 
@@ -285,7 +381,12 @@ export default function BookingsManagement() {
                               <span className="text-sm font-medium text-purple-700">เวลา</span>
                             </div>
                             <div className="font-bold text-purple-900">
-                              {booking.schedule?.departure_time} น.
+                              {(() => {
+                                const t = booking.departure_time || booking.DepartureTime || booking.schedule?.departure_time || ''
+                                if (!t) return '-'
+                                if (t.includes('T')) return formatIsoTime(t) + ' น.'
+                                return t + ' น.'
+                              })()}
                             </div>
                           </div>
                         </div>
@@ -297,14 +398,29 @@ export default function BookingsManagement() {
                               <svg className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                               </svg>
-                              <span className="font-bold text-gray-900">{booking.seats?.length || 0} ที่นั่ง</span>
-                              <span className="text-gray-600">({booking.seats?.map(s => s.seat_number).join(', ')})</span>
+                              {(() => {
+                                if (Array.isArray(booking.seats)) {
+                                  return (
+                                    <>
+                                      <span className="font-bold text-gray-900">{booking.seats.length} ที่นั่ง</span>
+                                      <span className="text-gray-600">({booking.seats.map(s => s.seat_number).join(', ')})</span>
+                                    </>
+                                  )
+                                }
+                                const seatNum = booking.seat_number ?? booking.SeatNumber ?? booking.seatNumber
+                                return (
+                                  <>
+                                    <span className="font-bold text-gray-900">{seatNum ? 1 : 0} ที่นั่ง</span>
+                                    <span className="text-gray-600">({seatNum || '-'})</span>
+                                  </>
+                                )
+                              })()}
                             </div>
                             <div className="flex items-center gap-2">
                               <svg className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                               </svg>
-                              <span className="text-gray-900">{booking.user?.phone}</span>
+                              <span className="text-gray-900">{booking.user?.phone || booking.user?.phone_number || booking.user?.phoneNumber || booking.passenger_phone || booking.passengerPhone || booking.PassengerPhone || '-'}</span>
                             </div>
                           </div>
                           <div className="text-right">
@@ -317,7 +433,7 @@ export default function BookingsManagement() {
                         <div className="flex gap-2">
                           <Button 
                             size="sm"
-                            onClick={() => setSelectedBooking(booking)}
+                            onClick={() => openBookingDetails(booking)}
                             className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white"
                           >
                             <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -326,10 +442,11 @@ export default function BookingsManagement() {
                             </svg>
                             ดูรายละเอียด
                           </Button>
-                          {booking.status === 'PENDING' && (
+                          {getBookingStatus(booking) === 'PENDING' && (
                             <Button 
                               size="sm"
                               variant="outline"
+                              onClick={() => handleUpdateStatus(booking.id, 'CONFIRMED')}
                               className="border-2 border-green-300 text-green-600 hover:bg-green-50"
                             >
                               <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -338,10 +455,14 @@ export default function BookingsManagement() {
                               ยืนยัน
                             </Button>
                           )}
-                          {(booking.status === 'PENDING' || booking.status === 'CONFIRMED') && (
+                          {(getBookingStatus(booking) === 'PENDING' || getBookingStatus(booking) === 'CONFIRMED') && (
                             <Button 
                               size="sm"
                               variant="outline"
+                              onClick={() => {
+                                if (!confirm('คุณแน่ใจหรือว่าต้องการยกเลิกการจองนี้?')) return
+                                handleUpdateStatus(booking.id, 'cancelled')
+                              }}
                               className="border-2 border-red-300 text-red-600 hover:bg-red-50"
                             >
                               <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -366,6 +487,46 @@ export default function BookingsManagement() {
           )}
         </div>
       </AdminLayout>
+      {/* Booking Details Modal */}
+      {selectedBooking && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/40" onClick={() => { setSelectedBooking(null); setBookingDetails(null) }} />
+          <div className="relative z-10 w-[min(900px,95%)] bg-white rounded-2xl shadow-2xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold">รายละเอียดการจอง #{selectedBooking.booking_number || selectedBooking.booking_code || selectedBooking.id}</h3>
+              <div className="flex items-center gap-2">
+                <Button size="sm" variant="ghost" onClick={() => { setSelectedBooking(null); setBookingDetails(null) }}>ปิด</Button>
+              </div>
+            </div>
+            {detailsLoading ? (
+              <div className="py-8 text-center">กำลังโหลด...</div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <div className="text-sm text-gray-600">ผู้โดยสาร</div>
+                  <div className="font-bold text-lg">{bookingDetails?.passenger_name || bookingDetails?.PassengerName || bookingDetails?.user?.name || bookingDetails?.user?.full_name || '-'}</div>
+                  <div className="text-sm text-gray-600 mt-2">เบอร์โทร: <span className="font-medium">{bookingDetails?.passenger_phone || bookingDetails?.PassengerPhone || bookingDetails?.user?.phone || '-'}</span></div>
+                  <div className="text-sm text-gray-600 mt-2">ที่นั่ง: <span className="font-medium">{bookingDetails?.seat_number ?? bookingDetails?.SeatNumber ?? '-'}</span></div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-600">เส้นทาง</div>
+                  <div className="font-bold text-lg">{bookingDetails?.origin || bookingDetails?.route?.origin || '-'} → {bookingDetails?.destination || bookingDetails?.route?.destination || '-'}</div>
+                  <div className="text-sm text-gray-600 mt-2">วันที่: <span className="font-medium">{bookingDetails ? (bookingDetails.departure_time ? new Date(bookingDetails.departure_time).toLocaleDateString('th-TH') : '-') : '-'}</span></div>
+                  <div className="text-sm text-gray-600 mt-2">เวลา: <span className="font-medium">{bookingDetails ? (bookingDetails.departure_time ? (bookingDetails.departure_time.includes('T') ? bookingDetails.departure_time.split('T')[1].slice(0,5) : bookingDetails.departure_time) : '-') : '-'}</span></div>
+                </div>
+              </div>
+            )}
+            <div className="mt-6 flex justify-end gap-2">
+              {(getBookingStatus(selectedBooking) === 'PENDING' || getBookingStatus(selectedBooking) === 'CONFIRMED') && (
+                <Button size="sm" variant="outline" className="border-red-300 text-red-600" onClick={() => { if (confirm('ยกเลิกการจองนี้หรือไม่?')) { handleUpdateStatus(selectedBooking.id, 'cancelled'); setSelectedBooking(null); setBookingDetails(null) } }}>ยกเลิก</Button>
+              )}
+              {getBookingStatus(selectedBooking) === 'PENDING' && (
+                <Button size="sm" className="bg-green-500 text-white" onClick={() => { handleUpdateStatus(selectedBooking.id, 'CONFIRMED'); setSelectedBooking(null); setBookingDetails(null) }}>ยืนยัน</Button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }

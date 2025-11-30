@@ -17,5 +17,6 @@
   "/register": "pages/register.html",
   "/search": "pages/search.html",
   "/seats/[id]": "pages/seats/[id].html",
+  "/select-points/[id]": "pages/select-points/[id].html",
   "/success": "pages/success.html"
 }

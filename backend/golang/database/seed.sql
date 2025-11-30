@@ -42,18 +42,23 @@ INSERT INTO users (name, email, password, phone, role, created_at, updated_at) V
 ('พิมพ์ใจ สวยงาม', 'pimjai@gmail.com', '$2a$10$N9qo8uLOickgx2ZMRZoMye1J8qCqmJ7qN3YmQqz4Nm0qcE8xqO6qW', '0867890123', 'user', NOW(), NOW()),
 ('ธนากร รวยเงิน', 'thanakorn@gmail.com', '$2a$10$N9qo8uLOickgx2ZMRZoMye1J8qCqmJ7qN3YmQqz4Nm0qcE8xqO6qW', '0878901234', 'user', NOW(), NOW());
 
+-- เพิ่มบัญชีทดสอบที่ระบุใน COPILOT_CONTEXT.md (password: password123)
+INSERT INTO users (name, email, password, phone, role, created_at, updated_at) VALUES
+('เกษรา อ่อนหวาน', 'Kessaraonwan1@gmail.com', '$2a$10$BKLNRGKYM3S6vsKTo/Cd7.KbwyaxhbXqeCv0sZPZjuVL2XSmzrAYa', '0812345678', 'user', NOW(), NOW());
+
 -- ================================
 -- 2. Routes (เส้นทาง)
 -- ================================
-INSERT INTO routes (origin, destination, distance, duration, base_price, created_at, updated_at) VALUES
-('กรุงเทพมหานคร', 'เชียงใหม่', 696.5, '09:30:00', 580.00, NOW(), NOW()),
-('กรุงเทพมหานคร', 'ภูเก็ต', 862.0, '12:00:00', 850.00, NOW(), NOW()),
-('กรุงเทพมหานคร', 'พัทยา', 147.0, '02:30:00', 280.00, NOW(), NOW()),
-('กรุงเทพมหานคร', 'หัวหิน', 199.0, '03:30:00', 350.00, NOW(), NOW()),
-('กรุงเทพมหานคร', 'นครราชสีมา', 259.0, '04:00:00', 380.00, NOW(), NOW()),
-('เชียงใหม่', 'เชียงราย', 180.0, '03:00:00', 300.00, NOW(), NOW()),
-('กรุงเทพมหานคร', 'อยุธยา', 76.0, '01:30:00', 180.00, NOW(), NOW()),
-('กรุงเทพมหานคร', 'กาญจนบุรี', 128.0, '02:30:00', 250.00, NOW(), NOW());
+-- เพิ่มคอลัมน์ `duration_minutes`, `distance_km`, และ `image_url` ใน seed เพื่อให้สอดคล้องกับ schema/runtime
+INSERT INTO routes (origin, destination, distance, duration, duration_minutes, base_price, distance_km, image_url, created_at, updated_at) VALUES
+('กรุงเทพมหานคร', 'เชียงใหม่', 696.5, '09:30:00', 570, 580.00, 696.5, 'https://www.chillpainai.com/src/wewakeup/scoop/images/25bc90fdb9424287e7ae65bb6ede5439bc3bd113.jpg', NOW(), NOW()),
+('กรุงเทพมหานคร', 'ภูเก็ต', 862.0, '12:00:00', 720, 850.00, 862.0, 'https://www.pullmanphuketkaron.com/wp-content/uploads/sites/292/2023/11/Beach-in-Phuket.jpg', NOW(), NOW()),
+('กรุงเทพมหานคร', 'พัทยา', 147.0, '02:30:00', 150, 280.00, 147.0, 'https://img.kapook.com/u/2017/Tanapol/travel/september/pattaya/pattaya1.jpg', NOW(), NOW()),
+('กรุงเทพมหานคร', 'หัวหิน', 199.0, '03:30:00', 210, 350.00, 199.0, 'https://www.chillnaid.com/wp-content/uploads/2018/03/%E0%B8%8A%E0%B8%B2%E0%B8%A2%E0%B8%AB%E0%B8%B2%E0%B8%94%E0%B8%AB%E0%B8%B1%E0%B8%A7%E0%B8%AB%E0%B8%B4%E0%B8%99.jpg', NOW(), NOW()),
+('กรุงเทพมหานคร', 'นครราชสีมา', 259.0, '04:00:00', 240, 380.00, 259.0, 'https://img.wongnai.com/p/1920x0/2019/03/17/c49c7fd11bba4320b2c9a991f7ff0127.jpg', NOW(), NOW()),
+('เชียงใหม่', 'เชียงราย', 180.0, '03:00:00', 180, 300.00, 180.0, 'https://www.chillpainai.com/src/wewakeup/scoop/images/22a2b012172165e1e41d55589f75f8408a84b275.jpg', NOW(), NOW()),
+('กรุงเทพมหานคร', 'อยุธยา', 76.0, '01:30:00', 90, 180.00, 76.0, 'https://www.chillpainai.com/src/wewakeup/scoop/images/3b41deda88de099d869e637b9ce3f1ee04d4f3bc.jpg', NOW(), NOW()),
+('กรุงเทพมหานคร', 'กาญจนบุรี', 128.0, '02:30:00', 150, 250.00, 128.0, 'https://lh6.googleusercontent.com/lsV5-UG9WZSG9irR9pPnUnE1K6xCIjS7aR4lMh0YfcOYJrL6BTj-08zpqHwHZFkruNj5mJszUGE3uh49mXu1GT5_wuC58e2i9BTl_YdQP3USyEVTyY9YGFvL85Gq6ev8h9hyWIwfSf-ig9vAIKwRwmM', NOW(), NOW());
 
 -- ================================
 -- 3. Pickup Points (จุดขึ้นรถ) - สมจริง!
@@ -164,41 +169,38 @@ INSERT INTO vans (van_number, license_plate, driver, total_seats, status, create
 -- 4. Schedules (ตารางเวลา)
 -- ================================
 -- วันนี้และพรุ่งนี้
+-- สร้าง schedules ให้เริ่มต้นในอนาคต (เลื่อนออกไป 7 วัน) เพื่อให้ data ตัวอย่างเป็นวันข้างหน้า
+-- Base start: CURRENT_DATE + 7 days
 INSERT INTO schedules (route_id, van_id, departure_time, arrival_time, price, available_seats, status, created_at, updated_at) VALUES
--- กรุงเทพ - เชียงใหม่ (วันนี้)
-(1, 1, NOW() + INTERVAL '2 hours', NOW() + INTERVAL '11 hours 30 minutes', 550.00, 13, 'active', NOW(), NOW()),
-(1, 2, NOW() + INTERVAL '6 hours', NOW() + INTERVAL '15 hours 30 minutes', 550.00, 13, 'active', NOW(), NOW()),
--- กรุงเทพ - เชียงใหม่ (พรุ่งนี้)
-(1, 1, NOW() + INTERVAL '1 day 8 hours', NOW() + INTERVAL '1 day 17 hours 30 minutes', 550.00, 13, 'active', NOW(), NOW()),
-(1, 3, NOW() + INTERVAL '1 day 14 hours', NOW() + INTERVAL '1 day 23 hours 30 minutes', 550.00, 13, 'active', NOW(), NOW()),
+-- กรุงเทพ - เชียงใหม่ (วันเริ่มต้น + 2h, +6h)  และ วันถัดไป
+(1, 1, (CURRENT_DATE + INTERVAL '7 days') + INTERVAL '2 hours', (CURRENT_DATE + INTERVAL '7 days') + INTERVAL '11 hours 30 minutes', 550.00, 13, 'active', NOW(), NOW()),
+(1, 2, (CURRENT_DATE + INTERVAL '7 days') + INTERVAL '6 hours', (CURRENT_DATE + INTERVAL '7 days') + INTERVAL '15 hours 30 minutes', 550.00, 13, 'active', NOW(), NOW()),
+-- กรุงเทพ - เชียงใหม่ (วันถัดไป)
+(1, 1, (CURRENT_DATE + INTERVAL '8 days') + INTERVAL '8 hours', (CURRENT_DATE + INTERVAL '8 days') + INTERVAL '17 hours 30 minutes', 550.00, 13, 'active', NOW(), NOW()),
+(1, 3, (CURRENT_DATE + INTERVAL '8 days') + INTERVAL '14 hours', (CURRENT_DATE + INTERVAL '8 days') + INTERVAL '23 hours 30 minutes', 550.00, 13, 'active', NOW(), NOW()),
 
--- กรุงเทพ - ภูเก็ต (วันนี้)
-(2, 6, NOW() + INTERVAL '3 hours', NOW() + INTERVAL '15 hours', 750.00, 13, 'active', NOW(), NOW()),
--- กรุงเทพ - ภูเก็ต (พรุ่งนี้)
-(2, 6, NOW() + INTERVAL '1 day 9 hours', NOW() + INTERVAL '1 day 21 hours', 750.00, 13, 'active', NOW(), NOW()),
+-- กรุงเทพ - ภูเก็ต (วันเริ่มต้น และ วันถัดไป)
+(2, 6, (CURRENT_DATE + INTERVAL '7 days') + INTERVAL '3 hours', (CURRENT_DATE + INTERVAL '7 days') + INTERVAL '15 hours', 750.00, 13, 'active', NOW(), NOW()),
+(2, 6, (CURRENT_DATE + INTERVAL '8 days') + INTERVAL '9 hours', (CURRENT_DATE + INTERVAL '8 days') + INTERVAL '21 hours', 750.00, 13, 'active', NOW(), NOW()),
 
--- กรุงเทพ - พัทยา (วันนี้)
-(3, 5, NOW() + INTERVAL '1 hour', NOW() + INTERVAL '3 hours 30 minutes', 250.00, 13, 'active', NOW(), NOW()),
-(3, 8, NOW() + INTERVAL '4 hours', NOW() + INTERVAL '6 hours 30 minutes', 250.00, 13, 'active', NOW(), NOW()),
--- กรุงเทพ - พัทยา (พรุ่งนี้)
-(3, 5, NOW() + INTERVAL '1 day 7 hours', NOW() + INTERVAL '1 day 9 hours 30 minutes', 250.00, 13, 'active', NOW(), NOW()),
-(3, 8, NOW() + INTERVAL '1 day 16 hours', NOW() + INTERVAL '1 day 18 hours 30 minutes', 250.00, 13, 'active', NOW(), NOW()),
+-- กรุงเทพ - พัทยา (วันเริ่มต้น และ วันถัดไป)
+(3, 5, (CURRENT_DATE + INTERVAL '7 days') + INTERVAL '1 hour', (CURRENT_DATE + INTERVAL '7 days') + INTERVAL '3 hours 30 minutes', 250.00, 13, 'active', NOW(), NOW()),
+(3, 8, (CURRENT_DATE + INTERVAL '7 days') + INTERVAL '4 hours', (CURRENT_DATE + INTERVAL '7 days') + INTERVAL '6 hours 30 minutes', 250.00, 13, 'active', NOW(), NOW()),
+(3, 5, (CURRENT_DATE + INTERVAL '8 days') + INTERVAL '7 hours', (CURRENT_DATE + INTERVAL '8 days') + INTERVAL '9 hours 30 minutes', 250.00, 13, 'active', NOW(), NOW()),
+(3, 8, (CURRENT_DATE + INTERVAL '8 days') + INTERVAL '16 hours', (CURRENT_DATE + INTERVAL '8 days') + INTERVAL '18 hours 30 minutes', 250.00, 13, 'active', NOW(), NOW()),
 
--- กรุงเทพ - หัวหิน (วันนี้)
-(4, 4, NOW() + INTERVAL '2 hours', NOW() + INTERVAL '5 hours 30 minutes', 300.00, 13, 'active', NOW(), NOW()),
--- กรุงเทพ - หัวหิน (พรุ่งนี้)
-(4, 4, NOW() + INTERVAL '1 day 10 hours', NOW() + INTERVAL '1 day 13 hours 30 minutes', 300.00, 13, 'active', NOW(), NOW()),
+-- กรุงเทพ - หัวหิน (วันเริ่มต้น และ วันถัดไป)
+(4, 4, (CURRENT_DATE + INTERVAL '7 days') + INTERVAL '2 hours', (CURRENT_DATE + INTERVAL '7 days') + INTERVAL '5 hours 30 minutes', 300.00, 13, 'active', NOW(), NOW()),
+(4, 4, (CURRENT_DATE + INTERVAL '8 days') + INTERVAL '10 hours', (CURRENT_DATE + INTERVAL '8 days') + INTERVAL '13 hours 30 minutes', 300.00, 13, 'active', NOW(), NOW()),
 
--- กรุงเทพ - นครราชสีมา (วันนี้)
-(5, 2, NOW() + INTERVAL '5 hours', NOW() + INTERVAL '9 hours', 350.00, 13, 'active', NOW(), NOW()),
--- กรุงเทพ - นครราชสีมา (พรุ่งนี้)
-(5, 3, NOW() + INTERVAL '1 day 11 hours', NOW() + INTERVAL '1 day 15 hours', 350.00, 13, 'active', NOW(), NOW()),
+-- กรุงเทพ - นครราชสีมา (วันเริ่มต้น และ วันถัดไป)
+(5, 2, (CURRENT_DATE + INTERVAL '7 days') + INTERVAL '5 hours', (CURRENT_DATE + INTERVAL '7 days') + INTERVAL '9 hours', 350.00, 13, 'active', NOW(), NOW()),
+(5, 3, (CURRENT_DATE + INTERVAL '8 days') + INTERVAL '11 hours', (CURRENT_DATE + INTERVAL '8 days') + INTERVAL '15 hours', 350.00, 13, 'active', NOW(), NOW()),
 
--- กรุงเทพ - อยุธยา (วันนี้)
-(7, 8, NOW() + INTERVAL '30 minutes', NOW() + INTERVAL '2 hours', 150.00, 13, 'active', NOW(), NOW()),
-(7, 5, NOW() + INTERVAL '3 hours', NOW() + INTERVAL '4 hours 30 minutes', 150.00, 13, 'active', NOW(), NOW()),
--- กรุงเทพ - อยุธยา (พรุ่งนี้)
-(7, 8, NOW() + INTERVAL '1 day 6 hours', NOW() + INTERVAL '1 day 7 hours 30 minutes', 150.00, 13, 'active', NOW(), NOW());
+-- กรุงเทพ - อยุธยา (วันเริ่มต้น และ วันถัดไป)
+(7, 8, (CURRENT_DATE + INTERVAL '7 days') + INTERVAL '30 minutes', (CURRENT_DATE + INTERVAL '7 days') + INTERVAL '2 hours', 150.00, 13, 'active', NOW(), NOW()),
+(7, 5, (CURRENT_DATE + INTERVAL '7 days') + INTERVAL '3 hours', (CURRENT_DATE + INTERVAL '7 days') + INTERVAL '4 hours 30 minutes', 150.00, 13, 'active', NOW(), NOW()),
+(7, 8, (CURRENT_DATE + INTERVAL '8 days') + INTERVAL '6 hours', (CURRENT_DATE + INTERVAL '8 days') + INTERVAL '7 hours 30 minutes', 150.00, 13, 'active', NOW(), NOW());
 
 -- ================================
 -- 5. Seats (ที่นั่ง) - สร้างให้ทุก Schedule

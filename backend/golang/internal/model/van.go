@@ -10,6 +10,7 @@ type Van struct {
 	Driver       string    `json:"driver"`
 	TotalSeats   int       `json:"total_seats"`
 	Status       string    `json:"status"` // "active" หรือ "inactive"
+	TripsToday   int       `json:"trips_today"`
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`
 }

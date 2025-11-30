@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import Navbar from '@/components/navbar'
 import Footer from '@/components/footer'
 import { routeAPI, scheduleAPI } from '@/lib/api-client'
+import { formatThaiDate, formatTime, formatIsoTime, isZeroOrInvalidTimestamp } from '@/lib/locations'
 import { useToast } from '@/hooks/use-toast'
 
 export default function SelectPointsPage() {
@@ -19,6 +20,8 @@ export default function SelectPointsPage() {
   const [selectedPickup, setSelectedPickup] = useState(null)
   const [selectedDropoff, setSelectedDropoff] = useState(null)
   const [loading, setLoading] = useState(true)
+
+  // using shared helpers from lib/locations: formatIsoTime, isZeroOrInvalidTimestamp
 
   // Check authentication
   useEffect(() => {
@@ -134,7 +137,7 @@ export default function SelectPointsPage() {
           {/* Trip Info */}
           <div className="space-y-3">
             <h1 className="text-3xl md:text-4xl font-bold">เลือกจุดขึ้นและจุดลงรถ</h1>
-            <div className="flex flex-wrap items-center gap-6 text-white/90">
+              <div className="flex flex-wrap items-center gap-6 text-white/90">
               <div className="flex items-center gap-2">
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -142,17 +145,20 @@ export default function SelectPointsPage() {
                 </svg>
                 <span className="font-semibold">{scheduleData?.origin} → {scheduleData?.destination}</span>
               </div>
-              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2">
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                <span>{scheduleData?.departure_date}</span>
+                <span>{(() => {
+                  const depDate = scheduleData?.departure_date || (scheduleData?.departure_time && scheduleData.departure_time.includes('T') ? scheduleData.departure_time.split('T')[0] : null)
+                  return isZeroOrInvalidTimestamp(depDate) ? 'ไม่ระบุ' : formatThaiDate(depDate)
+                })()}</span>
               </div>
               <div className="flex items-center gap-2">
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <span>{scheduleData?.departure_time}</span>
+                <span>{isZeroOrInvalidTimestamp(scheduleData?.departure_time) ? 'ไม่ระบุ' : formatTime(formatIsoTime(scheduleData?.departure_time) || scheduleData?.departure_time)}</span>
               </div>
             </div>
           </div>
@@ -215,9 +221,11 @@ export default function SelectPointsPage() {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-3 mb-2">
                               <h3 className="font-bold text-gray-900 text-lg">{point.name}</h3>
-                              <span className="px-3 py-1 bg-green-100 text-green-700 text-sm font-semibold rounded-full">
-                                {point.pickup_time}
-                              </span>
+                              {!isZeroOrInvalidTimestamp(point.pickup_time) && (
+                                <span className="px-3 py-1 bg-green-100 text-green-700 text-sm font-semibold rounded-full">
+                                  {formatTime(formatIsoTime(point.pickup_time) || point.pickup_time)}
+                                </span>
+                              )}
                             </div>
                             <p className="text-gray-600 text-sm mb-2">{point.address}</p>
                             {point.landmark && (
@@ -294,9 +302,11 @@ export default function SelectPointsPage() {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-3 mb-2">
                               <h3 className="font-bold text-gray-900 text-lg">{point.name}</h3>
-                              <span className="px-3 py-1 bg-red-100 text-red-700 text-sm font-semibold rounded-full">
-                                {point.estimated_arrival}
-                              </span>
+                              {!isZeroOrInvalidTimestamp(point.estimated_arrival) && (
+                                <span className="px-3 py-1 bg-red-100 text-red-700 text-sm font-semibold rounded-full">
+                                  {formatTime(formatIsoTime(point.estimated_arrival) || point.estimated_arrival)}
+                                </span>
+                              )}
                             </div>
                             <p className="text-gray-600 text-sm mb-2">{point.address}</p>
                             {point.landmark && (
@@ -361,7 +371,9 @@ export default function SelectPointsPage() {
                       {selectedPickup ? (
                         <>
                           <div className="font-bold text-gray-900">{getPickupPoint(selectedPickup)?.name}</div>
-                          <div className="text-sm text-gray-600 mt-1">{getPickupPoint(selectedPickup)?.pickup_time}</div>
+                          {!isZeroOrInvalidTimestamp(getPickupPoint(selectedPickup)?.pickup_time) && (
+                            <div className="text-sm text-gray-600 mt-1">{formatTime(formatIsoTime(getPickupPoint(selectedPickup)?.pickup_time) || getPickupPoint(selectedPickup)?.pickup_time)}</div>
+                          )}
                         </>
                       ) : (
                         <p className="text-gray-500 text-sm italic">ยังไม่ได้เลือก</p>
@@ -381,7 +393,9 @@ export default function SelectPointsPage() {
                       {selectedDropoff ? (
                         <>
                           <div className="font-bold text-gray-900">{getDropoffPoint(selectedDropoff)?.name}</div>
-                          <div className="text-sm text-gray-600 mt-1">{getDropoffPoint(selectedDropoff)?.estimated_arrival}</div>
+                          {!isZeroOrInvalidTimestamp(getDropoffPoint(selectedDropoff)?.estimated_arrival) && (
+                            <div className="text-sm text-gray-600 mt-1">{formatTime(formatIsoTime(getDropoffPoint(selectedDropoff)?.estimated_arrival) || getDropoffPoint(selectedDropoff)?.estimated_arrival)}</div>
+                          )}
                         </>
                       ) : (
                         <p className="text-gray-500 text-sm italic">ยังไม่ได้เลือก</p>

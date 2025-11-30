@@ -1,10 +1,49 @@
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Head from 'next/head'
+import { useRouter } from 'next/router'
 import { Button } from '@/components/ui/button'
 import Navbar from '@/components/navbar'
 import Footer from '@/components/footer'
+import { bookingAPI } from '@/lib/api-client'
+import { formatThaiDate, formatTime, formatIsoTime, isZeroOrInvalidTimestamp } from '@/lib/locations'
 
 export default function BookingDetailPage() {
+  const router = useRouter()
+  const { id } = router.query
+  const [booking, setBooking] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!id) return
+    const fetchBooking = async () => {
+      try {
+        const data = await bookingAPI.getById(id)
+        if (data && data.success) {
+          setBooking(data.data)
+        }
+      } catch (e) {
+        console.error('Failed to load booking', e)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchBooking()
+  }, [id])
+  // derive safe display values to avoid reading properties from null
+  const perSeatPrice = booking ? (booking.total_price ?? booking.TotalPrice ?? booking.price ?? 0) : 0
+  const totalPrice = booking ? (booking.total_price ?? booking.TotalPrice ?? 0) : 0
+  const seatCount = booking ? (booking.seat_number ? 1 : (booking.seat_numbers ? booking.seat_numbers.length : 1)) : 0
+  // derive departure iso value and format using shared helpers to avoid timezone conversion
+  const departureIso = booking ? (booking.departure_time ?? booking.departureTime ?? null) : null
+  const departureDateDisplay = departureIso ? formatThaiDate(departureIso) : '-'
+  const departureTimeDisplay = departureIso ? formatTime(formatIsoTime(departureIso) || departureIso) : '-'
+
+  // booking created timestamp (display as Bangkok time using created_at if present)
+  const bookingCreatedIso = booking ? (booking.created_at ?? booking.createdAt ?? booking.createdAtIso ?? null) : null
+  const bookingCreatedUseIso = !isZeroOrInvalidTimestamp(bookingCreatedIso) ? bookingCreatedIso : new Date().toISOString()
+  const bookingCreatedDate = bookingCreatedUseIso ? new Date(bookingCreatedUseIso).toLocaleDateString('en-GB', { timeZone: 'Asia/Bangkok', year: 'numeric', month: 'short', day: '2-digit' }) : '-'
+  const bookingCreatedTime = bookingCreatedUseIso ? new Date(bookingCreatedUseIso).toLocaleTimeString('en-GB', { timeZone: 'Asia/Bangkok', hour: '2-digit', minute: '2-digit' }) : '-'
   return (
     <div className="min-h-screen flex flex-col">
       <Head>
@@ -54,7 +93,8 @@ export default function BookingDetailPage() {
                   </div>
                   <div>
                     <div className="text-sm text-white/80 mb-1">รหัสการจอง</div>
-                    <div className="text-3xl font-bold font-mono">BK-2025-001</div>
+                    <div className="text-3xl font-bold font-mono">{booking?.booking_number || `#${booking?.id || id || ''}`}</div>
+                    <div className="text-xs text-white/80 mt-1">เวลาจอง: {booking ? `${bookingCreatedDate} ${bookingCreatedTime}` : '-'}</div>
                   </div>
                 </div>
                 <div className="text-right">
@@ -120,7 +160,7 @@ export default function BookingDetailPage() {
                     </div>
                     <div className="flex-1">
                       <div className="text-xs text-gray-600 mb-1">เส้นทาง</div>
-                      <div className="text-2xl font-bold text-gray-900">กรุงเทพ → พัทยา</div>
+                      <div className="text-2xl font-bold text-gray-900">{booking?.origin || booking?.Origin || booking?.pickup_point_name || 'กรุงเทพ'} → {booking?.destination || booking?.Destination || booking?.dropoff_point_name || 'พัทยา'}</div>
                     </div>
                   </div>
                 </div>
@@ -136,7 +176,7 @@ export default function BookingDetailPage() {
                       </div>
                       <div>
                         <div className="text-xs text-gray-600 mb-1">วันที่เดินทาง</div>
-                        <div className="font-bold text-gray-900 text-lg">18 พ.ย. 2025</div>
+                        <div className="font-bold text-gray-900 text-lg">{booking ? departureDateDisplay : '-'}</div>
                       </div>
                     </div>
                   </div>
@@ -150,7 +190,7 @@ export default function BookingDetailPage() {
                       </div>
                       <div>
                         <div className="text-xs text-gray-600 mb-1">เวลาออกเดินทาง</div>
-                        <div className="font-bold text-gray-900 text-lg">09:00 น.</div>
+                        <div className="font-bold text-gray-900 text-lg">{booking ? departureTimeDisplay : '-'}</div>
                       </div>
                     </div>
                   </div>
@@ -164,7 +204,7 @@ export default function BookingDetailPage() {
                       </div>
                       <div>
                         <div className="text-xs text-gray-600 mb-1">ทะเบียนรถ</div>
-                        <div className="font-bold text-gray-900 text-lg font-mono">กข-1234</div>
+                        <div className="font-bold text-gray-900 text-lg font-mono">{booking?.license_plate || booking?.LicensePlate || '-'}</div>
                       </div>
                     </div>
                   </div>
@@ -178,10 +218,15 @@ export default function BookingDetailPage() {
                       </div>
                       <div>
                         <div className="text-xs text-gray-600 mb-1">ที่นั่ง</div>
-                        <div className="flex gap-2 mt-1">
-                          <span className="inline-flex items-center justify-center w-8 h-8 bg-gradient-to-br from-orange-500 to-red-500 text-white font-bold rounded-lg text-sm shadow-sm">1</span>
-                          <span className="inline-flex items-center justify-center w-8 h-8 bg-gradient-to-br from-orange-500 to-red-500 text-white font-bold rounded-lg text-sm shadow-sm">2</span>
-                        </div>
+                          <div className="flex gap-2 mt-1">
+                            {booking?.seat_number ? (
+                              <span className="inline-flex items-center justify-center w-8 h-8 bg-gradient-to-br from-orange-500 to-red-500 text-white font-bold rounded-lg text-sm shadow-sm">{booking.seat_number}</span>
+                            ) : booking?.seat_numbers ? (
+                              booking.seat_numbers.map(s => (
+                                <span key={s} className="inline-flex items-center justify-center w-8 h-8 bg-gradient-to-br from-orange-500 to-red-500 text-white font-bold rounded-lg text-sm shadow-sm">{s}</span>
+                              ))
+                            ) : ('-')}
+                          </div>
                       </div>
                     </div>
                   </div>
@@ -191,15 +236,15 @@ export default function BookingDetailPage() {
                 <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 border-2 border-gray-200">
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-gray-700">ราคาต่อที่นั่ง</span>
-                    <span className="font-semibold text-gray-900">฿150</span>
+                    <span className="font-semibold text-gray-900">฿{perSeatPrice.toFixed(2)}</span>
                   </div>
                   <div className="flex items-center justify-between pb-4 mb-4 border-b border-gray-300">
                     <span className="text-gray-700">จำนวนที่นั่ง</span>
-                    <span className="font-semibold text-gray-900">× 2</span>
+                    <span className="font-semibold text-gray-900">× {seatCount}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-xl font-bold text-gray-900">ราคารวม</span>
-                    <span className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">฿300</span>
+                    <span className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">฿{totalPrice.toFixed(2)}</span>
                   </div>
                 </div>
               </div>
@@ -215,15 +260,15 @@ export default function BookingDetailPage() {
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-600">ชื่อ-นามสกุล:</span>
-                    <span className="font-semibold text-gray-900">สมชาย ใจดี</span>
+                    <span className="font-semibold text-gray-900">{booking?.passenger_name || booking?.passengerName || booking?.passenger_name || '-'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">เบอร์โทร:</span>
-                    <span className="font-semibold text-gray-900">081-234-5678</span>
+                    <span className="font-semibold text-gray-900">{booking?.passenger_phone || booking?.passengerPhone || '-'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">อีเมล:</span>
-                    <span className="font-semibold text-gray-900">somchai@email.com</span>
+                    <span className="font-semibold text-gray-900">{booking?.passenger_email || booking?.passengerEmail || '-'}</span>
                   </div>
                 </div>
               </div>

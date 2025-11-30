@@ -5,7 +5,7 @@ import { useRouter } from 'next/router'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { useToast } from '@/hooks/use-toast'
-import { authAPI } from '@/lib/api-client'
+import { authAPI, removeTokens } from '@/lib/api-client'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -51,8 +51,23 @@ export default function LoginPage() {
 
     try {
       const response = await authAPI.login({ email, password })
-      
+
       if (response.success) {
+        const user = response?.data?.user || null
+
+        // Prevent admin accounts from staying logged-in via the public user login page.
+        if (user && user.role === 'admin') {
+          // Clear any tokens that were set by the shared auth API and redirect to admin login.
+          removeTokens()
+          toast({
+            variant: 'destructive',
+            title: 'บัญชีผู้ดูแลระบบ',
+            description: 'กรุณาเข้าสู่ระบบผ่านหน้าแอดมิน',
+          })
+          router.push('/admin/login')
+          return
+        }
+
         toast({
           title: 'เข้าสู่ระบบสำเร็จ',
           description: 'ยินดีต้อนรับกลับมา',

@@ -48,9 +48,51 @@ func AuthMiddleware() gin.HandlerFunc {
 // AdminMiddleware middleware สำหรับตรวจสอบว่าเป็น admin
 func AdminMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		role, exists := c.Get("role")
-		if !exists || role != "admin" {
+		roleVal, exists := c.Get("role")
+		if !exists {
 			utils.ErrorResponse(c, 403, "Admin access required")
+			c.Abort()
+			return
+		}
+
+		// ensure role is a string and compare case-insensitively
+		roleStr, ok := roleVal.(string)
+		if !ok || strings.ToLower(roleStr) != "admin" {
+			utils.ErrorResponse(c, 403, "Admin access required")
+			c.Abort()
+			return
+		}
+
+		c.Next()
+	}
+}
+
+// RequireRole returns a middleware that allows access only when the user's role
+// (from context set by AuthMiddleware) matches one of the allowed roles.
+func RequireRole(allowed ...string) gin.HandlerFunc {
+	// normalize allowed roles to lowercase for comparison
+	norm := make(map[string]struct{}, len(allowed))
+	for _, r := range allowed {
+		norm[strings.ToLower(r)] = struct{}{}
+	}
+
+	return func(c *gin.Context) {
+		roleVal, exists := c.Get("role")
+		if !exists {
+			utils.ErrorResponse(c, 403, "Role required")
+			c.Abort()
+			return
+		}
+
+		roleStr, ok := roleVal.(string)
+		if !ok {
+			utils.ErrorResponse(c, 403, "Invalid role")
+			c.Abort()
+			return
+		}
+
+		if _, ok := norm[strings.ToLower(roleStr)]; !ok {
+			utils.ErrorResponse(c, 403, "Insufficient role privileges")
 			c.Abort()
 			return
 		}

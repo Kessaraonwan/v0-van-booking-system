@@ -28,6 +28,21 @@ func (h *VanHandler) GetAllVans(c *gin.Context) {
 		return
 	}
 
+	// Compute trips_today per van and attach to each van
+	counts, err := h.vanRepo.GetTripsTodayCounts()
+	if err == nil && len(counts) > 0 {
+		for _, v := range vans {
+			if trips, ok := counts[v.ID]; ok {
+				v.TripsToday = trips
+			} else {
+				v.TripsToday = 0
+			}
+		}
+	} else if err != nil {
+		// log but don't fail the whole request
+		// utils package doesn't expose logger; embed as warning in response metadata is not needed
+	}
+
 	utils.SuccessResponse(c, 200, "Vans fetched successfully", vans)
 }
 

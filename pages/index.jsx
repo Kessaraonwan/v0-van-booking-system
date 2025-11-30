@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button'
 import Navbar from '@/components/navbar'
 import Footer from '@/components/footer'
 import { useState, useEffect } from 'react'
+import apiClient, { routeAPI, reviewAPI, getToken } from '@/lib/api-client'
 
 export default function HomePage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -14,13 +15,11 @@ export default function HomePage() {
   useEffect(() => {
     const fetchRoutes = async () => {
       try {
-        const response = await fetch('http://localhost:8080/api/routes')
-        const result = await response.json()
-        
-        if (result.success && result.data) {
-          // แปลงข้อมูลจาก API ให้ตรงกับ format ที่ใช้ใน UI
+        const result = await routeAPI.getAll()
+
+        if (result && result.success && result.data) {
           const formattedRoutes = result.data
-            .slice(0, 3) // เอาแค่ 3 เส้นทางแรก
+            .slice(0, 3)
             .map(route => ({
               id: route.id,
               from: route.origin,
@@ -28,10 +27,10 @@ export default function HomePage() {
               price: Math.round(route.base_price),
               duration: `${Math.round(route.duration_minutes / 60)} ชม.`,
               image: route.image_url || 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=400&h=300&fit=crop',
-              rating: (4.5 + Math.random() * 0.5).toFixed(1), // สุ่ม rating 4.5-5.0
-              reviews: Math.floor(Math.random() * 400) + 100 // สุ่มจำนวนรีวิว 100-500
+              rating: (4.5 + Math.random() * 0.5).toFixed(1),
+              reviews: Math.floor(Math.random() * 400) + 100
             }))
-          
+
           setPopularRoutes(formattedRoutes)
         }
       } catch (error) {
@@ -58,11 +57,8 @@ export default function HomePage() {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const response = await fetch('http://localhost:8080/api/reviews?limit=3')
-        const result = await response.json()
-        
-        if (result.success && result.data) {
-          // เพิ่ม avatar_color ให้แต่ละรีวิว
+        const result = await reviewAPI.getAll({ limit: 3 })
+        if (result && result.success && result.data) {
           const reviewsWithColor = result.data.map(review => ({
             ...review,
             avatar_color: getAvatarColor(review.user_id)
@@ -338,7 +334,7 @@ export default function HomePage() {
                       
                       <Button 
                         onClick={() => {
-                          const token = localStorage.getItem('token')
+                          const token = getToken()
                           if (token) {
                             window.location.href = '/search'
                           } else {

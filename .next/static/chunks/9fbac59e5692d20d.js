@@ -1,0 +1,9 @@
+__turbopack_load_page_chunks__("/seats/[id]", [
+  "static/chunks/de1652a14bb3ca20.js",
+  "static/chunks/512089aad4fb7a84.js",
+  "static/chunks/f5447cb58d7f9d18.js",
+  "static/chunks/003be10d23f6795d.js",
+  "static/chunks/a3d2067ffd5d18d8.js",
+  "static/chunks/e5c24f6f731bfa86.js",
+  "static/chunks/turbopack-b79b37d113e63de5.js"
+])

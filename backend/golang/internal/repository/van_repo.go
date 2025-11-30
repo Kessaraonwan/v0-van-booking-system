@@ -150,3 +150,31 @@ func (r *VanRepository) Delete(id int) error {
 
 	return nil
 }
+
+// GetTripsTodayCounts คืน mapping van_id -> trips_today (จำนวนรอบวันนี้)
+func (r *VanRepository) GetTripsTodayCounts() (map[int]int, error) {
+	query := `
+		SELECT van_id, COUNT(*) as trips
+		FROM schedules
+		WHERE DATE(departure_time) = CURRENT_DATE
+		GROUP BY van_id
+	`
+
+	rows, err := r.db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	counts := make(map[int]int)
+	for rows.Next() {
+		var vanID int
+		var trips int
+		if err := rows.Scan(&vanID, &trips); err != nil {
+			return nil, err
+		}
+		counts[vanID] = trips
+	}
+
+	return counts, nil
+}

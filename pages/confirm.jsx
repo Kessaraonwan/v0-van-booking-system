@@ -7,6 +7,7 @@ import Navbar from '@/components/navbar'
 import Footer from '@/components/footer'
 import { useToast } from '@/hooks/use-toast'
 import { getPickupLocation, getDropoffLocation, formatThaiDate, formatTime } from '@/lib/locations'
+import apiClient, { scheduleAPI, routeAPI, bookingAPI } from '@/lib/api-client'
 
 export default function BookingConfirmPage() {
   const router = useRouter()
@@ -24,6 +25,48 @@ export default function BookingConfirmPage() {
   const [dropoffPoint, setDropoffPoint] = useState(null)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
+
+  // Normalize total (from query) to a numeric per-page value for display
+  const numericTotal = (() => {
+    try {
+      if (total) return parseFloat(total)
+      if (seats && schedule && schedule.price) {
+        return parseFloat(schedule.price) * seats.split(',').length
+      }
+      return 0
+    } catch (e) {
+      return 0
+    }
+  })()
+
+  const displayTotal = Number.isFinite(numericTotal) ? numericTotal.toFixed(2) : '0.00'
+
+  // Helpers to detect zero/invalid timestamps (e.g. '0000-01-01T07:00:00Z')
+  const isZeroOrInvalidTimestamp = (val) => {
+    if (!val) return true
+    if (typeof val === 'string') {
+      const s = val.trim()
+      if (s === '') return true
+      if (s.startsWith('0000') || s.startsWith('0001') || s.startsWith('0000-00-00')) return true
+    }
+    const d = new Date(val)
+    if (Number.isNaN(d.getTime())) return true
+    if (d.getFullYear && d.getFullYear() <= 1) return true
+    return false
+  }
+
+  const formatIsoTime = (iso) => {
+    if (isZeroOrInvalidTimestamp(iso)) return null
+    try {
+      const d = new Date(iso)
+      // Return HH:MM format compatible with formatTime helper
+      const hh = String(d.getHours()).padStart(2, '0')
+      const mm = String(d.getMinutes()).padStart(2, '0')
+      return `${hh}:${mm}`
+    } catch (e) {
+      return null
+    }
+  }
 
   // Check auth and load user data
   useEffect(() => {
@@ -55,26 +98,36 @@ export default function BookingConfirmPage() {
   const fetchScheduleDetails = async () => {
     try {
       // Fetch schedule
-      const scheduleResponse = await fetch(`http://localhost:8080/api/schedules/${scheduleId}`)
-      const scheduleData = await scheduleResponse.json()
-      
-      if (scheduleData.success) {
+      const scheduleData = await scheduleAPI.getById(scheduleId)
+
+      if (scheduleData && scheduleData.success) {
+        // Set schedule and ensure we have route details available for display
         setSchedule(scheduleData.data)
-        
+
+        // If API didn't include nested route object but returned route_id, fetch route details
+        if (!scheduleData.data.route && scheduleData.data.route_id) {
+          try {
+            const r = await routeAPI.getById(scheduleData.data.route_id)
+            if (r && r.success) {
+              setSchedule(prev => ({ ...(prev || {}), route: r.data }))
+            }
+          } catch (e) {
+            console.warn('Failed to fetch route details for schedule', e)
+          }
+        }
+
         // Fetch pickup/dropoff points if they exist
         if (pickupPointId) {
-          const pickupResponse = await fetch(`http://localhost:8080/api/routes/${scheduleData.data.route_id}/pickup-points`)
-          const pickupData = await pickupResponse.json()
-          if (pickupData.success) {
+          const pickupData = await routeAPI.getPickupPoints(scheduleData.data.route_id)
+          if (pickupData && pickupData.success) {
             const selectedPickup = pickupData.data.find(p => p.id === parseInt(pickupPointId))
             setPickupPoint(selectedPickup)
           }
         }
-        
+
         if (dropoffPointId) {
-          const dropoffResponse = await fetch(`http://localhost:8080/api/routes/${scheduleData.data.route_id}/dropoff-points`)
-          const dropoffData = await dropoffResponse.json()
-          if (dropoffData.success) {
+          const dropoffData = await routeAPI.getDropoffPoints(scheduleData.data.route_id)
+          if (dropoffData && dropoffData.success) {
             const selectedDropoff = dropoffData.data.find(p => p.id === parseInt(dropoffPointId))
             setDropoffPoint(selectedDropoff)
           }
@@ -103,55 +156,79 @@ export default function BookingConfirmPage() {
       return
     }
 
-    if (!pickupPointId || !dropoffPointId) {
-      toast({
-        title: "ข้อมูลไม่ครบถ้วน",
-        description: "กรุณาเลือกจุดขึ้นและจุดลงรถ",
-        variant: "destructive"
-      })
-      return
+    // Ensure pickup/dropoff points are present and valid
+    if (!pickupPoint || !dropoffPoint) {
+      // Try to fetch points again as a fallback
+      try {
+        const pickupData = await routeAPI.getPickupPoints(schedule.route_id)
+        const dropoffData = await routeAPI.getDropoffPoints(schedule.route_id)
+        if (pickupData && pickupData.success) {
+          const found = pickupData.data.find(p => p.id === parseInt(pickupPointId))
+          if (found) setPickupPoint(found)
+        }
+        if (dropoffData && dropoffData.success) {
+          const found2 = dropoffData.data.find(p => p.id === parseInt(dropoffPointId))
+          if (found2) setDropoffPoint(found2)
+        }
+      } catch (e) {
+        console.warn('Failed to re-fetch pickup/dropoff points', e)
+      }
+
+      if (!pickupPoint && !pickupPointId) {
+        toast({ title: "ข้อมูลไม่ครบถ้วน", description: "กรุณาเลือกจุดขึ้นและจุดลงรถ", variant: "destructive" })
+        return
+      }
     }
 
     setSubmitting(true)
 
     try {
-      const token = localStorage.getItem('accessToken')
-      const seatNumber = parseInt(seats.split(',')[0]) // ใช้ที่นั่งแรก (1 booking = 1 seat)
-      
-      const response = await fetch('http://localhost:8080/api/bookings', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
+      // Support multi-seat booking: create one booking per selected seat sequentially
+      const seatList = seats ? seats.split(',').map(s => parseInt(s)) : []
+      if (seatList.length === 0) {
+        throw new Error('ไม่มีที่นั่งที่เลือก')
+      }
+
+      const perSeatPrice = parseFloat(schedule.price)
+
+      const createdBookings = []
+
+      for (const seatNumber of seatList) {
+        const payload = {
           schedule_id: parseInt(scheduleId),
           seat_number: seatNumber,
           passenger_name: formData.fullName,
           passenger_phone: formData.phone,
           passenger_email: formData.email,
-          pickup_point_id: parseInt(pickupPointId),
-          dropoff_point_id: parseInt(dropoffPointId),
+          // Prefer the validated pickupPoint/dropoffPoint objects
+          pickup_point_id: (pickupPoint && pickupPoint.id) ? pickupPoint.id : parseInt(pickupPointId),
+          dropoff_point_id: (dropoffPoint && dropoffPoint.id) ? dropoffPoint.id : parseInt(dropoffPointId),
           special_requests: formData.specialRequests || '',
-          total_price: parseFloat(total || schedule.price)
-        })
+          total_price: perSeatPrice
+        }
+
+        console.debug('Booking payload (seat):', payload)
+
+        const data = await bookingAPI.create(payload)
+        if (!data || !data.success) {
+          const msg = data && data.message ? data.message : 'การจองล้มเหลว'
+          throw new Error(`ที่นั่ง ${seatNumber}: ${msg}`)
+        }
+
+        createdBookings.push(data.data)
+      }
+
+      // Success
+      toast({
+        title: "✅ สร้างการจองสำเร็จ",
+        description: `สร้าง ${createdBookings.length} การจองสำเร็จแล้ว`,
       })
 
-      const data = await response.json()
+      // Redirect to bookings list
+      setTimeout(() => {
+        router.push(`/bookings`)
+      }, 1200)
 
-      if (data.success) {
-        toast({
-          title: "✅ สร้างการจองสำเร็จ",
-          description: `เลขที่การจอง: ${data.data.booking_number || data.data.id}`,
-        })
-
-        // Redirect to payment page or bookings
-        setTimeout(() => {
-          router.push(`/bookings`)
-        }, 1500)
-      } else {
-        throw new Error(data.message || 'การจองล้มเหลว')
-      }
     } catch (error) {
       console.error('Booking error:', error)
       toast({
@@ -363,7 +440,22 @@ export default function BookingConfirmPage() {
                             <span className="text-xs">วันที่</span>
                           </div>
                           <div className="font-semibold text-gray-900 text-sm">
-                            {schedule.departure_date}
+                            {(() => {
+                              // format departure date: prefer YYYY-MM-DD -> Thai formatting, else derive from departure_time ISO
+                              const d = schedule.departure_date
+                              if (!isZeroOrInvalidTimestamp(d) && typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d)) {
+                                return formatThaiDate(d)
+                              }
+                              // try from departure_time
+                              if (!isZeroOrInvalidTimestamp(schedule.departure_time)) {
+                                try {
+                                  return new Date(schedule.departure_time).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' })
+                                } catch (e) {
+                                  return 'ไม่ระบุ'
+                                }
+                              }
+                              return 'ไม่ระบุ'
+                            })()}
                           </div>
                         </div>
                         <div className="flex-1 bg-gray-50 rounded-xl p-3 border border-gray-200">
@@ -374,7 +466,22 @@ export default function BookingConfirmPage() {
                             <span className="text-xs">เวลา</span>
                           </div>
                           <div className="font-semibold text-gray-900 text-sm">
-                            {schedule.departure_time}
+                            {(() => {
+                              if (!isZeroOrInvalidTimestamp(schedule.departure_time)) {
+                                const t = formatIsoTime(schedule.departure_time)
+                                return formatTime(t || schedule.departure_time)
+                              }
+                              // fallback: if departure_date contains a time portion, try to parse
+                              if (!isZeroOrInvalidTimestamp(schedule.departure_date) && schedule.departure_date.includes('T')) {
+                                try {
+                                  const t2 = formatIsoTime(schedule.departure_date)
+                                  return formatTime(t2 || schedule.departure_date)
+                                } catch (e) {
+                                  return 'ไม่ระบุ'
+                                }
+                              }
+                              return 'ไม่ระบุ'
+                            })()}
                           </div>
                         </div>
                       </div>
@@ -390,9 +497,11 @@ export default function BookingConfirmPage() {
                               <div className="text-xs text-gray-600 mb-1">จุดขึ้นรถ</div>
                               <div className="font-bold text-gray-900 text-sm mb-1">{pickupPoint.name}</div>
                               <div className="text-xs text-gray-600">{pickupPoint.address}</div>
-                              <div className="mt-2 px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded inline-block">
-                                เวลา {pickupPoint.pickup_time}
-                              </div>
+                              { !isZeroOrInvalidTimestamp(pickupPoint.pickup_time) && (
+                                <div className="mt-2 px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded inline-block">
+                                  เวลา {formatTime(formatIsoTime(pickupPoint.pickup_time) || pickupPoint.pickup_time)}
+                                </div>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -409,9 +518,11 @@ export default function BookingConfirmPage() {
                               <div className="text-xs text-gray-600 mb-1">จุดลงรถ</div>
                               <div className="font-bold text-gray-900 text-sm mb-1">{dropoffPoint.name}</div>
                               <div className="text-xs text-gray-600">{dropoffPoint.address}</div>
-                              <div className="mt-2 px-2 py-1 bg-red-100 text-red-700 text-xs font-semibold rounded inline-block">
-                                ถึง {dropoffPoint.estimated_arrival}
-                              </div>
+                              { !isZeroOrInvalidTimestamp(dropoffPoint.estimated_arrival) && (
+                                <div className="mt-2 px-2 py-1 bg-red-100 text-red-700 text-xs font-semibold rounded inline-block">
+                                  ถึง {formatTime(formatIsoTime(dropoffPoint.estimated_arrival) || dropoffPoint.estimated_arrival)}
+                                </div>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -477,7 +588,7 @@ export default function BookingConfirmPage() {
                         <div className="flex justify-between items-center">
                           <span className="text-lg font-bold text-gray-900">ราคารวม</span>
                           <span className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
-                            ฿{total || (seats ? parseFloat(schedule.price) * seats.split(',').length : 0).toFixed(2)}
+                            ฿{displayTotal}
                           </span>
                         </div>
                       </div>

@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	"fmt"
+	"time"
 	"vanbooking/internal/model"
 )
 
@@ -48,20 +49,48 @@ func (r *BookingRepository) GetByUserID(userID int) ([]model.BookingWithDetails,
 	var bookings []model.BookingWithDetails
 	for rows.Next() {
 		var b model.BookingWithDetails
+
+		// nullable fields
+		var passengerEmail sql.NullString
+		var specialRequests sql.NullString
+		var pickupName sql.NullString
+		var pickupAddress sql.NullString
+		var pickupTime sql.NullString
+		var dropoffName sql.NullString
+		var dropoffAddress sql.NullString
+		var estimatedArrival sql.NullString
+
+		// timestamps
+		var departureTime time.Time
+		var arrivalTime time.Time
+
 		err := rows.Scan(
 			&b.ID, &b.UserID, &b.ScheduleID, &b.SeatNumber, &b.PassengerName,
-			&b.PassengerPhone, &b.PassengerEmail, &b.PickupPointID, &b.DropoffPointID,
-			&b.BookingNumber, &b.SpecialRequests, &b.BookingStatus, &b.TotalPrice, 
+			&b.PassengerPhone, &passengerEmail, &b.PickupPointID, &b.DropoffPointID,
+			&b.BookingNumber, &specialRequests, &b.BookingStatus, &b.TotalPrice,
 			&b.CreatedAt, &b.UpdatedAt,
-			&b.DepartureTime, &b.ArrivalTime,
+			&departureTime, &arrivalTime,
 			&b.Origin, &b.Destination,
 			&b.VanNumber, &b.LicensePlate,
-			&b.PickupPointName, &b.PickupPointAddress, &b.PickupTime,
-			&b.DropoffPointName, &b.DropoffPointAddress, &b.EstimatedArrival,
+			&pickupName, &pickupAddress, &pickupTime,
+			&dropoffName, &dropoffAddress, &estimatedArrival,
 		)
 		if err != nil {
 			return nil, err
 		}
+
+		// map nullable and time fields to strings as expected by model
+		b.PassengerEmail = passengerEmail.String
+		b.SpecialRequests = specialRequests.String
+		b.DepartureTime = departureTime.Format(time.RFC3339)
+		b.ArrivalTime = arrivalTime.Format(time.RFC3339)
+		b.PickupPointName = pickupName.String
+		b.PickupPointAddress = pickupAddress.String
+		b.PickupTime = pickupTime.String
+		b.DropoffPointName = dropoffName.String
+		b.DropoffPointAddress = dropoffAddress.String
+		b.EstimatedArrival = estimatedArrival.String
+
 		bookings = append(bookings, b)
 	}
 
@@ -91,16 +120,29 @@ func (r *BookingRepository) GetByID(id int) (*model.BookingWithDetails, error) {
 	`
 
 	var b model.BookingWithDetails
+
+		var passengerEmail sql.NullString
+	var specialRequests sql.NullString
+	var pickupName sql.NullString
+	var pickupAddress sql.NullString
+	var pickupTime sql.NullString
+	var dropoffName sql.NullString
+	var dropoffAddress sql.NullString
+	var estimatedArrival sql.NullString
+
+	var departureTime time.Time
+	var arrivalTime time.Time
+
 	err := r.db.QueryRow(query, id).Scan(
 		&b.ID, &b.UserID, &b.ScheduleID, &b.SeatNumber, &b.PassengerName,
-		&b.PassengerPhone, &b.PassengerEmail, &b.PickupPointID, &b.DropoffPointID,
-		&b.BookingNumber, &b.SpecialRequests, &b.BookingStatus, &b.TotalPrice, 
+		&b.PassengerPhone, &passengerEmail, &b.PickupPointID, &b.DropoffPointID,
+		&b.BookingNumber, &specialRequests, &b.BookingStatus, &b.TotalPrice,
 		&b.CreatedAt, &b.UpdatedAt,
-		&b.DepartureTime, &b.ArrivalTime,
+		&departureTime, &arrivalTime,
 		&b.Origin, &b.Destination,
 		&b.VanNumber, &b.LicensePlate,
-		&b.PickupPointName, &b.PickupPointAddress, &b.PickupTime,
-		&b.DropoffPointName, &b.DropoffPointAddress, &b.EstimatedArrival,
+		&pickupName, &pickupAddress, &pickupTime,
+		&dropoffName, &dropoffAddress, &estimatedArrival,
 	)
 
 	if err == sql.ErrNoRows {
@@ -109,6 +151,17 @@ func (r *BookingRepository) GetByID(id int) (*model.BookingWithDetails, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	b.PassengerEmail = passengerEmail.String
+	b.SpecialRequests = specialRequests.String
+	b.DepartureTime = departureTime.Format(time.RFC3339)
+	b.ArrivalTime = arrivalTime.Format(time.RFC3339)
+	b.PickupPointName = pickupName.String
+	b.PickupPointAddress = pickupAddress.String
+	b.PickupTime = pickupTime.String
+	b.DropoffPointName = dropoffName.String
+	b.DropoffPointAddress = dropoffAddress.String
+	b.EstimatedArrival = estimatedArrival.String
 
 	return &b, nil
 }
@@ -144,20 +197,45 @@ func (r *BookingRepository) GetAll() ([]model.BookingWithDetails, error) {
 	var bookings []model.BookingWithDetails
 	for rows.Next() {
 		var b model.BookingWithDetails
+
+		var passengerEmail sql.NullString
+		var specialRequests sql.NullString
+		var pickupName sql.NullString
+		var pickupAddress sql.NullString
+		var pickupTime sql.NullString
+		var dropoffName sql.NullString
+		var dropoffAddress sql.NullString
+		var estimatedArrival sql.NullString
+
+		var departureTime time.Time
+		var arrivalTime time.Time
+
 		err := rows.Scan(
 			&b.ID, &b.UserID, &b.ScheduleID, &b.SeatNumber, &b.PassengerName,
-			&b.PassengerPhone, &b.PassengerEmail, &b.PickupPointID, &b.DropoffPointID,
-			&b.BookingNumber, &b.SpecialRequests, &b.BookingStatus, &b.TotalPrice, 
+			&b.PassengerPhone, &passengerEmail, &b.PickupPointID, &b.DropoffPointID,
+			&b.BookingNumber, &specialRequests, &b.BookingStatus, &b.TotalPrice,
 			&b.CreatedAt, &b.UpdatedAt,
-			&b.DepartureTime, &b.ArrivalTime,
+			&departureTime, &arrivalTime,
 			&b.Origin, &b.Destination,
 			&b.VanNumber, &b.LicensePlate,
-			&b.PickupPointName, &b.PickupPointAddress, &b.PickupTime,
-			&b.DropoffPointName, &b.DropoffPointAddress, &b.EstimatedArrival,
+			&pickupName, &pickupAddress, &pickupTime,
+			&dropoffName, &dropoffAddress, &estimatedArrival,
 		)
 		if err != nil {
 			return nil, err
 		}
+
+		b.PassengerEmail = passengerEmail.String
+		b.SpecialRequests = specialRequests.String
+		b.DepartureTime = departureTime.Format(time.RFC3339)
+		b.ArrivalTime = arrivalTime.Format(time.RFC3339)
+		b.PickupPointName = pickupName.String
+		b.PickupPointAddress = pickupAddress.String
+		b.PickupTime = pickupTime.String
+		b.DropoffPointName = dropoffName.String
+		b.DropoffPointAddress = dropoffAddress.String
+		b.EstimatedArrival = estimatedArrival.String
+
 		bookings = append(bookings, b)
 	}
 
@@ -302,6 +380,23 @@ func (r *BookingRepository) Cancel(id int) error {
 
 	// Commit transaction
 	return tx.Commit()
+}
+
+// UpdateStatus อัพเดทสถานะการจอง (ถ้าเป็น 'cancelled' จะเรียก Cancel transactional flow)
+func (r *BookingRepository) UpdateStatus(id int, status string) error {
+	if status == "cancelled" || status == "CANCELLED" {
+		// Reuse Cancel transactional logic to ensure seat & schedule are restored
+		return r.Cancel(id)
+	}
+
+	// Simple update for other statuses
+	_, err := r.db.Exec(`
+		UPDATE bookings
+		SET booking_status = $1, updated_at = CURRENT_TIMESTAMP
+		WHERE id = $2
+	`, status, id)
+
+	return err
 }
 
 // CreatePayment สร้าง payment record

@@ -8,6 +8,7 @@
   "/admin/routes": "pages/admin/routes.js",
   "/admin/schedules": "pages/admin/schedules.js",
   "/admin/vans": "pages/admin/vans.js",
+  "/bookings": "pages/bookings.js",
   "/login": "pages/login.js",
   "/search": "pages/search.js"
 }
